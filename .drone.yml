@@ -1,0 +1,12 @@
+kind: pipeline
+name: test
+
+steps:
+- name: test
+  image: maven:3-jdk-14
+  commands:
+  - echo success
+
+trigger:
+  event:
+    - push
