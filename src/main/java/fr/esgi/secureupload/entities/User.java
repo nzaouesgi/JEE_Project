@@ -1,23 +1,21 @@
 package fr.esgi.secureupload.entities;
 
-import static com.kosprov.jargon2.api.Jargon2.*;
-
 import lombok.Data;
 
+import static com.kosprov.jargon2.api.Jargon2.*;
+
 import javax.persistence.Column;
-import javax.persistence.Id;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.UUID;
 
 @Data
-public class User {
+@Entity(name="User")
+@Table(name="users")
+public class User extends BaseEntity {
 
-    @Id
-    @Column(name="uuid")
-    private UUID uuid;
-
-    @Column(name="email")
+    @Column(name="email", unique = true)
     @NotEmpty
     private String email;
 
@@ -28,21 +26,6 @@ public class User {
     @Column(name="isAdmin")
     @NotNull
     private boolean isAdmin = false;
-
-    public User (UUID uuid, String email, String password, boolean isAdmin) {
-        this.uuid = uuid;
-        this.setEmail(email);
-        this.setPassword(password);
-        this.isAdmin = isAdmin;
-    }
-
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    public String getEmail() {
-        return email;
-    }
 
     public void setPassword(String password) {
         Hasher hasher = jargon2Hasher()
@@ -61,4 +44,8 @@ public class User {
     }
 
 
+    @Override
+    public String toString (){
+        return String.format("%s (%s)", this.getEmail(), this.getUuid());
+    }
 }
