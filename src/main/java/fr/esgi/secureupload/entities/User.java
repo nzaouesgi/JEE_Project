@@ -11,6 +11,8 @@ import javax.validation.constraints.NotEmpty;
 
 @Getter
 @Builder
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
 @Entity(name="User")
 @Table(name="users")
 public class User extends BaseEntity {
@@ -26,11 +28,11 @@ public class User extends BaseEntity {
     private String password;
 
     @Column(name="isAdmin", nullable = false)
-    @Setter
+    @Setter(value = AccessLevel.PACKAGE)
     @Builder.Default private boolean isAdmin = false;
 
     @Column(name="isConfirmed", nullable = false)
-    @Setter
+    @Setter(value = AccessLevel.PACKAGE)
     @Builder.Default private boolean isConfirmed = false;
 
     @Column(name="confirmationToken", nullable = false)
@@ -38,7 +40,7 @@ public class User extends BaseEntity {
     @Builder.Default private String confirmationToken = Crypto.randomString(64);
 
     @Column(name="recoveryToken")
-    @Setter
+    @Setter(value = AccessLevel.PACKAGE)
     @Builder.Default private String recoveryToken = null;
 
     public boolean verifyPassword(String clearPassword) {
