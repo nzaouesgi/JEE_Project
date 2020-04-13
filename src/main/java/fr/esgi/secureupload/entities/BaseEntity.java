@@ -11,13 +11,13 @@ import java.util.UUID;
 public class BaseEntity {
 
     @Id
-    @Column(name="uuid")
+    @Column(name="uuid", columnDefinition = "VARCHAR(255)", nullable = false)
     private String uuid;
 
-    @Column(name="createdAt")
+    @Column(name="createdAt", nullable = false)
     private Date createdAt;
 
-    @Column(name="updatedAt")
+    @Column(name="updatedAt", nullable = false)
     private Date updatedAt;
 
     @PrePersist
