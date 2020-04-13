@@ -1,31 +1,32 @@
 package fr.esgi.secureupload;
 
 import fr.esgi.secureupload.entities.User;
+import fr.esgi.secureupload.services.UserService;
+import fr.esgi.secureupload.utils.Crypto;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+
 
 @SpringBootApplication
 public class SecureUploadApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SecureUploadApplication.class, args);
 
+        ApplicationContext context =  SpringApplication.run(SecureUploadApplication.class, args);
 
-        EntityManagerFactory factory = Persistence.createEntityManagerFactory("MainStorage");
-        EntityManager em = factory.createEntityManager();
+        User user = User.builder()
+            .email(Crypto.randomString(5) + "nzaou.renaud@live.fr")
+            .password("password")
+            .isAdmin(false)
+            .build();
 
-        User user = new User();
-        user.setEmail("nzaou.renaud@live.fr");
-        user.setPassword("password");
+        UserService userService = context.getBean(UserService.class);
+        User saved = userService.save(user);
 
-        em.getTransaction().begin();
-        em.merge(user);
-        em.getTransaction().commit();
-
+        System.out.println("looking for " + saved.getUuid().length() + " ok");
+        System.out.println(userService.findById(saved.getUuid()));
     }
 
 }
