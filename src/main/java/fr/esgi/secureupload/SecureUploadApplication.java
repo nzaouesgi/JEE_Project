@@ -15,12 +15,16 @@ public class SecureUploadApplication {
 
     public static void main(String[] args) {
 
-        ApplicationContext context =  SpringApplication.run(SecureUploadApplication.class, args);
+        ApplicationContext context = SpringApplication.run(SecureUploadApplication.class, args);
 
         UserService service = context.getBean(UserService.class);
 
         for (int i = 0; i < 100; i++){
-            User user = User.builder().email(Crypto.randomString(6) + "user@domain.com").password("password").build();
+            User user = User.builder()
+                    .email(Crypto.randomString(6) + "user@domain.com")
+                    .password("password")
+                    .build();
+
             service.save(user);
         }
 

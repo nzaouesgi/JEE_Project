@@ -51,4 +51,8 @@ public class UserService {
         return this.userRepository.findAll(PageRequest.of(page, size, Sort.by("email")));
     }
 
+    public User findByEmail (String email){
+        return this.userRepository.findByEmail(email);
+    }
+
 }
