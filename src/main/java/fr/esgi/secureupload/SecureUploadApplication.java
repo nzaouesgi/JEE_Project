@@ -9,8 +9,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
 
-
-
 @SpringBootApplication
 
 public class SecureUploadApplication {
@@ -19,17 +17,14 @@ public class SecureUploadApplication {
 
         ApplicationContext context =  SpringApplication.run(SecureUploadApplication.class, args);
 
-        User user = User.builder()
-            .email(Crypto.randomString(5) + "nzaou.renaud@live.fr")
-            .password("password")
-            .isAdmin(false)
-            .build();
+        UserService service = context.getBean(UserService.class);
 
+        for (int i = 0; i < 100; i++){
+            User user = User.builder().email(Crypto.randomString(6) + "user@domain.com").password("password").build();
+            service.save(user);
+        }
 
-
-        UserService userService = context.getBean(UserService.class);
-        User saved = userService.save(user);
-        System.out.println(userService.findById(saved.getUuid()));
+        System.out.println(service.findAll(0, 100).getContent().get(0));
 
     }
 

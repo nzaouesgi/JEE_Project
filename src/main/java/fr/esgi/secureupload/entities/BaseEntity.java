@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Data
 @MappedSuperclass
-public class BaseEntity {
+public abstract class BaseEntity {
 
     @Id
     @Column(name="uuid", columnDefinition = "VARCHAR(255)", nullable = false)

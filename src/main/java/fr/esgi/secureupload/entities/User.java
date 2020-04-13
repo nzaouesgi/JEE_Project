@@ -1,13 +1,14 @@
 package fr.esgi.secureupload.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import fr.esgi.secureupload.utils.Crypto;
 import lombok.*;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
-
 
 @Getter
 @Builder
@@ -17,14 +18,17 @@ import javax.validation.constraints.NotEmpty;
 @Table(name="users")
 public class User extends BaseEntity {
 
-    @Column(name="email", unique = true)
-    @NotEmpty
+    public static final String [] PRIVATE_FIELDS = new String [] { "password", "recoveryToken", "confirmationToken" };
+
+    @Column(name="email", unique = true, nullable = false)
+    @NotBlank
     @NonNull
     private String email;
 
-    @Column(name="password")
-    @NotEmpty
+    @Column(name="password", nullable = false)
+    @NotBlank
     @NonNull
+    @JsonIgnore
     private String password;
 
     @Column(name="isAdmin", nullable = false)
@@ -32,15 +36,17 @@ public class User extends BaseEntity {
     @Builder.Default private boolean isAdmin = false;
 
     @Column(name="isConfirmed", nullable = false)
-    @Setter(value = AccessLevel.PACKAGE)
+    @Setter
     @Builder.Default private boolean isConfirmed = false;
 
     @Column(name="confirmationToken", nullable = false)
     @NotEmpty
+    @JsonIgnore
     @Builder.Default private String confirmationToken = Crypto.randomString(64);
 
     @Column(name="recoveryToken")
     @Setter(value = AccessLevel.PACKAGE)
+    @JsonIgnore
     @Builder.Default private String recoveryToken = null;
 
     public boolean verifyPassword(String clearPassword) {
@@ -66,6 +72,12 @@ public class User extends BaseEntity {
             return this;
         }
 
+    }
+
+    @Data
+    public static class CreateObject {
+        private String email;
+        private String password;
     }
 
 }
