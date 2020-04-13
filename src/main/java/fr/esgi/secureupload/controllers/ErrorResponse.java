@@ -6,9 +6,10 @@ import org.springframework.http.HttpStatus;
 @Data
 public class ErrorResponse  {
     private String error;
-    private int status;
-    public ErrorResponse (String error, HttpStatus status){
+    public ErrorResponse (String error){
         this.error = error;
-        this.status = status.value();
+    }
+    public ErrorResponse (Exception e){
+        this.error = e.getMessage();
     }
 }

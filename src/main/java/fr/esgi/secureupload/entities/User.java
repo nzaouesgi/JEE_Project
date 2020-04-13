@@ -53,7 +53,7 @@ public class User extends BaseEntity {
         return Crypto.verifyPassword(this.password, clearPassword);
     }
 
-    public void setPassword(String clearPassword){
+    public void setPassword(String clearPassword) throws SecurityException{
         if (!this.verifyPassword(clearPassword)){
             throw new SecurityException(String.format("Password changed failed for user %s (wrong password).", this.toString()));
         }
@@ -66,18 +66,38 @@ public class User extends BaseEntity {
     }
 
     public static class UserBuilder {
-
         public UserBuilder password(String password) {
             this.password = Crypto.passwordHash(password);
             return this;
         }
-
     }
 
     @Data
     public static class CreateObject {
         private String email;
         private String password;
+    }
+
+    public static class NotFoundException extends Exception {
+        public NotFoundException (String message){
+            super(message);
+        }
+    }
+    public static class PropertyNotFoundException extends Exception {
+        public PropertyNotFoundException (String message){
+            super(message);
+        }
+    }
+    public static class MailAlreadyTakenException extends Exception {
+        public MailAlreadyTakenException (String message){
+            super(message);
+        }
+    }
+
+    public static class SecurityException extends Exception {
+        public SecurityException (String message){
+            super(message);
+        }
     }
 
 }

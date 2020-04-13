@@ -19,4 +19,6 @@ public interface UserRepository extends JpaRepository<User, String> {
      */
     @Query(value = "select u from User u where u.email like %:pattern% or u.uuid like %:pattern%")
     Page<User> findAllByPattern(@Param(value="pattern") String pattern, Pageable pageable);
+
+    User findByEmail(String email);
 }
