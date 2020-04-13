@@ -4,7 +4,6 @@ import fr.esgi.secureupload.entities.User;
 import fr.esgi.secureupload.services.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mapping.PropertyReferenceException;
@@ -56,9 +55,13 @@ public class UserController {
             throw new User.PropertyNotFoundException(String.format("Bad parameter was given for \"orderBy\" (%s).", orderBy));
         }
 
-        return ResponseEntity
-                .status(results.getSize() > 0 ? HttpStatus.OK : HttpStatus.NO_CONTENT)
-                .body(new DataResponse<>(results));
+        ResponseEntity.BodyBuilder bodyBuilder = ResponseEntity
+                .status(results.getNumberOfElements() > 0 ? HttpStatus.OK : HttpStatus.NO_CONTENT);
+
+        if (results.getNumberOfElements() > 0)
+            return bodyBuilder.body(new DataResponse<>(results));
+
+        return bodyBuilder.build();
     }
 
     @GetMapping(value = "/{uuid}")
@@ -67,14 +70,14 @@ public class UserController {
         User user = this.service.findById(uuid);
 
         if (user == null)
-            throw new User.NotFoundException("User was not found");
+            throw new User.NotFoundException(String.format("User %s was not found", uuid));
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new DataResponse<>(user));
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> createUser(@RequestBody User.CreateObject createObject, UriComponentsBuilder uriComponentsBuilder) throws User.MailAlreadyTakenException{
+    public ResponseEntity<?> createUser(@RequestBody User.CreateDto createObject, UriComponentsBuilder uriComponentsBuilder) throws User.MailAlreadyTakenException{
 
         if (this.service.findByEmail(createObject.getEmail()) == null)
             throw new User.MailAlreadyTakenException(String.format("Mail %s is already taken.", createObject.getEmail()));
@@ -112,6 +115,37 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new DataResponse<>(user));
+    }
+
+    @DeleteMapping(value = "/{uuid}")
+    public ResponseEntity<?> deleteUser (@PathVariable(name = "uuid") String uuid) throws User.NotFoundException{
+
+        User user = this.service.findById(uuid);
+
+        if (user == null)
+            throw new User.NotFoundException(String.format("User %s not found.", uuid));
+
+        this.service.delete(user);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PutMapping(value = "/{uuid}/password", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> resetPassword (
+            @PathVariable(name = "uuid") String uuid,
+            @RequestBody User.ResetPasswordDto resetPasswordDto) throws User.NotFoundException, User.SecurityException {
+
+        User user = this.service.findById(uuid);
+
+        if (user == null)
+            throw new User.NotFoundException(String.format("User %s not found.", uuid));
+
+        if (!user.verifyPassword(resetPasswordDto.getCurrentPassword()))
+            throw new User.SecurityException(String.format("Bad password was given for user %s", uuid));
+
+        user.setPassword(resetPasswordDto.getNewPassword());
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
 }

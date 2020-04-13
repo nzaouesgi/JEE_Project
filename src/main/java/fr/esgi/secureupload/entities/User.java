@@ -54,9 +54,6 @@ public class User extends BaseEntity {
     }
 
     public void setPassword(String clearPassword) throws SecurityException{
-        if (!this.verifyPassword(clearPassword)){
-            throw new SecurityException(String.format("Password changed failed for user %s (wrong password).", this.toString()));
-        }
         this.password = Crypto.passwordHash(clearPassword);
     }
 
@@ -73,9 +70,15 @@ public class User extends BaseEntity {
     }
 
     @Data
-    public static class CreateObject {
+    public static class CreateDto {
         private String email;
         private String password;
+    }
+
+    @Data
+    public static class ResetPasswordDto {
+        private String currentPassword;
+        private String newPassword;
     }
 
     public static class NotFoundException extends Exception {

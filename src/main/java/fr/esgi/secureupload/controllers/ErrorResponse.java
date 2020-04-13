@@ -1,7 +1,6 @@
 package fr.esgi.secureupload.controllers;
 
 import lombok.Data;
-import org.springframework.http.HttpStatus;
 
 @Data
 public class ErrorResponse  {
