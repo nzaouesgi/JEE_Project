@@ -4,12 +4,15 @@ import fr.esgi.secureupload.entities.User;
 import fr.esgi.secureupload.services.UserService;
 import fr.esgi.secureupload.utils.Crypto;
 import org.springframework.boot.SpringApplication;
+
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
 
 
+
 @SpringBootApplication
+
 public class SecureUploadApplication {
 
     public static void main(String[] args) {
@@ -22,11 +25,12 @@ public class SecureUploadApplication {
             .isAdmin(false)
             .build();
 
+
+
         UserService userService = context.getBean(UserService.class);
         User saved = userService.save(user);
-
-        System.out.println("looking for " + saved.getUuid().length() + " ok");
         System.out.println(userService.findById(saved.getUuid()));
+
     }
 
 }
