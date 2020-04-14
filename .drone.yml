@@ -11,14 +11,18 @@ services:
       MYSQL_PASSWORD: secret
 
 steps:
+- name: wait for database
+  image: mariadb
+  commands: 
+    - while ! mysqladmin -u root -h database ping --silent; do sleep 1; done
 - name: test
   image: maven:3-jdk-11
   environment:
-    MYSQL_URL: jdbc:mysql://127.0.0.1:3306/db_name
+    MYSQL_URL: jdbc:mysql://database:3306/db_name
     MYSQL_USER: db_user
     MYSQL_PASSWORD: secret
   commands:
-  - ./mvnw test
+  - mvn test -B
 
 trigger:
   event:
