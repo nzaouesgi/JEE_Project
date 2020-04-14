@@ -1,3 +1,4 @@
+---
 kind: pipeline
 name: test
 
@@ -22,8 +23,37 @@ steps:
     MYSQL_USER: db_user
     MYSQL_PASSWORD: secret
   commands:
-  - mvn test -B
+    - mvn test -B
 
 trigger:
   event:
     - push
+
+---
+kind: pipeline
+name: deploy
+
+steps:
+  - name: create settings.xml
+    image: maven:3-jdk-11
+    environment:
+      AZURE_CLIENT_ID:
+        from_secret: AZURE_CLIENT_ID
+      AZURE_TENANT_ID:
+        from_secret: AZURE_TENANT_ID
+      AZURE_KEY:
+        from_secret: AZURE_KEY
+    commands: 
+      - sed -i "s/CLIENT_ID/${AZURE_CLIENT_ID}/g" settings.ci.xml
+      - sed -i "s/TENANT_ID/${AZURE_TENANT_ID}/g" settings.ci.xml
+      - sed -i "s/AZURE_KEY/${AZURE_KEY}/g" settings.ci.xml
+  - name: deploy
+    image: maven:3-jdk-11
+    commands:
+    - mvn --settings ./settings.ci.xml azure-app:deploy
+
+trigger:
+  event:
+    - push
+  branch:
+    - master
