@@ -28,8 +28,6 @@ public class SecureUploadApplication {
             service.save(user);
         }
 
-        System.out.println(service.findAll(0, 100).getContent().get(0));
-
     }
 
 }
