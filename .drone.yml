@@ -1,11 +1,28 @@
 kind: pipeline
 name: test
 
+services:
+  - name: database
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_name
+      MYSQL_USER: db_user
+      MYSQL_PASSWORD: secret
+
 steps:
+- name: wait for database
+  image: mariadb
+  commands: 
+    - while ! mysqladmin -u root -h database ping --silent; do sleep 1; done
 - name: test
-  image: maven:3-jdk-14
+  image: maven:3-jdk-11
+  environment:
+    MYSQL_URL: jdbc:mysql://database:3306/db_name
+    MYSQL_USER: db_user
+    MYSQL_PASSWORD: secret
   commands:
-  - echo success
+  - mvn test -B
 
 trigger:
   event:
