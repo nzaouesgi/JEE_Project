@@ -94,7 +94,7 @@
                     <resourceGroup>JEEProjet</resourceGroup>
                     <appName>SecUpload</appName>
                     <region>westus</region>
-                    <pricingTier>B1</pricingTier>
+                    <pricingTier>F1</pricingTier>
                     <runtime>
                         <os>linux</os>
                         <javaVersion>jre8</javaVersion>
