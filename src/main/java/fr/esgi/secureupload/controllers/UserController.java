@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 
 @RestController
@@ -37,7 +38,7 @@ public class UserController {
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "limit", defaultValue = "100") Integer limit,
             @RequestParam(value = "orderBy", defaultValue = "email") String orderBy,
-            @RequestParam(value = "orderMode", defaultValue = "asc") String orderMode) throws User.SecurityException, User.PropertyNotFoundException{
+            @RequestParam(value = "orderMode", defaultValue = "asc") String orderMode) throws User.SecurityException, User.PropertyNotFoundException {
 
         for (String field : User.PRIVATE_FIELDS) {
             if (orderBy.equalsIgnoreCase(field))
@@ -55,13 +56,7 @@ public class UserController {
             throw new User.PropertyNotFoundException(String.format("Bad parameter was given for \"orderBy\" (%s).", orderBy));
         }
 
-        ResponseEntity.BodyBuilder bodyBuilder = ResponseEntity
-                .status(results.getNumberOfElements() > 0 ? HttpStatus.OK : HttpStatus.NO_CONTENT);
-
-        if (results.getNumberOfElements() > 0)
-            return bodyBuilder.body(new DataResponse<>(results));
-
-        return bodyBuilder.build();
+        return ApiResponse.data(results, HttpStatus.OK);
     }
 
     @GetMapping(value = "/{uuid}")
@@ -72,12 +67,14 @@ public class UserController {
         if (user == null)
             throw new User.NotFoundException(String.format("User %s was not found", uuid));
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new DataResponse<>(user));
+        return ApiResponse.data(user, HttpStatus.OK);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> createUser(@RequestBody User.CreateDto createObject, UriComponentsBuilder uriComponentsBuilder) throws User.MailAlreadyTakenException{
+    public ResponseEntity<?> createUser(
+            @RequestBody User.CreateDto createObject,
+            UriComponentsBuilder uriComponentsBuilder,
+            HttpServletResponse response) throws User.MailAlreadyTakenException{
 
         if (this.service.findByEmail(createObject.getEmail()) == null)
             throw new User.MailAlreadyTakenException(String.format("Mail %s is already taken.", createObject.getEmail()));
@@ -87,8 +84,6 @@ public class UserController {
                 .password(createObject.getPassword())
                 .build();
 
-        this.service.save(user);
-
         String resourcePath = String.format("/users/%s", user.getUuid());
         UriComponents components = uriComponentsBuilder
                 .replacePath(resourcePath)
@@ -96,9 +91,11 @@ public class UserController {
 
         URI location = components.toUri();
 
-        return ResponseEntity
-                .created(location)
-                .body(new DataResponse<>(user));
+        this.service.save(user);
+
+        response.setHeader("Location", location.toString());
+
+        return ApiResponse.data(user, HttpStatus.OK);
     }
 
     @GetMapping(value = "/{uuid}/confirm")
@@ -113,8 +110,7 @@ public class UserController {
 
         this.service.save(user);
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new DataResponse<>(user));
+        return ApiResponse.empty(HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/{uuid}")
@@ -127,7 +123,7 @@ public class UserController {
 
         this.service.delete(user);
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ApiResponse.empty(HttpStatus.NO_CONTENT);
     }
 
     @PutMapping(value = "/{uuid}/password", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -145,7 +141,9 @@ public class UserController {
 
         user.setPassword(resetPasswordDto.getNewPassword());
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        this.service.save(user);
+
+        return ApiResponse.empty(HttpStatus.NO_CONTENT);
     }
 
 }

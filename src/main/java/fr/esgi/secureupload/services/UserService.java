@@ -8,6 +8,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.Null;
+
 @Service
 public class UserService {
 
@@ -35,20 +37,14 @@ public class UserService {
         this.userRepository.delete(user);
     }
 
-    public Page<User> findAllByPattern(String pattern, int page, int size){
-        return this.userRepository.findAllByPattern(pattern, PageRequest.of(page, size, Sort.by("email")));
-    }
-
     public Page<User> findAllByPattern(String pattern, int page, int size, Sort sort){
+        if (pattern == null)
+            throw new NullPointerException("Provided pattern is null");
         return this.userRepository.findAllByPattern(pattern, PageRequest.of(page, size, sort));
     }
 
     public Page<User> findAll (int page, int size, Sort sort){
         return this.userRepository.findAll(PageRequest.of(page, size, sort));
-    }
-
-    public Page<User> findAll (int page, int size){
-        return this.userRepository.findAll(PageRequest.of(page, size, Sort.by("email")));
     }
 
     public User findByEmail (String email){
