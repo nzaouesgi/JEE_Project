@@ -3,11 +3,13 @@ package fr.esgi.secureupload.controllers;
 import fr.esgi.secureupload.entities.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -26,7 +28,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     private Logger logger = LoggerFactory.getLogger(ApiExceptionHandler.class);
 
     public static Response.ErrorBody setStatusAndCreateErrorBody(Exception e, HttpServletResponse response, int status){
-        response.setStatus(HttpStatus.BAD_REQUEST.value());
+        response.setStatus(status);
         return new Response.ErrorBody(e.getMessage(), response.getStatus());
     }
 
@@ -71,11 +73,26 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @Override
+    protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException e, HttpHeaders headers, HttpStatus status, WebRequest request){
+        return ResponseEntity.status(status).body(new Response.ErrorBody(e.getMessage(), status.value()));
+    }
+
+    @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e, HttpHeaders headers, HttpStatus status, WebRequest request){
         List<String> errors = new ArrayList<>();
         for (FieldError error : e.getBindingResult().getFieldErrors()) {
             errors.add(error.getField() + ": " + error.getDefaultMessage());
         }
         return ResponseEntity.status(status).body(new Response.ErrorBody(errors, status.value()));
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleConversionNotSupported(ConversionNotSupportedException e, HttpHeaders headers, HttpStatus status, WebRequest request){
+        return ResponseEntity.status(status).body(new Response.ErrorBody(e.getMessage(), status.value()));
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleExceptionInternal(Exception e, Object body, HttpHeaders headers, HttpStatus status, WebRequest request){
+        return ResponseEntity.status(status).body(new Response.ErrorBody(e.getMessage(), status.value()));
     }
 }

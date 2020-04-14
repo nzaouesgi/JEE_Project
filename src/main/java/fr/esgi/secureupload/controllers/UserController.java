@@ -12,6 +12,8 @@ import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.UnsatisfiedServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -30,6 +32,8 @@ public class UserController {
     private Logger logger = LoggerFactory.getLogger(UserController.class);
 
     private UserService service;
+
+    private static final int userFindLimit = 100;
 
     @Autowired
     public UserController(UserService service){
@@ -52,6 +56,9 @@ public class UserController {
                 throw new User.SecurityException(String.format("Field %s is private.", orderBy));
             }
         }
+
+        if (limit > userFindLimit)
+            throw new User.SecurityException(String.format("\"limit\" parameter must not exceed %d", userFindLimit));
 
         Sort sort = Sort.by(orderBy);
         if (orderMode.equalsIgnoreCase("desc"))
@@ -126,7 +133,6 @@ public class UserController {
         user.setConfirmed(true);
 
         User savedUser = this.service.save(user);
-
 
         this.logger.info(String.format("GET /users/{id}/confirm : User %s was confirmed.", savedUser));
     }
