@@ -58,6 +58,13 @@
             </exclusions>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/commons-validator/commons-validator -->
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>1.6</version>
+        </dependency>
+
         <dependency>
             <groupId>com.kosprov.jargon2</groupId>
             <artifactId>jargon2-api</artifactId>

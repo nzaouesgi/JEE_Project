@@ -10,7 +10,6 @@ import org.springframework.context.ApplicationContext;
 
 
 @SpringBootApplication
-
 public class SecureUploadApplication {
 
     public static void main(String[] args) {
@@ -19,13 +18,17 @@ public class SecureUploadApplication {
 
         UserService service = context.getBean(UserService.class);
 
-        for (int i = 0; i < 100; i++){
-            User user = User.builder()
-                    .email(Crypto.randomString(6) + "user@domain.com")
-                    .password("password")
-                    .build();
+        try {
+            for (int i = 0; i < 100; i++){
+                User user = User.builder()
+                        .email(Crypto.randomString(6) + "user@domain.com")
+                        .password("password")
+                        .build();
 
-            service.save(user);
+                service.save(user);
+            }
+        } catch (Exception e){
+
         }
 
     }
