@@ -27,7 +27,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     public static Response.ErrorBody setStatusAndCreateErrorBody(Exception e, HttpServletResponse response, int status){
         response.setStatus(HttpStatus.BAD_REQUEST.value());
-        return new Response.ErrorBody(Collections.singletonList(e.getMessage()), response.getStatus());
+        return new Response.ErrorBody(e.getMessage(), response.getStatus());
     }
 
     /* User API errors */
