@@ -8,8 +8,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.Null;
-
 @Service
 public class UserService {
 
