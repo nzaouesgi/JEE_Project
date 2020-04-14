@@ -3,10 +3,13 @@ package fr.esgi.secureupload.controllers;
 import fr.esgi.secureupload.entities.User;
 import fr.esgi.secureupload.services.UserService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mapping.PropertyReferenceException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +18,6 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
-import java.net.URI;
 
 @RestController
 @RequestMapping(
@@ -24,6 +26,8 @@ import java.net.URI;
         name = "Users API"
 )
 public class UserController {
+
+    private Logger logger = LoggerFactory.getLogger(UserController.class);
 
     private UserService service;
 
@@ -34,11 +38,12 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<?> getUsers (
-            @RequestParam(value = "search", required = false) String search,
-            @RequestParam(value = "page", defaultValue = "0") Integer page,
-            @RequestParam(value = "limit", defaultValue = "100") Integer limit,
-            @RequestParam(value = "orderBy", defaultValue = "email") String orderBy,
-            @RequestParam(value = "orderMode", defaultValue = "asc") String orderMode) throws User.SecurityException, User.PropertyNotFoundException {
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "100") Integer limit,
+            @RequestParam(defaultValue = "email") String orderBy,
+            @RequestParam(defaultValue = "asc") String orderMode)
+            throws User.SecurityException, User.PropertyNotFoundException {
 
         for (String field : User.PRIVATE_FIELDS) {
             if (orderBy.equalsIgnoreCase(field))
@@ -53,6 +58,7 @@ public class UserController {
         try {
             results = search == null ? this.service.findAll(page, limit, sort) : this.service.findAllByPattern(search, page, limit, sort);
         } catch (PropertyReferenceException e){
+            this.logger.error(String.format("GET /users : %s", e.getMessage()));
             throw new User.PropertyNotFoundException(String.format("Bad parameter was given for \"orderBy\" (%s).", orderBy));
         }
 
@@ -60,12 +66,13 @@ public class UserController {
     }
 
     @GetMapping(value = "/{uuid}")
-    public ResponseEntity<?> getUser (@PathVariable(name = "uuid") String uuid) throws User.NotFoundException {
+    public ResponseEntity<?> getUser (@PathVariable(name = "uuid") String uuid)
+            throws User.NotFoundException {
 
         User user = this.service.findById(uuid);
 
         if (user == null)
-            throw new User.NotFoundException(String.format("User %s was not found", uuid));
+            throw new User.NotFoundException(String.format("User %s was not found.", uuid));
 
         return ApiResponse.data(user, HttpStatus.OK);
     }
@@ -74,9 +81,10 @@ public class UserController {
     public ResponseEntity<?> createUser(
             @RequestBody User.CreateDto createObject,
             UriComponentsBuilder uriComponentsBuilder,
-            HttpServletResponse response) throws User.MailAlreadyTakenException{
+            HttpServletResponse response)
+            throws User.MailAlreadyTakenException, User.PropertyValidationException {
 
-        if (this.service.findByEmail(createObject.getEmail()) == null)
+        if (this.service.findByEmail(createObject.getEmail()) != null)
             throw new User.MailAlreadyTakenException(String.format("Mail %s is already taken.", createObject.getEmail()));
 
         User user = User.builder()
@@ -84,22 +92,25 @@ public class UserController {
                 .password(createObject.getPassword())
                 .build();
 
-        String resourcePath = String.format("/users/%s", user.getUuid());
+        User savedUser = this.service.save(user);
+
+        String resourcePath = String.format("/users/%s", savedUser.getUuid());
         UriComponents components = uriComponentsBuilder
                 .replacePath(resourcePath)
                 .build();
 
-        URI location = components.toUri();
+        response.setHeader(HttpHeaders.LOCATION, components.toUri().toString());
 
-        this.service.save(user);
-
-        response.setHeader("Location", location.toString());
+        this.logger.info(String.format("POST /users : User %s was just created.", savedUser.toString()));
 
         return ApiResponse.data(user, HttpStatus.OK);
     }
 
     @GetMapping(value = "/{uuid}/confirm")
-    public ResponseEntity<?> confirmMailAddress (@PathVariable(name = "uuid") String uuid, @RequestParam(name = "token") String token) throws User.NotFoundException{
+    public ResponseEntity<?> confirmMailAddress (
+            @PathVariable(name = "uuid") String uuid,
+            @RequestParam(name = "token") String token)
+            throws User.NotFoundException{
 
         User user = this.service.findById(uuid);
 
@@ -108,13 +119,16 @@ public class UserController {
 
         user.setConfirmed(true);
 
-        this.service.save(user);
+        User savedUser = this.service.save(user);
+
+        this.logger.info(String.format("GET /users/{id}/confirm : User %s was confirmed.", savedUser));
 
         return ApiResponse.empty(HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/{uuid}")
-    public ResponseEntity<?> deleteUser (@PathVariable(name = "uuid") String uuid) throws User.NotFoundException{
+    public ResponseEntity<?> deleteUser (@PathVariable(name = "uuid") String uuid)
+            throws User.NotFoundException {
 
         User user = this.service.findById(uuid);
 
@@ -123,13 +137,16 @@ public class UserController {
 
         this.service.delete(user);
 
+        this.logger.info(String.format("DELETE /users/{id} : User %s was deleted.", user));
+
         return ApiResponse.empty(HttpStatus.NO_CONTENT);
     }
 
     @PutMapping(value = "/{uuid}/password", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> resetPassword (
             @PathVariable(name = "uuid") String uuid,
-            @RequestBody User.ResetPasswordDto resetPasswordDto) throws User.NotFoundException, User.SecurityException {
+            @RequestBody User.ResetPasswordDto resetPasswordDto)
+            throws User.NotFoundException, User.SecurityException {
 
         User user = this.service.findById(uuid);
 
@@ -141,7 +158,9 @@ public class UserController {
 
         user.setPassword(resetPasswordDto.getNewPassword());
 
-        this.service.save(user);
+        User savedUser = this.service.save(user);
+
+        this.logger.info(String.format("DELETE /users/{id} : User %s has changed his password.", savedUser));
 
         return ApiResponse.empty(HttpStatus.NO_CONTENT);
     }

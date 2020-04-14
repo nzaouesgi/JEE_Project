@@ -7,7 +7,6 @@ import java.util.Date;
 
 public class ApiResponse {
 
-
     public static ResponseEntity<?> empty (HttpStatus status){
         return ResponseEntity.status(status).build();
     }
@@ -20,9 +19,9 @@ public class ApiResponse {
         return ResponseEntity.status(status).body(body);
     }
 
-    public static ResponseEntity<Error> error (String error, HttpStatus status){
+    public static ResponseEntity<Error> error (Exception error, HttpStatus status){
         Error body = new Error();
-        body.setError(error);
+        body.setError(error.getMessage());
         body.setStatus(status.value());
         body.setTime(new Date());
         return ResponseEntity.status(status).body(body);
@@ -33,19 +32,16 @@ public class ApiResponse {
     private static abstract class Body {
         private Date time;
         private int status;
-
     }
 
     @lombok.Getter
     @lombok.Setter
-    @lombok.NoArgsConstructor
     private static class Data<T> extends Body {
         private T data;
     }
 
     @lombok.Getter
     @lombok.Setter
-    @lombok.NoArgsConstructor
     private static class Error extends Body {
         private String error;
     }
