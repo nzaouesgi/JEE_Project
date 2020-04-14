@@ -12,12 +12,12 @@ import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping(
@@ -37,17 +37,20 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getUsers (
+    public Response.DataBody<Page<User>> getUsers (
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "100") Integer limit,
             @RequestParam(defaultValue = "email") String orderBy,
-            @RequestParam(defaultValue = "asc") String orderMode)
+            @RequestParam(defaultValue = "asc") String orderMode,
+            HttpServletResponse response)
             throws User.SecurityException, User.PropertyNotFoundException {
 
         for (String field : User.PRIVATE_FIELDS) {
-            if (orderBy.equalsIgnoreCase(field))
+            if (orderBy.equalsIgnoreCase(field)) {
+                this.logger.error(String.format("GET /users : \"orderBy\" specified with private field %s.", field));
                 throw new User.SecurityException(String.format("Field %s is private.", orderBy));
+            }
         }
 
         Sort sort = Sort.by(orderBy);
@@ -62,11 +65,12 @@ public class UserController {
             throw new User.PropertyNotFoundException(String.format("Bad parameter was given for \"orderBy\" (%s).", orderBy));
         }
 
-        return ApiResponse.data(results, HttpStatus.OK);
+        response.setStatus(HttpStatus.OK.value());
+        return new Response.DataBody<>(results, response.getStatus());
     }
 
     @GetMapping(value = "/{uuid}")
-    public ResponseEntity<?> getUser (@PathVariable(name = "uuid") String uuid)
+    public Response.DataBody<User> getUser (@PathVariable(name = "uuid") String uuid, HttpServletResponse response)
             throws User.NotFoundException {
 
         User user = this.service.findById(uuid);
@@ -74,12 +78,13 @@ public class UserController {
         if (user == null)
             throw new User.NotFoundException(String.format("User %s was not found.", uuid));
 
-        return ApiResponse.data(user, HttpStatus.OK);
+        response.setStatus(HttpStatus.OK.value());
+        return new Response.DataBody<>(user, response.getStatus());
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> createUser(
-            @RequestBody User.CreateDto createObject,
+    public Response.DataBody<User> createUser(
+            @RequestBody @Valid User.CreateDto createObject,
             UriComponentsBuilder uriComponentsBuilder,
             HttpServletResponse response)
             throws User.MailAlreadyTakenException, User.PropertyValidationException {
@@ -100,14 +105,15 @@ public class UserController {
                 .build();
 
         response.setHeader(HttpHeaders.LOCATION, components.toUri().toString());
+        response.setStatus(HttpStatus.CREATED.value());
 
-        this.logger.info(String.format("POST /users : User %s was just created.", savedUser.toString()));
+        this.logger.info(String.format("POST /users : User %s was created.", savedUser.toString()));
 
-        return ApiResponse.data(user, HttpStatus.OK);
+        return new Response.DataBody<>(user, response.getStatus());
     }
 
     @GetMapping(value = "/{uuid}/confirm")
-    public ResponseEntity<?> confirmMailAddress (
+    public void confirmMailAddress (
             @PathVariable(name = "uuid") String uuid,
             @RequestParam(name = "token") String token)
             throws User.NotFoundException{
@@ -121,13 +127,13 @@ public class UserController {
 
         User savedUser = this.service.save(user);
 
-        this.logger.info(String.format("GET /users/{id}/confirm : User %s was confirmed.", savedUser));
 
-        return ApiResponse.empty(HttpStatus.OK);
+        this.logger.info(String.format("GET /users/{id}/confirm : User %s was confirmed.", savedUser));
     }
 
     @DeleteMapping(value = "/{uuid}")
-    public ResponseEntity<?> deleteUser (@PathVariable(name = "uuid") String uuid)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUser (@PathVariable(name = "uuid") String uuid)
             throws User.NotFoundException {
 
         User user = this.service.findById(uuid);
@@ -138,14 +144,13 @@ public class UserController {
         this.service.delete(user);
 
         this.logger.info(String.format("DELETE /users/{id} : User %s was deleted.", user));
-
-        return ApiResponse.empty(HttpStatus.NO_CONTENT);
     }
 
     @PutMapping(value = "/{uuid}/password", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> resetPassword (
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void resetPassword (
             @PathVariable(name = "uuid") String uuid,
-            @RequestBody User.ResetPasswordDto resetPasswordDto)
+            @RequestBody @Valid User.ResetPasswordDto resetPasswordDto)
             throws User.NotFoundException, User.SecurityException {
 
         User user = this.service.findById(uuid);
@@ -154,15 +159,13 @@ public class UserController {
             throw new User.NotFoundException(String.format("User %s not found.", uuid));
 
         if (!user.verifyPassword(resetPasswordDto.getCurrentPassword()))
-            throw new User.SecurityException(String.format("Bad password was given for user %s", uuid));
+            throw new User.SecurityException("Bad current password.");
 
         user.setPassword(resetPasswordDto.getNewPassword());
 
         User savedUser = this.service.save(user);
 
         this.logger.info(String.format("DELETE /users/{id} : User %s has changed his password.", savedUser));
-
-        return ApiResponse.empty(HttpStatus.NO_CONTENT);
     }
 
 }

@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Builder
@@ -29,7 +30,6 @@ public class User extends BaseEntity {
     /* argon2 hashed */
     @Column(name="password", nullable = false)
     @NotBlank
-    @NonNull
     @JsonIgnore
     private String password;
 
@@ -44,7 +44,7 @@ public class User extends BaseEntity {
 
     /* Random token sent to user's mail address to confirm it. */
     @Column(name="confirmationToken", nullable = false)
-    @NotEmpty
+    @NotBlank
     @JsonIgnore
     @Builder.Default private String confirmationToken = Crypto.randomString(64);
 
@@ -93,14 +93,18 @@ public class User extends BaseEntity {
     /* Object to be received at user creation endpoint */
     @Data
     public static class CreateDto {
+        @NotBlank
         private String email;
+        @NotBlank
         private String password;
     }
 
     /* Object to be received at password reset endpoint */
     @Data
     public static class ResetPasswordDto {
+        @NotBlank
         private String currentPassword;
+        @NotBlank
         private String newPassword;
     }
 
