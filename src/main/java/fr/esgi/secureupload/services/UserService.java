@@ -6,10 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private UserRepository userRepository;
 
@@ -47,6 +50,19 @@ public class UserService {
 
     public User findByEmail (String email){
         return this.userRepository.findByEmail(email);
+    }
+
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = this.findByEmail(email);
+
+        if (user == null || !user.isConfirmed())
+            throw new UsernameNotFoundException(String.format("User with mail %s could not be found, or is not confirmed", email));
+
+        return org.springframework.security.core.userdetails.User
+                .withUsername(email)
+                .password(user.getPassword())
+                .roles(user.isAdmin() ? "ADMIN" : "USER")
+                .build();
     }
 
 }
