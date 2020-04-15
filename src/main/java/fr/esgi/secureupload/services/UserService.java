@@ -53,13 +53,15 @@ public class UserService implements UserDetailsService {
     }
 
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+
         User user = this.findByEmail(email);
 
-        if (user == null || !user.isConfirmed())
+        if (user == null)
             throw new UsernameNotFoundException(String.format("User with mail %s could not be found, or is not confirmed", email));
 
         return org.springframework.security.core.userdetails.User
                 .withUsername(email)
+                .accountLocked(!user.isConfirmed())
                 .password(user.getPassword())
                 .roles(user.isAdmin() ? "ADMIN" : "USER")
                 .build();

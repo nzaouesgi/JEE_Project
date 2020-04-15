@@ -16,6 +16,9 @@ import org.springframework.http.MediaType;
 
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
@@ -46,8 +49,22 @@ public class UserController {
         this.emailService = emailService;
     }
 
+    private void checkIfSelf (String uuid) throws User.SecurityException {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String mail = auth.getName();
+        User user = this.userService.findByEmail(mail);
+
+        if (!user.getUuid().equals(uuid)) {
+            boolean isAdmin = auth.getAuthorities().stream()
+                    .anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"));
+            if (!isAdmin)
+                throw new User.SecurityException("Denied. This data belongs to another user.");
+        }
+    }
+
     @GetMapping
-    @Secured({ "ROLE_USER", "ROLE_ADMIN" })
+    @Secured({ "ROLE_ADMIN" })
     public Response.DataBody<Page<User>> getUsers (
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") Integer page,
@@ -86,7 +103,9 @@ public class UserController {
     @GetMapping(value = "/{uuid}")
     @Secured({ "ROLE_USER", "ROLE_ADMIN" })
     public Response.DataBody<User> getUser (@PathVariable(name = "uuid") String uuid, HttpServletResponse response)
-            throws User.NotFoundException {
+            throws User.NotFoundException, User.SecurityException {
+
+        checkIfSelf(uuid);
 
         User user = this.userService.findById(uuid);
 
@@ -155,10 +174,12 @@ public class UserController {
     }
 
     @DeleteMapping(value = "/{uuid}")
-    @Secured({ "ROLE_ADMIN" })
+    @Secured({ "ROLE_USER", "ROLE_ADMIN" })
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser (@PathVariable(name = "uuid") String uuid)
-            throws User.NotFoundException {
+            throws User.NotFoundException, User.SecurityException {
+
+        checkIfSelf(uuid);
 
         User user = this.userService.findById(uuid);
 
@@ -177,6 +198,8 @@ public class UserController {
             @PathVariable(name = "uuid") String uuid,
             @RequestBody @Valid User.ResetPasswordDto resetPasswordDto)
             throws User.NotFoundException, User.SecurityException {
+
+        checkIfSelf(uuid);
 
         User user = this.userService.findById(uuid);
 
