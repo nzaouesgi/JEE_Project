@@ -71,8 +71,7 @@ public class UserController {
             @RequestParam(defaultValue = "100") Integer limit,
             @RequestParam(defaultValue = "email") String orderBy,
             @RequestParam(defaultValue = "asc") String orderMode,
-            HttpServletResponse response)
-            throws User.SecurityException, User.PropertyNotFoundException {
+            HttpServletResponse response) {
 
         for (String field : User.PRIVATE_FIELDS) {
             if (orderBy.equalsIgnoreCase(field)) {

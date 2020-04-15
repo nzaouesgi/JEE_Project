@@ -25,11 +25,13 @@ public class User extends BaseEntity {
     public static final int PASSWORD_MAX_LENGTH = 100;
 
     @Column(name="email", unique = true, nullable = false)
+    @NonNull
     private String email;
 
     /* argon2 hashed */
     @Column(name="password", nullable = false)
     @JsonIgnore
+    @NonNull
     private String password;
 
     @Column(name="isAdmin", nullable = false)
@@ -53,8 +55,14 @@ public class User extends BaseEntity {
     @Builder.Default private String recoveryToken = null;
 
     /* Custom setter for password hashing */
-    public void setPassword(String clearPassword) throws SecurityException{
-        this.password = new Argon2PasswordEncoder().encode(clearPassword);
+    public void setPassword(String password) throws SecurityException {
+        this.password = User.hashPassword(password);
+    }
+
+    public static String hashPassword (String password){
+        if (password.length() < PASSWORD_MIN_LENGTH || password.length() > PASSWORD_MAX_LENGTH)
+            throw new PropertyValidationException("Password does not meet security requirements.");
+        return new Argon2PasswordEncoder().encode(password);
     }
 
     @Override
@@ -66,7 +74,7 @@ public class User extends BaseEntity {
 
         /* Custom setter for password hashing */
         public UserBuilder password(String password) {
-            this.password = new Argon2PasswordEncoder().encode(password);
+            this.password = User.hashPassword(password);
             return this;
         }
 
@@ -109,35 +117,35 @@ public class User extends BaseEntity {
     }
 
     /* User property validation failure */
-    public static class PropertyValidationException extends Exception {
+    public static class PropertyValidationException extends RuntimeException {
         public PropertyValidationException (String message){
             super(message);
         }
     }
 
     /* Non existing user */
-    public static class NotFoundException extends Exception {
+    public static class NotFoundException extends RuntimeException {
         public NotFoundException (String message){
             super(message);
         }
     }
 
     /* To be used when bad orderBy parameter is supplied */
-    public static class PropertyNotFoundException extends Exception {
+    public static class PropertyNotFoundException extends RuntimeException {
         public PropertyNotFoundException (String message){
             super(message);
         }
     }
 
     /* Trying to create a account with existing mail */
-    public static class MailAlreadyTakenException extends Exception {
+    public static class MailAlreadyTakenException extends RuntimeException {
         public MailAlreadyTakenException (String message){
             super(message);
         }
     }
 
     /* Wrong password, unsafe password, private field related issues.  */
-    public static class SecurityException extends Exception {
+    public static class SecurityException extends RuntimeException {
         public SecurityException (String message){
             super(message);
         }
