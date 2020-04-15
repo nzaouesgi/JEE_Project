@@ -6,6 +6,10 @@ services:
             MYSQL_URL: jdbc:mysql://mariadb:3306/db_name
             MYSQL_USER: db_user
             MYSQL_PASSWORD: secret
+            SMTP_HOST: tmp_smtp_host
+            SMTP_PORT: 465
+            SMTP_USER: tmp_smtp_user
+            SMTP_PASSWORD: tmp_smtp_password
         networks:
             - backend
         ports:

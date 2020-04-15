@@ -12,18 +12,22 @@ services:
       MYSQL_PASSWORD: secret
 
 steps:
-- name: wait for database
-  image: mariadb
-  commands: 
-    - while ! mysqladmin -u root -h database ping --silent; do sleep 1; done
-- name: test
-  image: maven:3-jdk-11
-  environment:
-    MYSQL_URL: jdbc:mysql://database:3306/db_name
-    MYSQL_USER: db_user
-    MYSQL_PASSWORD: secret
-  commands:
-    - mvn test -B
+  - name: wait for database
+    image: mariadb
+    commands: 
+      - while ! mysqladmin -u root -h database ping --silent; do sleep 1; done
+  - name: test
+    image: maven:3-jdk-11
+    environment:
+      MYSQL_URL: jdbc:mysql://database:3306/db_name
+      MYSQL_USER: db_user
+      MYSQL_PASSWORD: secret
+      SMTP_HOST: tmp_smtp_host
+      SMTP_PORT: 465
+      SMTP_USER: tmp_smtp_user
+      SMTP_PASSWORD: tmp_smtp_password
+    commands:
+      - mvn test -B
 
 trigger:
   event:
@@ -35,6 +39,15 @@ trigger:
 ---
 kind: pipeline
 name: deploy
+
+services:
+  - name: database
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_name
+      MYSQL_USER: db_user
+      MYSQL_PASSWORD: secret
 
 steps:
   - name: create settings.xml
@@ -50,8 +63,20 @@ steps:
       - sed -i "s/CLIENT_ID/${AZURE_CLIENT_ID}/g" settings.ci.xml
       - sed -i "s/TENANT_ID/${AZURE_TENANT_ID}/g" settings.ci.xml
       - sed -i "s/AZURE_KEY/${AZURE_KEY}/g" settings.ci.xml
+  - name: wait for database
+    image: mariadb
+    commands: 
+      - while ! mysqladmin -u root -h database ping --silent; do sleep 1; done
   - name: deploy
     image: maven:3-jdk-11
+    environment:
+      MYSQL_URL: jdbc:mysql://database:3306/db_name
+      MYSQL_USER: db_user
+      MYSQL_PASSWORD: secret
+      SMTP_HOST: tmp_smtp_host
+      SMTP_PORT: 465
+      SMTP_USER: tmp_smtp_user
+      SMTP_PASSWORD: tmp_smtp_password
     commands:
     - mvn --settings ./settings.ci.xml clean package azure-webapp:deploy
 
