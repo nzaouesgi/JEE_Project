@@ -50,7 +50,7 @@ services:
       MYSQL_PASSWORD: secret
 
 steps:
-  - name: create settings.xml
+  - name: setup settings.xml
     image: maven:3-jdk-11
     environment:
       AZURE_CLIENT_ID:
@@ -77,7 +77,22 @@ steps:
       SMTP_PORT: 465
       SMTP_USER: tmp_smtp_user
       SMTP_PASSWORD: tmp_smtp_password
+      AZURE_USERNAME:
+        from_secret: AZURE_USERNAME
+      AZURE_PASSWORD:
+        from_secret: AZURE_PASSWORD
+      AZURE_TENANT_ID:
+        from_secret: AZURE_TENANT_ID
     commands:
+    - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+    - apt-get update
+    - apt-get install ca-certificates curl apt-transport-https lsb-release gnupg
+    - curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.asc.gpg > /dev/null
+    - AZ_REPO=$(lsb_release -cs)
+    - echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | tee /etc/apt/sources.list.d/azure-cli.list
+    - apt-get update
+    - apt-get install azure-cli
+    - az login --service-principal --username $AZURE_USERNAME --password $AZURE_PASSWORD --tenant $AZURE_TENANT_ID
     - mvn --settings ./settings.ci.xml clean package azure-webapp:deploy
 
 trigger:
