@@ -50,7 +50,7 @@ steps:
   - name: deploy
     image: maven:3-jdk-11
     commands:
-    - mvn --settings ./settings.ci.xml azure-app:deploy
+    - ./mvnw --settings ./settings.ci.xml azure-app:deploy
 
 trigger:
   event:
