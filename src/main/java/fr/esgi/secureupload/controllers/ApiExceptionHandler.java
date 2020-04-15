@@ -7,6 +7,7 @@ import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -30,6 +31,11 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     public static Response.ErrorBody setStatusAndCreateErrorBody(Exception e, HttpServletResponse response, int status){
         response.setStatus(status);
         return new Response.ErrorBody(e.getMessage(), response.getStatus());
+    }
+
+    public static Response.ErrorBody setStatusAndCreateErrorBody(String e, HttpServletResponse response, int status){
+        response.setStatus(status);
+        return new Response.ErrorBody(e, response.getStatus());
     }
 
     /* User API errors */
@@ -63,7 +69,13 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return setStatusAndCreateErrorBody(e, response, HttpStatus.NOT_FOUND.value());
     }
 
-    /* Generic errors */
+    @ExceptionHandler({ AccessDeniedException.class})
+    @ResponseBody
+    public Response.ErrorBody handleAccessDenied(AccessDeniedException e, HttpServletResponse response) {
+        return setStatusAndCreateErrorBody("Access denied.", response, HttpStatus.UNAUTHORIZED.value());
+    }
+
+    /* Generic MVC exceptions */
     @ExceptionHandler({Exception.class})
     @ResponseBody
     public Response.ErrorBody handleException(Exception e, HttpServletResponse response) {
@@ -91,6 +103,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(status).body(new Response.ErrorBody(e.getMessage(), status.value()));
     }
 
+    /* For all the rest of exceptions */
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception e, Object body, HttpHeaders headers, HttpStatus status, WebRequest request){
         return ResponseEntity.status(status).body(new Response.ErrorBody(e.getMessage(), status.value()));

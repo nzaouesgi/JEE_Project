@@ -1,16 +1,16 @@
 package fr.esgi.secureupload.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import fr.esgi.secureupload.utils.Crypto;
+import fr.esgi.secureupload.utils.Utils;
 import lombok.*;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.hibernate.validator.constraints.Length;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 @Getter
 @Builder
@@ -21,15 +21,14 @@ import javax.validation.constraints.NotNull;
 public class User extends BaseEntity {
 
     public static final String [] PRIVATE_FIELDS = new String [] { "password", "recoveryToken", "confirmationToken" };
+    public static final int PASSWORD_MIN_LENGTH = 8;
+    public static final int PASSWORD_MAX_LENGTH = 100;
 
     @Column(name="email", unique = true, nullable = false)
-    @NotBlank
-    @NonNull
     private String email;
 
     /* argon2 hashed */
     @Column(name="password", nullable = false)
-    @NotBlank
     @JsonIgnore
     private String password;
 
@@ -44,9 +43,8 @@ public class User extends BaseEntity {
 
     /* Random token sent to user's mail address to confirm it. */
     @Column(name="confirmationToken", nullable = false)
-    @NotBlank
     @JsonIgnore
-    @Builder.Default private String confirmationToken = Crypto.randomString(64);
+    @Builder.Default private String confirmationToken = Utils.randomString(64);
 
     /* Password recovery token sent to user's mail address, null when no reset request has been made. */
     @Column(name="recoveryToken")
@@ -54,18 +52,9 @@ public class User extends BaseEntity {
     @JsonIgnore
     @Builder.Default private String recoveryToken = null;
 
-    /**
-     * Check if user's password hash match clear text password
-     * @param clearPassword the clear text password we want to check
-     * @return true if password match, false otherwise
-     */
-    public boolean verifyPassword(String clearPassword) {
-        return Crypto.verifyPassword(this.password, clearPassword);
-    }
-
     /* Custom setter for password hashing */
     public void setPassword(String clearPassword) throws SecurityException{
-        this.password = Crypto.passwordHash(clearPassword);
+        this.password = new Argon2PasswordEncoder().encode(clearPassword);
     }
 
     @Override
@@ -77,7 +66,7 @@ public class User extends BaseEntity {
 
         /* Custom setter for password hashing */
         public UserBuilder password(String password) {
-            this.password = Crypto.passwordHash(password);
+            this.password = new Argon2PasswordEncoder().encode(password);
             return this;
         }
 
@@ -95,17 +84,28 @@ public class User extends BaseEntity {
     public static class CreateDto {
         @NotBlank
         private String email;
-        @NotBlank
+
+        @Length(min = PASSWORD_MIN_LENGTH, max = PASSWORD_MAX_LENGTH)
         private String password;
     }
 
     /* Object to be received at password reset endpoint */
     @Data
     public static class ResetPasswordDto {
-        @NotBlank
+
+        @Length(min = PASSWORD_MIN_LENGTH, max = PASSWORD_MAX_LENGTH)
         private String currentPassword;
-        @NotBlank
+
+        @Length(min = PASSWORD_MIN_LENGTH, max = PASSWORD_MAX_LENGTH)
         private String newPassword;
+    }
+
+    @Data
+    public static class LoginDto {
+        @NotBlank
+        private String email;
+        @NotBlank
+        private String password;
     }
 
     /* User property validation failure */
