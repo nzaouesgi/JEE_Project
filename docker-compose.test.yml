@@ -1,6 +1,6 @@
 version: '3'
 services:
-    app:
+    test:
         image: maven:3-jdk-11
         environment:
             MYSQL_URL: jdbc:mysql://mariadb:3306/db_name
@@ -17,12 +17,11 @@ services:
             - backend
         ports:
             - '8080:8080'
-        restart: on-failure
         volumes:
             - .:/app
             - /root/.m2/repository
         working_dir: /app
-        command: "mvn spring-boot:run"
+        command: "mvn test"
         depends_on:
             - mariadb
     mariadb:
