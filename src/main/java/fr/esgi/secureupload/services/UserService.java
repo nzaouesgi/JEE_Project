@@ -11,6 +11,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserService implements UserDetailsService {
 
@@ -21,26 +23,19 @@ public class UserService implements UserDetailsService {
         this.userRepository = userRepository;
     }
 
-    public User findById(String uuid){
-        return this.userRepository.findById(uuid)
-                .orElse(null);
+    public Optional<User> findById(String uuid){
+        return this.userRepository.findById(uuid);
     }
 
     public User save(User user){
-        if (user == null)
-            throw new NullPointerException("Provided user is null.");
         return this.userRepository.save(user);
     }
 
     public void delete(User user) {
-        if (user == null)
-            throw new NullPointerException("Provided user is null.");
         this.userRepository.delete(user);
     }
 
     public Page<User> findAllByPattern(String pattern, int page, int size, Sort sort){
-        if (pattern == null)
-            throw new NullPointerException("Provided pattern is null");
         return this.userRepository.findAllByPattern(pattern, PageRequest.of(page, size, sort));
     }
 
@@ -48,16 +43,14 @@ public class UserService implements UserDetailsService {
         return this.userRepository.findAll(PageRequest.of(page, size, sort));
     }
 
-    public User findByEmail (String email){
+    public Optional<User> findByEmail (String email){
         return this.userRepository.findByEmail(email);
     }
 
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-        User user = this.findByEmail(email);
-
-        if (user == null)
-            throw new UsernameNotFoundException(String.format("User with mail %s could not be found, or is not confirmed", email));
+        User user = this.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("User with mail %s could not be found.", email)));
 
         return org.springframework.security.core.userdetails.User
                 .withUsername(email)

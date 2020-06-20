@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -36,6 +37,13 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     public static Response.ErrorBody setStatusAndCreateErrorBody(String e, HttpServletResponse response, int status){
         response.setStatus(status);
         return new Response.ErrorBody(e, response.getStatus());
+    }
+
+    /* Login exceptions */
+    @ExceptionHandler({BadCredentialsException.class})
+    @ResponseBody
+    public Response.ErrorBody handleBadCredentialsException(BadCredentialsException e, HttpServletResponse response) {
+        return setStatusAndCreateErrorBody("Login failed.", response, HttpStatus.FORBIDDEN.value());
     }
 
     /* User API errors */

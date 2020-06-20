@@ -10,6 +10,9 @@ services:
             SMTP_PORT: 465
             SMTP_USER: tmp_smtp_user
             SMTP_PASSWORD: tmp_smtp_password
+            ADMIN_EMAIL: renaud@secureupload.com
+            ADMIN_PASSWORD: Password123
+            JWT_SECRET: Secret
         networks:
             - backend
         ports:
