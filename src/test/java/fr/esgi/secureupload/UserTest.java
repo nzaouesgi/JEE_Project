@@ -84,10 +84,11 @@ public class UserTest {
         this.userService.save(user);
 
         Assertions.assertTrue(this.userService.findAllByPattern(
-                user.getEmail().substring(1), 0, 1, Sort.by("email"))
-                .getContent()
-                .stream()
-                .anyMatch(u -> u.getUuid().equals(user.getUuid())));
+                user.getEmail()
+                        .substring(1), 0, 1, Sort.by("email"))
+                        .getContent()
+                        .stream()
+                        .anyMatch(u -> u.getUuid().equals(user.getUuid())));
     }
 
     @After
@@ -96,5 +97,4 @@ public class UserTest {
             this.userService.delete(user);
         }
     }
-
 }

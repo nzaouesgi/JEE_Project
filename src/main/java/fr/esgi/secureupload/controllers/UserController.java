@@ -17,14 +17,12 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.annotation.security.PermitAll;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -53,12 +51,11 @@ public class UserController {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String mail = auth.getName();
-        User user = this.userService.findByEmail(mail);
+        User user = this.userService.findByEmail(mail)
+                .orElseThrow(() -> new User.SecurityException("Logged in user does not exist."));
 
         if (!user.getUuid().equals(uuid)) {
-            boolean isAdmin = auth.getAuthorities().stream()
-                    .anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"));
-            if (!isAdmin)
+            if (!user.isAdmin())
                 throw new User.SecurityException("Denied. This data belongs to another user.");
         }
     }
@@ -106,10 +103,8 @@ public class UserController {
 
         checkIfSelf(uuid);
 
-        User user = this.userService.findById(uuid);
-
-        if (user == null)
-            throw new User.NotFoundException(String.format("User %s was not found.", uuid));
+        User user = this.userService.findById(uuid)
+                .orElseThrow(() -> new User.NotFoundException(String.format("User %s not found.", uuid)));
 
         response.setStatus(HttpStatus.OK.value());
         return new Response.DataBody<>(user, response.getStatus());
@@ -123,8 +118,10 @@ public class UserController {
             HttpServletResponse response)
             throws User.MailAlreadyTakenException, User.PropertyValidationException {
 
-        if (this.userService.findByEmail(createObject.getEmail()) != null)
+        if (this.userService.findByEmail(createObject.getEmail())
+                .isPresent()){
             throw new User.MailAlreadyTakenException(String.format("Mail %s is already taken.", createObject.getEmail()));
+        }
 
         User user = User.builder()
                 .email(createObject.getEmail())
@@ -160,9 +157,10 @@ public class UserController {
             @RequestParam(name = "token") String token)
             throws User.NotFoundException{
 
-        User user = this.userService.findById(uuid);
+        User user = this.userService.findById(uuid)
+                .orElseThrow(() -> new User.NotFoundException(String.format("User %s not found.", uuid)));
 
-        if (user == null || !user.getConfirmationToken().equalsIgnoreCase(token))
+        if (!user.getConfirmationToken().equalsIgnoreCase(token))
             throw new User.NotFoundException(String.format("Invalid token or uuid (%s).", uuid));
 
         user.setConfirmed(true);
@@ -180,10 +178,8 @@ public class UserController {
 
         checkIfSelf(uuid);
 
-        User user = this.userService.findById(uuid);
-
-        if (user == null)
-            throw new User.NotFoundException(String.format("User %s not found.", uuid));
+        User user = this.userService.findById(uuid)
+                .orElseThrow(() -> new User.NotFoundException(String.format("User %s not found.", uuid)));
 
         this.userService.delete(user);
 
@@ -191,7 +187,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/{uuid}/password", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @Secured({ "ROLE_ADMIN", "ROLE_ADMIN" })
+    @Secured({ "ROLE_USER", "ROLE_ADMIN" })
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void resetPassword (
             @PathVariable(name = "uuid") String uuid,
@@ -200,12 +196,10 @@ public class UserController {
 
         checkIfSelf(uuid);
 
-        User user = this.userService.findById(uuid);
+        User user = this.userService.findById(uuid)
+                .orElseThrow(() -> new User.NotFoundException(String.format("User %s not found.", uuid)));
 
-        if (user == null)
-            throw new User.NotFoundException(String.format("User %s not found.", uuid));
-
-        if (!new Argon2PasswordEncoder().matches(resetPasswordDto.getCurrentPassword(), user.getPassword()))
+        if (!(new Argon2PasswordEncoder().matches(resetPasswordDto.getCurrentPassword(), user.getPassword())))
             throw new User.SecurityException("Bad current password.");
 
         user.setPassword(resetPasswordDto.getNewPassword());
