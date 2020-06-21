@@ -9,7 +9,7 @@ steps:
         from_secret: AZURE_CONTAINER_REGISTRY_PASSWORD
     settings:
       username: secureuploadregistry
-      password: AZURE_CONTAINER_REGISTRY_PASSWORD
+      password: $AZURE_CONTAINER_REGISTRY_PASSWORD
       repo: secureupload
       registry: secureuploadregistry.azurecr.io
       tags:
