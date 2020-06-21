@@ -3,16 +3,16 @@ name: deploy
 type: docker
 steps:
   - name: buildandpush
-    image: microsoft/azure-cli:latest
+    image: docker:latest
     environment:
       AZURE_CONTAINER_REGISTRY: secureuploadregistry.azurecr.io
       AZURE_CONTAINER_REGISTRY_USERNAME: secureuploadregistry
       AZURE_CONTAINER_REGISTRY_PASSWORD:
         from_secret: AZURE_CONTAINER_REGISTRY_PASSWORD
     commands:
-    - az acr login --username $AZURE_CONTAINER_REGISTRY_USERNAME --password $AZURE_CONTAINER_REGISTRY_PASSWORD --name $AZURE_CONTAINER_REGISTRY
-    - az acr build --registry $AZURE_CONTAINER_REGISTRY/secureupload:latest .
-    - az logout
+    - docker build -t $AZURE_CONTAINER_REGISTRY/secureupload:latest .
+    - docker login --username $AZURE_CONTAINER_REGISTRY_USERNAME --password $AZURE_CONTAINER_REGISTRY_PASSWORD $AZURE_CONTAINER_REGISTRY
+    - docker push $AZURE_CONTAINER_REGISTRY/secureupload:latest
 trigger:
   event:
     - push
