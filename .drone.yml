@@ -1,6 +1,6 @@
 kind: pipeline
 name: deploy
-type: exec
+type: docker
 steps:
   - name: buildandpush
     image: microsoft/azure-cli:latest
