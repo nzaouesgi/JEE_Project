@@ -4,13 +4,10 @@ type: docker
 steps:
   - name: buildandpush
     image: plugins/docker
-    environment:
-      AZURE_CONTAINER_REGISTRY_PASSWORD:
-        from_secret: AZURE_CONTAINER_REGISTRY_PASSWORD
     settings:
       username: secureuploadregistry
       password:
-        from_secret: docker_password
+        from_secret: AZURE_CONTAINER_REGISTRY_PASSWORD
       repo: secureupload
       registry: secureuploadregistry.azurecr.io
       tags:
