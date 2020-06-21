@@ -13,6 +13,7 @@ steps:
       AZURE_CONTAINER_REGISTRY_PASSWORD:
         from_secret: AZURE_CONTAINER_REGISTRY_PASSWORD
     commands:
+    - ls /var/run
     - docker build -t $AZURE_CONTAINER_REGISTRY/secureupload:latest .
     - docker login --username $AZURE_CONTAINER_REGISTRY_USERNAME --password $AZURE_CONTAINER_REGISTRY_PASSWORD $AZURE_CONTAINER_REGISTRY
     - docker push $AZURE_CONTAINER_REGISTRY/secureupload:latest
