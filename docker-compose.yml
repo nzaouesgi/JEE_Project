@@ -1,11 +1,11 @@
 version: '3'
 services:
-    app:
-        image: maven:3-jdk-11
+    api:
+        image: secureupload:latest
         environment:
-            MYSQL_URL: jdbc:mysql://mariadb:3306/db_name
-            MYSQL_USER: db_user
-            MYSQL_PASSWORD: secret
+            MYSQL_URL: jdbc:mysql://glkojooepk-mysql-server.mysql.database.azure.com:3306/secureupload?useSSL=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+            MYSQL_USER: secureupload@glkojooepk-mysql-server
+            MYSQL_PASSWORD: Password12345
             SMTP_HOST: tmp_smtp_host
             SMTP_PORT: 465
             SMTP_USER: tmp_smtp_user
@@ -13,33 +13,6 @@ services:
             ADMIN_EMAIL: renaud@secureupload.com
             ADMIN_PASSWORD: Password123
             JWT_SECRET: Secret
-        networks:
-            - backend
         ports:
             - '8080:8080'
         restart: on-failure
-        volumes:
-            - .:/app
-        working_dir: /app
-        command: "mvn spring-boot:run"
-        depends_on:
-            - mariadb
-    mariadb:
-        image: mariadb
-        environment:
-            MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: db_name
-            MYSQL_USER: db_user
-            MYSQL_PASSWORD: secret
-        networks:
-            - backend
-        ports:
-            - '3306:3306'
-        restart: on-failure
-        volumes:
-            - databaseVolume:/var/lib/mysql
-volumes:
-    databaseVolume: {}
-networks:
-    backend:
-        driver: bridge
