@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/status")
 public class StatusController {
+
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.HEAD)
-    void checkStatus (){ }
+    void checkStatus (){}
 }
