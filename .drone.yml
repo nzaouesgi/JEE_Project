@@ -3,20 +3,18 @@ name: deploy
 type: docker
 steps:
   - name: buildandpush
-    image: docker:latest
-    volumes:
-      - name: docker_sock
-        path: /var/run/
+    image: plugins/docker
     environment:
       AZURE_CONTAINER_REGISTRY: secureuploadregistry.azurecr.io
       AZURE_CONTAINER_REGISTRY_USERNAME: secureuploadregistry
       AZURE_CONTAINER_REGISTRY_PASSWORD:
         from_secret: AZURE_CONTAINER_REGISTRY_PASSWORD
-    commands:
-    - ls -la /var/run
-    - docker build -t $AZURE_CONTAINER_REGISTRY/secureupload:latest .
-    - docker login --username $AZURE_CONTAINER_REGISTRY_USERNAME --password $AZURE_CONTAINER_REGISTRY_PASSWORD $AZURE_CONTAINER_REGISTRY
-    - docker push $AZURE_CONTAINER_REGISTRY/secureupload:latest
+    settings:
+      username: $AZURE_CONTAINER_REGISTRY_USERNAME
+      password: $AZURE_CONTAINER_REGISTRY_PASSWORD
+      repo: $AZURE_CONTAINER_REGISTRY/secureupload
+      tags:
+        - latest
 trigger:
   event:
     - push
