@@ -6,7 +6,7 @@ steps:
     image: docker:latest
     volumes:
       - name: docker_sock
-        path: /var/run/docker.sock
+        path: /var/run/
     environment:
       AZURE_CONTAINER_REGISTRY: secureuploadregistry.azurecr.io
       AZURE_CONTAINER_REGISTRY_USERNAME: secureuploadregistry
