@@ -12,7 +12,8 @@ steps:
     settings:
       username: $AZURE_CONTAINER_REGISTRY_USERNAME
       password: $AZURE_CONTAINER_REGISTRY_PASSWORD
-      repo: $AZURE_CONTAINER_REGISTRY/secureupload
+      repo: secureupload
+      registry: $AZURE_CONTAINER_REGISTRY
       tags:
         - latest
 trigger:
