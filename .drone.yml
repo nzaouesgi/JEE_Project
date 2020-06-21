@@ -5,11 +5,11 @@ steps:
   - name: buildandpush
     image: plugins/docker
     settings:
+      registry: secureuploadregistry.azurecr.io
       username: secureuploadregistry
       password:
         from_secret: AZURE_CONTAINER_REGISTRY_PASSWORD
-      repo: secureupload
-      registry: secureuploadregistry.azurecr.io
+      repo: secureuploadregistry.azurecr.io/secureupload
       tags:
         - latest
 trigger:
