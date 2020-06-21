@@ -1,6 +1,6 @@
 kind: pipeline
 name: deploy
-type: docker
+type: exec
 steps:
   - name: buildandpush
     image: docker:latest
