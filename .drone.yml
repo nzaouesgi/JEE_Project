@@ -1,100 +1,18 @@
----
-kind: pipeline
-name: test
-
-services:
-  - name: database
-    image: mariadb
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: db_name
-      MYSQL_USER: db_user
-      MYSQL_PASSWORD: secret
-
-steps:
-  - name: wait for database
-    image: mariadb
-    commands: 
-      - while ! mysqladmin -u root -h database ping --silent; do sleep 1; done
-  - name: test
-    image: maven:3-jdk-11
-    environment:
-      MYSQL_URL: jdbc:mysql://database:3306/db_name
-      MYSQL_USER: db_user
-      MYSQL_PASSWORD: secret
-      SMTP_HOST: tmp_smtp_host
-      SMTP_PORT: 465
-      SMTP_USER: tmp_smtp_user
-      SMTP_PASSWORD: tmp_smtp_password
-    commands:
-      - mvn test -B
-
-trigger:
-  event:
-    - push
-  branch:
-    exclude:
-      - master
-
----
 kind: pipeline
 name: deploy
-
-services:
-  - name: database
-    image: mariadb
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: db_name
-      MYSQL_USER: db_user
-      MYSQL_PASSWORD: secret
-
+type: docker
 steps:
-  - name: setup settings.xml
-    image: maven:3-jdk-11
+  - name: buildandpush
+    image: docker:latest
     environment:
-      AZURE_CLIENT_ID:
-        from_secret: AZURE_CLIENT_ID
-      AZURE_TENANT_ID:
-        from_secret: AZURE_TENANT_ID
-      AZURE_KEY:
-        from_secret: AZURE_KEY
-    commands: 
-      - sed -i "s/CLIENT_ID/${AZURE_CLIENT_ID}/g" settings.ci.xml
-      - sed -i "s/TENANT_ID/${AZURE_TENANT_ID}/g" settings.ci.xml
-      - sed -i "s/AZURE_KEY/${AZURE_KEY}/g" settings.ci.xml
-  - name: wait for database
-    image: mariadb
-    commands: 
-      - while ! mysqladmin -u root -h database ping --silent; do sleep 1; done
-  - name: deploy
-    image: maven:3-jdk-11
-    environment:
-      MYSQL_URL: jdbc:mysql://database:3306/db_name
-      MYSQL_USER: db_user
-      MYSQL_PASSWORD: secret
-      SMTP_HOST: tmp_smtp_host
-      SMTP_PORT: 465
-      SMTP_USER: tmp_smtp_user
-      SMTP_PASSWORD: tmp_smtp_password
-      AZURE_USERNAME:
-        from_secret: AZURE_USERNAME
-      AZURE_PASSWORD:
-        from_secret: AZURE_PASSWORD
-      AZURE_TENANT_ID:
-        from_secret: AZURE_TENANT_ID
+      AZURE_CONTAINER_REGISTRY: secureuploadregistry.azurecr.io
+      AZURE_CONTAINER_REGISTRY_USERNAME: secureuploadregistry
+      AZURE_CONTAINER_REGISTRY_PASSWORD:
+        from_secret: AZURE_CONTAINER_REGISTRY_PASSWORD
     commands:
-    - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
-    - apt-get update
-    - apt-get install ca-certificates curl apt-transport-https lsb-release gnupg
-    - curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.asc.gpg > /dev/null
-    - AZ_REPO=$(lsb_release -cs)
-    - echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | tee /etc/apt/sources.list.d/azure-cli.list
-    - apt-get update
-    - apt-get install azure-cli
-    - az login --service-principal --username $AZURE_USERNAME --password $AZURE_PASSWORD --tenant $AZURE_TENANT_ID
-    - mvn --settings ./settings.ci.xml clean package azure-webapp:deploy
-
+    - docker build -t $AZURE_CONTAINER_REGISTRY/secureupload:latest .
+    - docker login --username $AZURE_CONTAINER_REGISTRY_USERNAME --password $AZURE_CONTAINER_REGISTRY_PASSWORD $AZURE_CONTAINER_REGISTRY
+    - docker push $AZURE_CONTAINER_REGISTRY/secureupload:latest
 trigger:
   event:
     - push

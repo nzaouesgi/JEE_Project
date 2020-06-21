@@ -34,11 +34,13 @@
             <version>5.4.14.Final</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <scope>runtime</scope>
+            <version>8.0.20</version>
         </dependency>
+
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -100,6 +102,7 @@
     </dependencies>
 
     <build>
+        <outputDirectory>/out</outputDirectory>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
