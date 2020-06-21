@@ -3,7 +3,7 @@ name: deploy
 type: exec
 steps:
   - name: buildandpush
-    image: docker:latest
+    # image: docker:latest
     environment:
       AZURE_CONTAINER_REGISTRY: secureuploadregistry.azurecr.io
       AZURE_CONTAINER_REGISTRY_USERNAME: secureuploadregistry

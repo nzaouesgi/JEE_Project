@@ -27,28 +27,36 @@ variable main_prefix {
 variable mysql_root_password {
   description="MYSQL server main password"
 }
+
 variable azure_secret {
   description = "The password for the Azure service principal"
 }
+
 variable admin_email {
   default = "secureupload@secureupload.com"
   description = "The email of the application administrator account"
 }
+
 variable admin_password {
   description = "The password of the application administrator account"
 }
+
 variable smtp_host {
   description = "The host of the SMTP server to use"
 }
+
 variable smtp_port {
   description = "The port of the SMTP server to use"
 }
+
 variable smtp_user {
   description = "The user to use for sending emails"
 }
+
 variable smtp_password {
   description = "The password of the SMTP user"
 }
+
 
 # Create a resource group
 resource azurerm_resource_group secure_upload {
