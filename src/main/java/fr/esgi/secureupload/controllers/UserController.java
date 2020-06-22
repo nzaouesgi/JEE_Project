@@ -39,7 +39,7 @@ public class UserController {
     private UserService userService;
     private EmailService emailService;
 
-    private static final int userFindLimit = 100;
+    private static final String userFindLimit = "100";
 
     @Autowired
     public UserController(UserService userService, EmailService emailService){
@@ -65,7 +65,7 @@ public class UserController {
     public Response.DataBody<Page<User>> getUsers (
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "100") Integer limit,
+            @RequestParam(defaultValue = UserController.userFindLimit) Integer limit,
             @RequestParam(defaultValue = "email") String orderBy,
             @RequestParam(defaultValue = "asc") String orderMode,
             HttpServletResponse response) {
@@ -77,8 +77,8 @@ public class UserController {
             }
         }
 
-        if (limit > userFindLimit)
-            throw new User.SecurityException(String.format("\"limit\" parameter must not exceed %d", userFindLimit));
+        if (limit > Integer.parseInt(userFindLimit))
+            throw new User.SecurityException(String.format("\"limit\" parameter must not exceed %s", userFindLimit));
 
         Sort sort = Sort.by(orderBy);
         if (orderMode.equalsIgnoreCase("desc"))
@@ -93,6 +93,7 @@ public class UserController {
         }
 
         response.setStatus(HttpStatus.OK.value());
+
         return new Response.DataBody<>(results, response.getStatus());
     }
 

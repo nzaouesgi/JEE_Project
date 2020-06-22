@@ -20,7 +20,7 @@ public class UserTest {
     @Autowired
     private UserService userService;
 
-    private String getRandomMail (){
+    static public String getRandomMail (){
         return String.format("%suser@domain.fr", Utils.randomString(3));
     }
 
@@ -30,7 +30,7 @@ public class UserTest {
     public void createValidUser (){
         User.UserBuilder builder = User.builder();
 
-        Assertions.assertDoesNotThrow(() -> builder.email(this.getRandomMail()));
+        Assertions.assertDoesNotThrow(() -> builder.email(UserTest.getRandomMail()));
         Assertions.assertDoesNotThrow(() -> builder.password(Utils.randomString(4)));
 
         User user = builder.build();

@@ -154,6 +154,7 @@ resource azurerm_container_registry_webhook ci_webhook {
 
 # Front door
 resource azurerm_frontdoor front_door {
+
   name = "${var.main_prefix}-frontdoor"
   resource_group_name = azurerm_resource_group.secure_upload.name
 
