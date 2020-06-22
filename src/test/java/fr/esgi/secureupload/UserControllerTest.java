@@ -52,8 +52,9 @@ public class UserControllerTest {
         this.mockMvc.perform(
                 get(USERS_API_PATH)
                         .param("limit", "1"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.data.content", arrayWithSize(1)));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content").isArray())
+                .andExpect(jsonPath("$.data.content", hasSize(1)));
     }
 
     @Test
