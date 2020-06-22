@@ -29,12 +29,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     private Logger logger = LoggerFactory.getLogger(ApiExceptionHandler.class);
 
-    public static Response.ErrorBody setStatusAndCreateErrorBody(Exception e, HttpServletResponse response, int status){
+    public Response.ErrorBody setStatusAndCreateErrorBody(Exception e, HttpServletResponse response, int status){
         response.setStatus(status);
         return new Response.ErrorBody(e.getMessage(), response.getStatus());
     }
 
-    public static Response.ErrorBody setStatusAndCreateErrorBody(String e, HttpServletResponse response, int status){
+    public Response.ErrorBody setStatusAndCreateErrorBody(String e, HttpServletResponse response, int status){
         response.setStatus(status);
         return new Response.ErrorBody(e, response.getStatus());
     }

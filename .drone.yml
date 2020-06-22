@@ -1,7 +1,32 @@
+# TEST ONLY FOR DEVELOP BRANCH
+kind: pipeline
+name: test
+type: docker
+trigger:
+  event:
+    - push
+  branch:
+    - develop
+steps:
+  - name: test
+    image: mvn:latest
+    commands:
+      - mvn test
+---
+# TEST, BUILD AND PUSH TO PRODUCTION FOR MASTER BRANCH
 kind: pipeline
 name: deploy
 type: docker
+trigger:
+  event:
+    - push
+  branch:
+    - master
 steps:
+  - name: test
+    image: mvn:latest
+    commands:
+      - mvn test
   - name: buildandpush
     image: plugins/docker
     settings:
@@ -12,8 +37,3 @@ steps:
       repo: secureuploadregistry.azurecr.io/secureupload
       tags:
         - latest
-trigger:
-  event:
-    - push
-  branch:
-    - master
