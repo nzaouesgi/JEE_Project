@@ -9,7 +9,7 @@ trigger:
     - develop
 steps:
   - name: test
-    image: mvn:latest
+    image: maven:latest
     commands:
       - mvn test
 ---
@@ -24,7 +24,7 @@ trigger:
     - master
 steps:
   - name: test
-    image: mvn:latest
+    image: maven:latest
     commands:
       - mvn test
   - name: buildandpush
