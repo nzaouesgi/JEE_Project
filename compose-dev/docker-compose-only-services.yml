@@ -14,7 +14,7 @@ services:
     ports:
       - "10000:10000"
       - "10001:10001"
-  mailhog:
+  smtp:
     image: mailhog/mailhog:v1.0.0
     ports:
       - "1025:1025"

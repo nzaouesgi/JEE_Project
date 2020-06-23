@@ -19,9 +19,9 @@ services:
         ports:
             - '8080:8080'
         volumes:
-        - .:/secureupload
+        - ../:/secureupload
         working_dir: /secureupload
-        command: [ "./start.sh", "mvn", "spring-boot:run" ]
+        command: [ "bash", "-c", "./start.sh database:3306 storage:10000 storage:10001 smtp:1025 smtp:8025 && mvn spring-boot:run" ]
         depends_on:
           - database
           - smtp
@@ -35,19 +35,14 @@ services:
             MYSQL_USER: secureupload
             MYSQL_PASSWORD: DatabasePassword12345
         ports:
-            - 3306
+            - "3306"
     storage:
         image: mcr.microsoft.com/azure-storage/azurite
         ports:
-         - 10000
-         - 10001
+         - "10000"
+         - "10001"
     smtp:
-        image: juanluisbaptiste/postfix:latest
+        image: mailhog/mailhog:latest
         ports:
-            - 25
-        environment:
-            SMTP_SERVER: smtp.secureupload.com
-            SMTP_PORT: 25
-            SMTP_USERNAME: secureupload@secureupload.com
-            SMTP_PASSWORD: SmtpPassword12345
-            SERVER_HOSTNAME: secureupload.com
+            - "1025:1025"
+            - "8025:8025"
