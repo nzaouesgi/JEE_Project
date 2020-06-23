@@ -23,8 +23,8 @@ steps:
       AZURE_STORAGE_CONNECTION_STRING: DefaultEndpointsProtocol=https;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=https://storage:10000/devstoreaccount1;
       AZURE_STORAGE_CONTAINER_NAME: my-container
     commands:
-      - chmod 500 *.sh
-      - ./start.sh database:3306 storage:10000 storage:10001 smtp:1025 smtp:8025
+      - chmod 500 ./scripts/*.sh
+      - ./scripts/start.sh database:3306 storage:10000 storage:10001 smtp:1025 smtp:8025
       - mvn test
 services:
   - name: database
