@@ -1,16 +1,15 @@
 package fr.esgi.secureupload.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import fr.esgi.secureupload.exceptions.UserExceptions;
 import fr.esgi.secureupload.utils.Utils;
 import lombok.*;
 import org.apache.commons.validator.routines.EmailValidator;
-import org.hibernate.validator.constraints.Length;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.validation.constraints.NotBlank;
 
 @Getter
 @Builder
@@ -60,8 +59,6 @@ public class User extends BaseEntity {
     }
 
     public static String hashPassword (String password){
-        if (password.length() < PASSWORD_MIN_LENGTH || password.length() > PASSWORD_MAX_LENGTH)
-            throw new PropertyValidationException("Password does not meet security requirements.");
         return new Argon2PasswordEncoder().encode(password);
     }
 
@@ -72,83 +69,20 @@ public class User extends BaseEntity {
 
     public static class UserBuilder {
 
-        /* Custom setter for password hashing */
-        public UserBuilder password(String password) {
+        /* Custom setter for password checking and hashing */
+        public UserBuilder password(String password) throws UserExceptions.PropertyValidationException {
+            if (password.length() < PASSWORD_MIN_LENGTH || password.length() > PASSWORD_MAX_LENGTH)
+                throw new UserExceptions.PropertyValidationException("Password does not meet security requirements.");
             this.password = User.hashPassword(password);
             return this;
         }
 
         /* Custom setter for email validation */
-        public UserBuilder email(String email) throws PropertyValidationException {
+        public UserBuilder email(String email) throws UserExceptions.PropertyValidationException {
             if (!EmailValidator.getInstance(false).isValid(email))
-                throw new PropertyValidationException(String.format("%s is not a valid email address.", email));
+                throw new UserExceptions.PropertyValidationException(String.format("%s is not a valid email address.", email));
             this.email = email;
             return this;
         }
     }
-
-    /* Object to be received at user creation endpoint */
-    @Data
-    public static class CreateDto {
-        @NotBlank
-        private String email;
-
-        @Length(min = PASSWORD_MIN_LENGTH, max = PASSWORD_MAX_LENGTH)
-        private String password;
-    }
-
-    /* Object to be received at password reset endpoint */
-    @Data
-    public static class ResetPasswordDto {
-
-        @Length(min = PASSWORD_MIN_LENGTH, max = PASSWORD_MAX_LENGTH)
-        private String currentPassword;
-
-        @Length(min = PASSWORD_MIN_LENGTH, max = PASSWORD_MAX_LENGTH)
-        private String newPassword;
-    }
-
-    @Data
-    public static class LoginDto {
-        @NotBlank
-        private String email;
-        @NotBlank
-        private String password;
-    }
-
-    /* User property validation failure */
-    public static class PropertyValidationException extends RuntimeException {
-        public PropertyValidationException (String message){
-            super(message);
-        }
-    }
-
-    /* Non existing user */
-    public static class NotFoundException extends RuntimeException {
-        public NotFoundException (String message){
-            super(message);
-        }
-    }
-
-    /* To be used when bad orderBy parameter is supplied */
-    public static class PropertyNotFoundException extends RuntimeException {
-        public PropertyNotFoundException (String message){
-            super(message);
-        }
-    }
-
-    /* Trying to create a account with existing mail */
-    public static class MailAlreadyTakenException extends RuntimeException {
-        public MailAlreadyTakenException (String message){
-            super(message);
-        }
-    }
-
-    /* Wrong password, unsafe password, private field related issues.  */
-    public static class SecurityException extends RuntimeException {
-        public SecurityException (String message){
-            super(message);
-        }
-    }
-
 }

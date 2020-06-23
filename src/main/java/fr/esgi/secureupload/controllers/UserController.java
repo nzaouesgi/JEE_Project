@@ -1,6 +1,9 @@
 package fr.esgi.secureupload.controllers;
 
+import fr.esgi.secureupload.dto.ResetPasswordDTO;
+import fr.esgi.secureupload.dto.UserDTO;
 import fr.esgi.secureupload.entities.User;
+import fr.esgi.secureupload.exceptions.UserExceptions;
 import fr.esgi.secureupload.services.EmailService;
 import fr.esgi.secureupload.services.UserService;
 
@@ -47,16 +50,16 @@ public class UserController {
         this.emailService = emailService;
     }
 
-    private void checkIfSelf (String uuid) throws User.SecurityException {
+    private void checkIfSelf (String uuid) throws UserExceptions.SecurityException {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String mail = auth.getName();
         User user = this.userService.findByEmail(mail)
-                .orElseThrow(() -> new User.SecurityException("Logged in user does not exist."));
+                .orElseThrow(() -> new UserExceptions.SecurityException("Logged in user does not exist."));
 
         if (!user.getUuid().equals(uuid)) {
             if (!user.isAdmin())
-                throw new User.SecurityException("Denied. This data belongs to another user.");
+                throw new UserExceptions.SecurityException("Denied. This data belongs to another user.");
         }
     }
 
@@ -73,12 +76,12 @@ public class UserController {
         for (String field : User.PRIVATE_FIELDS) {
             if (orderBy.equalsIgnoreCase(field)) {
                 this.logger.error(String.format("GET /users : \"orderBy\" specified with private field %s.", field));
-                throw new User.SecurityException(String.format("Field %s is private.", orderBy));
+                throw new UserExceptions.SecurityException(String.format("Field %s is private.", orderBy));
             }
         }
 
         if (limit > Integer.parseInt(userFindLimit))
-            throw new User.SecurityException(String.format("\"limit\" parameter must not exceed %s", userFindLimit));
+            throw new UserExceptions.SecurityException(String.format("\"limit\" parameter must not exceed %s", userFindLimit));
 
         Sort sort = Sort.by(orderBy);
         if (orderMode.equalsIgnoreCase("desc"))
@@ -89,7 +92,7 @@ public class UserController {
             results = search == null ? this.userService.findAll(page, limit, sort) : this.userService.findAllByPattern(search, page, limit, sort);
         } catch (PropertyReferenceException e){
             this.logger.error(String.format("GET /users : %s", e.getMessage()));
-            throw new User.PropertyNotFoundException(String.format("Bad parameter was given for \"orderBy\" (%s).", orderBy));
+            throw new UserExceptions.PropertyNotFoundException(String.format("Bad parameter was given for \"orderBy\" (%s).", orderBy));
         }
 
         response.setStatus(HttpStatus.OK.value());
@@ -100,12 +103,12 @@ public class UserController {
     @GetMapping(value = "/{uuid}")
     @Secured({ "ROLE_USER", "ROLE_ADMIN" })
     public Response.DataBody<User> getUser (@PathVariable(name = "uuid") String uuid, HttpServletResponse response)
-            throws User.NotFoundException, User.SecurityException {
-
-        checkIfSelf(uuid);
+            throws UserExceptions.NotFoundException, UserExceptions.SecurityException {
 
         User user = this.userService.findById(uuid)
-                .orElseThrow(() -> new User.NotFoundException(String.format("User %s not found.", uuid)));
+                .orElseThrow(() -> new UserExceptions.NotFoundException(String.format("User %s not found.", uuid)));
+
+        checkIfSelf(uuid);
 
         response.setStatus(HttpStatus.OK.value());
         return new Response.DataBody<>(user, response.getStatus());
@@ -114,14 +117,14 @@ public class UserController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("!isAuthenticated()")
     public Response.DataBody<User> createUser(
-            @RequestBody @Valid User.CreateDto createObject,
+            @RequestBody @Valid UserDTO createObject,
             UriComponentsBuilder uriComponentsBuilder,
             HttpServletResponse response)
-            throws User.MailAlreadyTakenException, User.PropertyValidationException {
+            throws UserExceptions.MailAlreadyTakenException, UserExceptions.PropertyValidationException {
 
         if (this.userService.findByEmail(createObject.getEmail())
                 .isPresent()){
-            throw new User.MailAlreadyTakenException(String.format("Mail %s is already taken.", createObject.getEmail()));
+            throw new UserExceptions.MailAlreadyTakenException(String.format("Mail %s is already taken.", createObject.getEmail()));
         }
 
         User user = User.builder()
@@ -156,13 +159,13 @@ public class UserController {
     public void confirmMailAddress (
             @PathVariable(name = "uuid") String uuid,
             @RequestParam(name = "token") String token)
-            throws User.NotFoundException{
+            throws UserExceptions.NotFoundException{
 
         User user = this.userService.findById(uuid)
-                .orElseThrow(() -> new User.NotFoundException(String.format("User %s not found.", uuid)));
+                .orElseThrow(() -> new UserExceptions.NotFoundException(String.format("User %s not found.", uuid)));
 
         if (!user.getConfirmationToken().equalsIgnoreCase(token))
-            throw new User.NotFoundException(String.format("Invalid token or uuid (%s).", uuid));
+            throw new UserExceptions.NotFoundException(String.format("Invalid token or uuid (%s).", uuid));
 
         user.setConfirmed(true);
 
@@ -175,12 +178,12 @@ public class UserController {
     @Secured({ "ROLE_USER", "ROLE_ADMIN" })
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser (@PathVariable(name = "uuid") String uuid)
-            throws User.NotFoundException, User.SecurityException {
+            throws UserExceptions.NotFoundException, UserExceptions.SecurityException {
 
         checkIfSelf(uuid);
 
         User user = this.userService.findById(uuid)
-                .orElseThrow(() -> new User.NotFoundException(String.format("User %s not found.", uuid)));
+                .orElseThrow(() -> new UserExceptions.NotFoundException(String.format("User %s not found.", uuid)));
 
         this.userService.delete(user);
 
@@ -192,16 +195,16 @@ public class UserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void resetPassword (
             @PathVariable(name = "uuid") String uuid,
-            @RequestBody @Valid User.ResetPasswordDto resetPasswordDto)
-            throws User.NotFoundException, User.SecurityException {
+            @RequestBody @Valid ResetPasswordDTO resetPasswordDto)
+            throws UserExceptions.NotFoundException, UserExceptions.SecurityException {
 
         checkIfSelf(uuid);
 
         User user = this.userService.findById(uuid)
-                .orElseThrow(() -> new User.NotFoundException(String.format("User %s not found.", uuid)));
+                .orElseThrow(() -> new UserExceptions.NotFoundException(String.format("User %s not found.", uuid)));
 
         if (!(new Argon2PasswordEncoder().matches(resetPasswordDto.getCurrentPassword(), user.getPassword())))
-            throw new User.SecurityException("Bad current password.");
+            throw new UserExceptions.SecurityException("Bad current password.");
 
         user.setPassword(resetPasswordDto.getNewPassword());
 
@@ -209,6 +212,5 @@ public class UserController {
 
         this.logger.info(String.format("DELETE /users/{id} : User %s has changed his password.", savedUser));
     }
-
 }
 

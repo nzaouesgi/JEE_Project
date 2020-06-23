@@ -19,7 +19,7 @@ public class StatusControllerTest {
     private final static String STATUS_API_PATH = "/status";
 
     @Test
-    public void testStatus_OK () throws Exception {
+    public void testStatus_ShouldReturnOk () throws Exception {
         this.mockMvc.perform(head(STATUS_API_PATH)).andExpect(status().isOk());
     }
 
