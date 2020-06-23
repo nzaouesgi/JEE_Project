@@ -7,6 +7,7 @@ trigger:
     - push
   branch:
     - develop
+    - master
 steps:
   - name: test
     image: maven:latest
@@ -14,7 +15,7 @@ steps:
       MYSQL_URL: jdbc:mysql://database:3306/secureupload
       MYSQL_USER: secureupload
       MYSQL_PASSWORD: DatabasePassword12345
-      SMTP_HOST: smtp
+      SMTP_HOST: mailhog
       SMTP_PORT: 25
       ADMIN_EMAIL: renaud@secureupload.com
       ADMIN_PASSWORD: Password12345
@@ -39,16 +40,11 @@ services:
     ports:
       - 10000
       - 10001
-  - name: smtp
-    image: juanluisbaptiste/postfix:latest
+  - name: mailhog
+    image: mailhog/mailhog:latest
     ports:
-      - 25
-    environment:
-      SMTP_SERVER: smtp.secureupload.com
-      SMTP_PORT: 25
-      SMTP_USERNAME: secureupload@secureupload.com
-      SMTP_PASSWORD: SmtpPassword12345
-      SERVER_HOSTNAME: secureupload.com
+      - 1025
+      - 8025
 
 ---
 # BUILD AND PUSH TO PRODUCTION FOR MASTER BRANCH
