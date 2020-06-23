@@ -15,8 +15,8 @@ steps:
       MYSQL_URL: jdbc:mysql://database:3306/secureupload
       MYSQL_USER: secureupload
       MYSQL_PASSWORD: DatabasePassword12345
-      SMTP_HOST: mailhog
-      SMTP_PORT: 25
+      SMTP_HOST: smtp
+      SMTP_PORT: 1025
       ADMIN_EMAIL: renaud@secureupload.com
       ADMIN_PASSWORD: Password12345
       JWT_SECRET: SecretForDevOnly
@@ -24,7 +24,8 @@ steps:
       AZURE_STORAGE_CONTAINER_NAME: my-container
     commands:
       - chmod 500 *.sh
-      - ./start.sh mvn test
+      - ./start.sh database:3306 storage:10000 storage:10001 smtp:1025 smtp:8025
+      - mvn test
 services:
   - name: database
     image: mariadb:latest
