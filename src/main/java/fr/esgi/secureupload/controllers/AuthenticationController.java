@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -29,7 +30,7 @@ public class AuthenticationController {
     }
 
     @PostMapping
-    public Response.Body login(@RequestBody LoginDTO loginDTO, HttpServletResponse response) {
+    public Response.Body login(@RequestBody @Valid LoginDTO loginDTO, HttpServletResponse response) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword());
 
         Authentication authentication = authManager.getObject().authenticate(authenticationToken);

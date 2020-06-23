@@ -1,6 +1,7 @@
 package fr.esgi.secureupload.controllers;
 
 import fr.esgi.secureupload.entities.User;
+import fr.esgi.secureupload.exceptions.UserExceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
@@ -47,34 +48,34 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /* User API errors */
-    @ExceptionHandler({User.PropertyValidationException.class})
+    @ExceptionHandler({UserExceptions.PropertyValidationException.class})
     @ResponseBody
-    public Response.ErrorBody handleUserPropertyValidation(User.PropertyValidationException e, HttpServletResponse response) {
+    public Response.ErrorBody handleUserPropertyValidation(UserExceptions.PropertyValidationException e, HttpServletResponse response) {
         return setStatusAndCreateErrorBody(e, response, HttpStatus.BAD_REQUEST.value());
     }
 
-    @ExceptionHandler({User.SecurityException.class})
+    @ExceptionHandler({UserExceptions.SecurityException.class})
     @ResponseBody
-    public Response.ErrorBody handleUserSecurity(User.SecurityException e, HttpServletResponse response) {
+    public Response.ErrorBody handleUserSecurity(UserExceptions.SecurityException e, HttpServletResponse response) {
 
         return setStatusAndCreateErrorBody(e, response, HttpStatus.FORBIDDEN.value());
     }
 
-    @ExceptionHandler({User.MailAlreadyTakenException.class})
+    @ExceptionHandler({UserExceptions.MailAlreadyTakenException.class})
     @ResponseBody
-    public Response.ErrorBody handlerUserMailAlreadyTaken(User.MailAlreadyTakenException e, HttpServletResponse response) {
+    public Response.ErrorBody handlerUserMailAlreadyTaken(UserExceptions.MailAlreadyTakenException e, HttpServletResponse response) {
         return setStatusAndCreateErrorBody(e, response, HttpStatus.FORBIDDEN.value());
     }
 
-    @ExceptionHandler({User.PropertyNotFoundException.class})
+    @ExceptionHandler({UserExceptions.PropertyNotFoundException.class})
     @ResponseBody
-    public Response.ErrorBody handleUserPropertyNotFound(User.PropertyNotFoundException e, HttpServletResponse response) {
+    public Response.ErrorBody handleUserPropertyNotFound(UserExceptions.PropertyNotFoundException e, HttpServletResponse response) {
         return setStatusAndCreateErrorBody(e, response, HttpStatus.BAD_REQUEST.value());
     }
 
-    @ExceptionHandler({User.NotFoundException.class})
+    @ExceptionHandler({UserExceptions.NotFoundException.class})
     @ResponseBody
-    public Response.ErrorBody handleUserNotFound(User.NotFoundException e, HttpServletResponse response) {
+    public Response.ErrorBody handleUserNotFound(UserExceptions.NotFoundException e, HttpServletResponse response) {
         return setStatusAndCreateErrorBody(e, response, HttpStatus.NOT_FOUND.value());
     }
 

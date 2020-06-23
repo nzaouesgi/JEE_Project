@@ -27,7 +27,6 @@ services:
           - smtp
           - storage
         restart: always
-
     database:
         image: mariadb:latest
         environment:
@@ -37,13 +36,11 @@ services:
             MYSQL_PASSWORD: DatabasePassword12345
         ports:
             - 3306
-
     storage:
         image: mcr.microsoft.com/azure-storage/azurite
         ports:
          - 10000
          - 10001
-
     smtp:
         image: juanluisbaptiste/postfix:latest
         ports:

@@ -1,0 +1,21 @@
+version: '2.4'
+services:
+  database:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: secureupload
+      MYSQL_USER: secureupload
+      MYSQL_PASSWORD: DatabasePassword12345
+    ports:
+      - "3306:3306"
+  storage:
+    image: mcr.microsoft.com/azure-storage/azurite
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+  mailhog:
+    image: mailhog/mailhog:v1.0.0
+    ports:
+      - "1025:1025"
+      - "8025:8025"
