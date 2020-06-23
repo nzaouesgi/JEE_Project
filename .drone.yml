@@ -14,10 +14,8 @@ steps:
       MYSQL_URL: jdbc:mysql://database:3306/secureupload
       MYSQL_USER: secureupload
       MYSQL_PASSWORD: DatabasePassword12345
-      SMTP_HOST: smtp.secureupload.com
+      SMTP_HOST: smtp
       SMTP_PORT: 25
-      SMTP_USER: secureupload@secureupload.com
-      SMTP_PASSWORD: SmtpPassword12345
       ADMIN_EMAIL: renaud@secureupload.com
       ADMIN_PASSWORD: Password12345
       JWT_SECRET: SecretForDevOnly
