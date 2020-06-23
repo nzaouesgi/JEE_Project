@@ -277,8 +277,8 @@ resource azurerm_app_service app_service {
 
     JWT_SECRET = random_string.jwt.result
 
-    STORAGE_ACCOUNT_CONNECTION_STRING = azurerm_storage_account.storage_account.primary_connection_string
-    BLOB_CONTAINER_NAME = azurerm_storage_container.file_storage.name
+    AZURE_STORAGE_CONNECTION_STRING = azurerm_storage_account.storage_account.primary_connection_string
+    AZURE_STORAGE_CONTAINER_NAME = azurerm_storage_container.file_storage.name
   }
 
   depends_on = [

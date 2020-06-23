@@ -56,6 +56,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({User.SecurityException.class})
     @ResponseBody
     public Response.ErrorBody handleUserSecurity(User.SecurityException e, HttpServletResponse response) {
+
         return setStatusAndCreateErrorBody(e, response, HttpStatus.FORBIDDEN.value());
     }
 

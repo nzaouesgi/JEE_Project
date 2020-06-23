@@ -1,7 +1,9 @@
 package fr.esgi.secureupload;
 
+import com.jayway.jsonpath.JsonPath;
 import fr.esgi.secureupload.entities.User;
 import fr.esgi.secureupload.services.UserService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import static org.hamcrest.Matchers.*;
 
@@ -26,10 +32,11 @@ public class UserControllerTest {
 
 
     private final static String USERS_API_PATH = "/users";
+    private final static int TEST_USERS = 100;
 
     @BeforeAll
     static void addTestUsers(@Autowired UserService userService){
-        for (int i = 0; i < 100; i ++){
+        for (int i = 0; i < TEST_USERS; i ++){
             userService.save(User.builder()
                     .isAdmin(false)
                     .isConfirmed(true)
@@ -49,12 +56,39 @@ public class UserControllerTest {
     @Test
     @WithMockUser(roles = { "ADMIN" })
     public void getUsers_ParamLimit () throws Exception {
-        this.mockMvc.perform(
-                get(USERS_API_PATH)
-                        .param("limit", "1"))
+
+        int limitParam = TEST_USERS / 2;
+
+        this.mockMvc.perform(get(USERS_API_PATH)
+                        .param("limit", String.valueOf(limitParam)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content").isArray())
-                .andExpect(jsonPath("$.data.content", hasSize(1)));
+                .andExpect(jsonPath("$.data.content", hasSize(limitParam)));
+    }
+
+    @Test
+    @WithMockUser(roles = { "ADMIN" })
+    public void getUsers_OrderByEmail () throws Exception {
+
+        MvcResult result = this.mockMvc.perform(get(USERS_API_PATH)
+                        .param("orderBy", "email")
+                        .param("orderMode", "desc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content", hasSize(TEST_USERS)))
+                .andReturn();
+
+        ArrayList<LinkedHashMap<String, ?>> users = JsonPath.read(result
+                .getResponse()
+                .getContentAsString(), "$.data.content[*]");
+
+        String current = null;
+        for (LinkedHashMap<String, ?> user: users){
+            String email = (String)user.get("email");
+            if (current != null) {
+                Assertions.assertTrue(email.compareTo(current) > 0);
+            }
+            current = email;
+        }
     }
 
     @Test
