@@ -34,19 +34,19 @@ services:
         MYSQL_USER: secureupload
         MYSQL_PASSWORD: DatabasePassword12345
     ports:
-      - "3306"
+      - 3306
   - name: storage
     image: mcr.microsoft.com/azure-storage/azurite
     ports:
-      - "10000"
-      - "10001"
+      - 10000
+      - 10001
   - name: smtp
     image: juanluisbaptiste/postfix:latest
     ports:
-      - "25"
+      - 25
     environment:
       SMTP_SERVER: smtp.secureupload.com
-      SMTP_PORT: "25"
+      SMTP_PORT: 25
       SMTP_USERNAME: secureupload@secureupload.com
       SMTP_PASSWORD: SmtpPassword12345
       SERVER_HOSTNAME: secureupload.com
