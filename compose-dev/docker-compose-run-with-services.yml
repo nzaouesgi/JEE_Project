@@ -21,7 +21,7 @@ services:
         volumes:
         - ../:/secureupload
         working_dir: /secureupload
-        command: [ "bash", "-c", "./start.sh database:3306 storage:10000 storage:10001 smtp:1025 smtp:8025 && mvn spring-boot:run" ]
+        command: [ "bash", "-c", "./scripts/start.sh database:3306 storage:10000 storage:10001 smtp:1025 smtp:8025 && mvn spring-boot:run" ]
         depends_on:
           - database
           - smtp
