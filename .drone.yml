@@ -10,8 +10,47 @@ trigger:
 steps:
   - name: test
     image: maven:latest
+    environment:
+      MYSQL_URL: jdbc:mysql://database:3306/secureupload
+      MYSQL_USER: secureupload
+      MYSQL_PASSWORD: DatabasePassword12345
+      SMTP_HOST: smtp.secureupload.com
+      SMTP_PORT: 25
+      SMTP_USER: secureupload@secureupload.com
+      SMTP_PASSWORD: SmtpPassword12345
+      ADMIN_EMAIL: renaud@secureupload.com
+      ADMIN_PASSWORD: Password12345
+      JWT_SECRET: SecretForDevOnly
+      AZURE_STORAGE_CONNECTION_STRING: DefaultEndpointsProtocol=https;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=https://storage:10000/devstoreaccount1;
+      AZURE_STORAGE_CONTAINER_NAME: my-container
     commands:
-      - mvn test
+      - ./start.sh mvn test
+services:
+  - name: database
+    image: mariadb:latest
+    environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: secureupload
+        MYSQL_USER: secureupload
+        MYSQL_PASSWORD: DatabasePassword12345
+    ports:
+      - "3306"
+  - name: storage
+    image: mcr.microsoft.com/azure-storage/azurite
+    ports:
+      - "10000"
+      - "10001"
+  - name: smtp
+    image: juanluisbaptiste/postfix:latest
+    ports:
+      - "25"
+    environment:
+      SMTP_SERVER: smtp.secureupload.com
+      SMTP_PORT: "25"
+      SMTP_USERNAME: secureupload@secureupload.com
+      SMTP_PASSWORD: SmtpPassword12345
+      SERVER_HOSTNAME: secureupload.com
+
 ---
 # TEST, BUILD AND PUSH TO PRODUCTION FOR MASTER BRANCH
 kind: pipeline
