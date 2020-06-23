@@ -24,7 +24,7 @@ steps:
       AZURE_STORAGE_CONNECTION_STRING: DefaultEndpointsProtocol=https;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=https://storage:10000/devstoreaccount1;
       AZURE_STORAGE_CONTAINER_NAME: my-container
     commands:
-      - chmod 500 start.sh && ./start.sh mvn test
+      - chmod 500 *.sh && ./start.sh mvn test
 services:
   - name: database
     image: mariadb:latest
@@ -52,7 +52,7 @@ services:
       SERVER_HOSTNAME: secureupload.com
 
 ---
-# TEST, BUILD AND PUSH TO PRODUCTION FOR MASTER BRANCH
+# BUILD AND PUSH TO PRODUCTION FOR MASTER BRANCH
 kind: pipeline
 name: deploy
 type: docker
@@ -62,10 +62,6 @@ trigger:
   branch:
     - master
 steps:
-  - name: test
-    image: maven:latest
-    commands:
-      - mvn test
   - name: buildandpush
     image: plugins/docker
     settings:
