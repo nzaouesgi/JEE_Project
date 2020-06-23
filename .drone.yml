@@ -24,7 +24,7 @@ steps:
       AZURE_STORAGE_CONNECTION_STRING: DefaultEndpointsProtocol=https;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=https://storage:10000/devstoreaccount1;
       AZURE_STORAGE_CONTAINER_NAME: my-container
     commands:
-      - ./start.sh mvn test
+      - chmod 500 start.sh && ./start.sh mvn test
 services:
   - name: database
     image: mariadb:latest
