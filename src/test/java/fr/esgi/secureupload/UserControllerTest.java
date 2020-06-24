@@ -1,9 +1,13 @@
 package fr.esgi.secureupload;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
+import fr.esgi.secureupload.dto.ResetPasswordDTO;
+import fr.esgi.secureupload.dto.UserDTO;
 import fr.esgi.secureupload.entities.User;
 import fr.esgi.secureupload.services.UserService;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -22,20 +26,20 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import javax.print.attribute.standard.Media;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.*;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class UserExceptionsControllerTest {
+public class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -164,41 +168,30 @@ public class UserExceptionsControllerTest {
 
     @Test
     public void getUser_AnyUserFromAdmin_ShouldReturnUser () throws Exception {
-
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(USERS_API_PATH + "/" + users.get(0).getUuid())
-                .with(user(admins.get(0).getEmail()).roles("ADMIN"));
-
-        this.mockMvc.perform(requestBuilder)
+        this.mockMvc.perform(get(USERS_API_PATH + "/" + users.get(0).getUuid())
+                .with(user(admins.get(0).getEmail()).roles("ADMIN")))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void getUser_FromSelfUser_ShouldReturnSelfUser () throws Exception {
-
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(USERS_API_PATH + "/" + users.get(0).getUuid())
-                .with(user(users.get(0).getEmail()).roles("USER"));
-
-        this.mockMvc.perform(requestBuilder)
+        this.mockMvc.perform(get(USERS_API_PATH + "/" + users.get(0).getUuid())
+                .with(user(users.get(0).getEmail()).roles("USER")))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void getUser_FromAnotherUser_ShouldReturnUnauthorized () throws Exception {
-
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(USERS_API_PATH + "/" + users.get(1).getUuid())
-                .with(user(users.get(0).getEmail()).roles("USER"));
-
-        this.mockMvc.perform(requestBuilder)
+        this.mockMvc.perform(get(USERS_API_PATH + "/" + users.get(1).getUuid())
+                .with(user(users.get(0).getEmail()).roles("USER")))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     public void getUser_WhenNotExist_ShouldReturnNotFound () throws Exception {
-
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(USERS_API_PATH + "/" + UUID.randomUUID().toString())
-                .with(user(users.get(0).getEmail()).roles("ADMIN"));
-
-        this.mockMvc.perform(requestBuilder).andExpect(status().isNotFound());
+        this.mockMvc.perform(get(USERS_API_PATH + "/" + UUID.randomUUID().toString())
+                .with(user(users.get(0).getEmail()).roles("ADMIN")))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -225,8 +218,13 @@ public class UserExceptionsControllerTest {
     @Test
     @WithMockUser(roles = { "USER", "ADMIN"})
     public void createUser_WhenAuthenticated_ShouldReturnUnauthorized () throws Exception {
+
+        UserDTO userDto = new UserDTO();
+        userDto.setEmail("mymail@domain.com");
+        userDto.setPassword("SomePassword123");
+
         this.mockMvc.perform(post(USERS_API_PATH)
-                .content("{\"email\":\"mymail@domain.com\", \"password\": \"SomePassword123\"}")
+                .content(new ObjectMapper().writeValueAsString(userDto))
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isUnauthorized());
     }
@@ -235,11 +233,13 @@ public class UserExceptionsControllerTest {
     @WithAnonymousUser
     public void createUser_WhenWrongBody_ShouldReturnBadRequest () throws Exception  {
 
-        String email = "notanemail";
+        UserDTO userDto = new UserDTO();
+        userDto.setEmail("notanemail");
+        userDto.setPassword("abc");
 
         this.mockMvc.perform(post(USERS_API_PATH)
             .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .content("{\"email\":\""+ email +"\", \"password\": \"abc\"}"))
+            .content(new ObjectMapper().writeValueAsString(userDto)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors").isArray())
                 .andExpect(jsonPath("$.errors", hasSize(2)));
@@ -249,13 +249,15 @@ public class UserExceptionsControllerTest {
     @WithAnonymousUser
     public void createUser_WhenAnonymous_ShouldCreateUserAndSendConfirmationMail () throws Exception {
 
-        String email = testUtils.getRandomMail();
+        UserDTO userDto = new UserDTO();
+        userDto.setEmail(testUtils.getRandomMail());
+        userDto.setPassword("Password12345");
 
         this.mockMvc.perform(post(USERS_API_PATH)
-                .content("{\"email\":\""+ email +"\", \"password\": \"SomePassword123\"}")
+                .content(new ObjectMapper().writeValueAsString(userDto))
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.data.uuid").isNotEmpty())
-                .andExpect(jsonPath("$.data.email", is(email)))
+                .andExpect(jsonPath("$.data.email", is(userDto.getEmail())))
                 .andExpect(jsonPath("$.data.admin", is(false)))
                 .andExpect(jsonPath("$.data.confirmed", is(false)))
                 .andExpect(jsonPath("$.data.password").doesNotExist())
@@ -264,16 +266,84 @@ public class UserExceptionsControllerTest {
                 .andExpect(header().exists(HttpHeaders.LOCATION))
                 .andExpect(status().isCreated());
 
-        JSONObject message = testUtils.getSentMail(email);
+        JSONObject message = testUtils.getSentMail(userDto.getEmail());
 
         Assertions.assertNotNull(message);
 
-        User user = userService.findByEmail(email).orElse(null);
+        User user = userService.findByEmail(userDto.getEmail()).orElse(null);
         Assertions.assertNotNull(user);
 
         JSONObject headers = message.getJSONObject("Headers");
 
-        Assertions.assertEquals(email, headers.getJSONArray("To").get(0));
+        Assertions.assertEquals(userDto.getEmail(), headers.getJSONArray("To").get(0));
         Assertions.assertTrue(message.getString("Body").contains(user.getConfirmationToken()));
+    }
+
+    /* GET /{uuid}/confirm */
+
+
+    /* PUT /{uuid}/password */
+
+    @Test
+    @WithAnonymousUser
+    public void resetPassword_WhenAnonymous_ShouldReturnUnauthorized () throws Exception {
+
+        ResetPasswordDTO resetPasswordDto = new ResetPasswordDTO();
+        resetPasswordDto.setCurrentPassword("Something123");
+        resetPasswordDto.setNewPassword("321gnihtemoS");
+
+        this.mockMvc.perform(put(USERS_API_PATH + "/" + users.get(0).getUuid() + "/password")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(new ObjectMapper().writeValueAsString(resetPasswordDto)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void resetPassword_WhenWrongBody_ShouldReturnBadRequest () throws Exception {
+
+        ResetPasswordDTO resetPasswordDto = new ResetPasswordDTO();
+        resetPasswordDto.setCurrentPassword("abc123");
+        resetPasswordDto.setNewPassword("abc123");
+
+        this.mockMvc.perform(put(USERS_API_PATH + "/" + users.get(0).getUuid() + "/password")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .with(user(users.get(0).getEmail()).roles("USER"))
+                .content(new ObjectMapper().writeValueAsString(resetPasswordDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors").isArray())
+                .andExpect(jsonPath("$.errors", hasSize(2)));
+    }
+
+    @Test
+    public void resetPassword_WhenSelfAndWrongPassword_ShouldReturnForbidden () throws Exception {
+
+        ResetPasswordDTO resetPasswordDto = new ResetPasswordDTO();
+        resetPasswordDto.setCurrentPassword("BadPassword :(");
+        resetPasswordDto.setNewPassword("MyNewPassword12345");
+
+        this.mockMvc.perform(put(USERS_API_PATH + "/" + users.get(0).getUuid() + "/password")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(new ObjectMapper().writeValueAsString(resetPasswordDto))
+                .with(user(users.get(0).getEmail()).roles("USER")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void resetPassword_WhenSelfAndValidBody_ShouldChangePassword () throws Exception {
+
+        ResetPasswordDTO resetPasswordDto = new ResetPasswordDTO();
+        resetPasswordDto.setCurrentPassword("Password12345");
+        resetPasswordDto.setNewPassword("MyNewPassword12345");
+
+        this.mockMvc.perform(put(USERS_API_PATH + "/" + users.get(0).getUuid() + "/password")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(new ObjectMapper().writeValueAsString(resetPasswordDto))
+                .with(user(users.get(0).getEmail()).roles("USER")))
+                .andExpect(status().isNoContent());
+
+        User modified = this.userService.findById(users.get(0).getUuid()).orElse(null);
+        if (modified == null)
+            Assertions.fail();
+        Assertions.assertNotEquals(modified.getPassword(), users.get(0).getPassword());
     }
 }

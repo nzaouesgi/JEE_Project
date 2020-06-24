@@ -45,7 +45,7 @@ public class User extends BaseEntity {
     /* Random token sent to user's mail address to confirm it. */
     @Column(name="confirmationToken", nullable = false)
     @JsonIgnore
-    @Builder.Default private String confirmationToken = Utils.randomString(64);
+    @Builder.Default private String confirmationToken = Utils.randomBytesToHex(64);
 
     /* Password recovery token sent to user's mail address, null when no reset request has been made. */
     @Column(name="recoveryToken")
