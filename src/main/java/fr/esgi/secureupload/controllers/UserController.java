@@ -87,11 +87,8 @@ public class UserController {
             sort.descending();
 
         Page<User> results;
-        try {
-            results = search == null ? this.userService.findAll(page, limit, sort) : this.userService.findAllByPattern(search, page, limit, sort);
-        } catch (PropertyReferenceException e){
-            throw new UserExceptions.PropertyNotFoundException(String.format("Bad parameter was given for \"orderBy\" (%s).", orderBy));
-        }
+
+        results = search == null ? this.userService.findAll(page, limit, sort) : this.userService.findAllByPattern(search, page, limit, sort);
 
         response.setStatus(HttpStatus.OK.value());
 
@@ -142,6 +139,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/{uuid}/confirm")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("!isAuthenticated()")
     public void confirmMailAddress (
             @PathVariable(name = "uuid") String uuid,
