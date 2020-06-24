@@ -3,8 +3,9 @@ package fr.esgi.secureupload;
 import fr.esgi.secureupload.entities.User;
 import fr.esgi.secureupload.services.UserService;
 import fr.esgi.secureupload.utils.Utils;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,8 +14,12 @@ import org.springframework.data.domain.Sort;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
 @SpringBootTest
-public class UserExceptionsServiceTest {
+public class UserServiceTest {
+
+
 
     private List<User> toDelete = new ArrayList<>();
 
@@ -25,10 +30,15 @@ public class UserExceptionsServiceTest {
     private TestUtils testUtils;
 
     @Test
+    public void findById (){
+
+    }
+
+    @Test
     public void saveUser (){
         User user = User.builder()
                 .email(testUtils.getRandomMail())
-                .password(Utils.randomString(4))
+                .password(Utils.randomBytesToHex(4))
                 .build();
         Assertions.assertDoesNotThrow(() -> {
             this.userService.save(user);
@@ -40,7 +50,7 @@ public class UserExceptionsServiceTest {
     public void deleteUser (){
         User user = User.builder()
                 .email(testUtils.getRandomMail())
-                .password(Utils.randomString(4))
+                .password(Utils.randomBytesToHex(4))
                 .build();
 
         this.userService.save(user);
@@ -54,7 +64,7 @@ public class UserExceptionsServiceTest {
     public void findByPattern (){
         User user = User.builder()
                 .email(testUtils.getRandomMail())
-                .password(Utils.randomString(4))
+                .password(Utils.randomBytesToHex(4))
                 .build();
 
         this.userService.save(user);
@@ -67,7 +77,7 @@ public class UserExceptionsServiceTest {
                 .anyMatch(u -> u.getUuid().equals(user.getUuid())));
     }
 
-    @After
+    @AfterEach
     public void clean(){
         for (User user : this.toDelete){
             this.userService.delete(user);

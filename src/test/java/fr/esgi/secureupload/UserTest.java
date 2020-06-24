@@ -11,7 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 
 @SpringBootTest
-public class UserExceptionsTest {
+public class UserTest {
 
     @Autowired
     private TestUtils testUtils;
@@ -21,9 +21,9 @@ public class UserExceptionsTest {
         User.UserBuilder builder = User.builder();
 
         Assertions.assertDoesNotThrow(() -> builder.email(testUtils.getRandomMail()));
-        Assertions.assertDoesNotThrow(() -> builder.password(Utils.randomString(4)));
+        Assertions.assertDoesNotThrow(() -> builder.password(Utils.randomBytesToHex(4)));
 
-        User user = builder.build();
+        Assertions.assertDoesNotThrow(builder::build);
     }
 
     @Test

@@ -5,7 +5,7 @@ import java.security.SecureRandom;
 
 public class Utils {
 
-    public static String randomString (int bytesLength){
+    public static String randomBytesToHex(int bytesLength){
 
         SecureRandom random = new SecureRandom();
         byte[] bytes = new byte[bytesLength];

@@ -1,5 +1,6 @@
 package fr.esgi.secureupload.controllers;
 
+import fr.esgi.secureupload.dto.ConfirmMailDto;
 import fr.esgi.secureupload.dto.ResetPasswordDTO;
 import fr.esgi.secureupload.dto.UserDTO;
 import fr.esgi.secureupload.entities.User;
@@ -21,7 +22,6 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -50,16 +50,15 @@ public class UserController {
         this.emailService = emailService;
     }
 
-    private void checkIfSelf (String uuid) throws UserExceptions.SecurityException {
+    private void checkIfSelfOrAdmin(User user) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String mail = auth.getName();
-        User user = this.userService.findByEmail(mail)
-                .orElseThrow(() -> new UserExceptions.SecurityException("Logged in user does not exist."));
 
-        if (!user.getUuid().equals(uuid)) {
-            if (!user.isAdmin())
-                throw new UserExceptions.SecurityException("Denied. This data belongs to another user.");
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!user.getEmail().equals(auth.getName()) && !isAdmin) {
+            throw new UserExceptions.SecurityException("Denied. This data belongs to another user.");
         }
     }
 
@@ -91,7 +90,6 @@ public class UserController {
         try {
             results = search == null ? this.userService.findAll(page, limit, sort) : this.userService.findAllByPattern(search, page, limit, sort);
         } catch (PropertyReferenceException e){
-            this.logger.error(String.format("GET /users : %s", e.getMessage()));
             throw new UserExceptions.PropertyNotFoundException(String.format("Bad parameter was given for \"orderBy\" (%s).", orderBy));
         }
 
@@ -102,13 +100,12 @@ public class UserController {
 
     @GetMapping(value = "/{uuid}")
     @Secured({ "ROLE_USER", "ROLE_ADMIN" })
-    public Response.DataBody<User> getUser (@PathVariable(name = "uuid") String uuid, HttpServletResponse response)
-            throws UserExceptions.NotFoundException, UserExceptions.SecurityException {
+    public Response.DataBody<User> getUser (@PathVariable(name = "uuid") String uuid, HttpServletResponse response) {
 
         User user = this.userService.findById(uuid)
                 .orElseThrow(() -> new UserExceptions.NotFoundException(String.format("User %s not found.", uuid)));
 
-        checkIfSelf(uuid);
+        this.checkIfSelfOrAdmin(user);
 
         response.setStatus(HttpStatus.OK.value());
         return new Response.DataBody<>(user, response.getStatus());
@@ -117,61 +114,45 @@ public class UserController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("!isAuthenticated()")
     public Response.DataBody<User> createUser(
-            @RequestBody @Valid UserDTO createObject,
+            @RequestBody @Valid UserDTO userDto,
             UriComponentsBuilder uriComponentsBuilder,
-            HttpServletResponse response)
-            throws UserExceptions.MailAlreadyTakenException, UserExceptions.PropertyValidationException {
+            HttpServletResponse response) {
 
-        if (this.userService.findByEmail(createObject.getEmail())
-                .isPresent()){
-            throw new UserExceptions.MailAlreadyTakenException(String.format("Mail %s is already taken.", createObject.getEmail()));
-        }
+        User createdUser = this.userService.createUser(userDto);
 
-        User user = User.builder()
-                .email(createObject.getEmail())
-                .password(createObject.getPassword())
-                .build();
-
-        User savedUser = this.userService.save(user);
-
-        String resourcePath = String.format("/users/%s", savedUser.getUuid());
+        String resourcePath = String.format("/users/%s", createdUser.getUuid());
         UriComponents components = uriComponentsBuilder
                 .replacePath(resourcePath)
                 .build();
 
         String location = components.toUri().toString();
 
-        emailService.send(
-                savedUser.getEmail(),
-                "Please confirm your account",
-                String.format("Use this link to confirm your account: %s/confirm?token=%s", location, savedUser.getConfirmationToken()));
+        emailService.sendConfirmationMail(createdUser.getEmail(),
+                // (this is a fake front end)
+                String.format("http://secureuploadfrontend.com/confirmAccount?uuid=%s&confirmationToken=%s",
+                createdUser.getEmail(),
+                        createdUser.getConfirmationToken()));
 
         response.setHeader(HttpHeaders.LOCATION, location);
         response.setStatus(HttpStatus.CREATED.value());
 
-        this.logger.info(String.format("POST /users : User %s was created.", savedUser.toString()));
+        this.logger.info(String.format("POST /users : User %s was created.", createdUser.toString()));
 
-        return new Response.DataBody<>(user, response.getStatus());
+        return new Response.DataBody<>(createdUser, response.getStatus());
     }
 
-    @GetMapping(value = "/{uuid}/confirm")
+    @PostMapping(value = "/{uuid}/confirm")
     @PreAuthorize("!isAuthenticated()")
     public void confirmMailAddress (
             @PathVariable(name = "uuid") String uuid,
-            @RequestParam(name = "token") String token)
-            throws UserExceptions.NotFoundException{
+            @RequestBody @Valid ConfirmMailDto confirmMailDto) {
 
         User user = this.userService.findById(uuid)
                 .orElseThrow(() -> new UserExceptions.NotFoundException(String.format("User %s not found.", uuid)));
 
-        if (!user.getConfirmationToken().equalsIgnoreCase(token))
-            throw new UserExceptions.NotFoundException(String.format("Invalid token or uuid (%s).", uuid));
+        User confirmedUser = this.userService.confirmMailAddress(user, confirmMailDto.getConfirmationToken());
 
-        user.setConfirmed(true);
-
-        User savedUser = this.userService.save(user);
-
-        this.logger.info(String.format("GET /users/{id}/confirm : User %s was confirmed.", savedUser));
+        this.logger.info(String.format("GET /users/{id}/confirm : User %s was confirmed.", confirmedUser));
     }
 
     @DeleteMapping(value = "/{uuid}")
@@ -180,10 +161,10 @@ public class UserController {
     public void deleteUser (@PathVariable(name = "uuid") String uuid)
             throws UserExceptions.NotFoundException, UserExceptions.SecurityException {
 
-        checkIfSelf(uuid);
-
         User user = this.userService.findById(uuid)
                 .orElseThrow(() -> new UserExceptions.NotFoundException(String.format("User %s not found.", uuid)));
+
+        this.checkIfSelfOrAdmin(user);
 
         this.userService.delete(user);
 
@@ -198,19 +179,14 @@ public class UserController {
             @RequestBody @Valid ResetPasswordDTO resetPasswordDto)
             throws UserExceptions.NotFoundException, UserExceptions.SecurityException {
 
-        checkIfSelf(uuid);
-
         User user = this.userService.findById(uuid)
                 .orElseThrow(() -> new UserExceptions.NotFoundException(String.format("User %s not found.", uuid)));
 
-        if (!(new Argon2PasswordEncoder().matches(resetPasswordDto.getCurrentPassword(), user.getPassword())))
-            throw new UserExceptions.SecurityException("Bad current password.");
+        this.checkIfSelfOrAdmin(user);
 
-        user.setPassword(resetPasswordDto.getNewPassword());
+        User updated = this.userService.resetPassword(user, resetPasswordDto);
 
-        User savedUser = this.userService.save(user);
-
-        this.logger.info(String.format("DELETE /users/{id} : User %s has changed his password.", savedUser));
+        this.logger.info(String.format("DELETE /users/{id} : User %s has changed his password.", updated));
     }
 }
 

@@ -36,6 +36,6 @@ public class TestUtils {
     }
 
     public String getRandomMail (){
-        return String.format("%suser@domain.fr", Utils.randomString(3));
+        return String.format("%suser@domain.fr", Utils.randomBytesToHex(3));
     }
 }
