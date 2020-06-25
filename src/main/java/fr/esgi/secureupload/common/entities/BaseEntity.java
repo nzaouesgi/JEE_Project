@@ -33,6 +33,12 @@ public abstract class BaseEntity {
         this.updatedAt = updatedAt;
     }
 
+    public BaseEntity(String id, Date createdAt, Date updatedAt) {
+        this.id = id;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
     public static class Builder <T extends Builder<T>> {
 
         private String id;
