@@ -1,16 +1,17 @@
 package fr.esgi.secureupload;
 
-import fr.esgi.secureupload.entities.User;
-import fr.esgi.secureupload.services.UserService;
+import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepository;
+import fr.esgi.secureupload.users.adapters.repositories.UserRepositoryAdapter;
+import fr.esgi.secureupload.users.entities.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
 
-@Component
+
 class BootstrapApplication {
 
-    private final UserService userService;
+    private UserRepositoryAdapter userJpaRepositoryImpl;
 
     @Value("${secureupload.admin.email}")
     private String adminEmail;
@@ -18,22 +19,22 @@ class BootstrapApplication {
     @Value("${secureupload.admin.password}")
     private String adminPassword;
 
-    BootstrapApplication(UserService userService) {
-        this.userService = userService;
+    BootstrapApplication(@Autowired UserJpaRepository userJpaRepository) {
+        this.userJpaRepositoryImpl = new UserRepositoryAdapter(userJpaRepository);
     }
 
     void createAdminUser(){
         User admin = User.builder()
                 .email(this.adminEmail)
                 .password(this.adminPassword)
-                .isAdmin(true)
-                .isConfirmed(true)
+                .admin(true)
+                .confirmed(true)
                 .build();
-        this.userService.save(admin);
+        this.userJpaRepositoryImpl.save(admin);
     }
 
     @EventListener
-    void onStartup(ApplicationReadyEvent event) {
+    public void onStartup(ApplicationReadyEvent event) {
         this.createAdminUser();
     }
 }

@@ -1,9 +1,8 @@
 package fr.esgi.secureupload;
 
-import fr.esgi.secureupload.entities.User;
+import fr.esgi.secureupload.users.entities.User;
 
-import fr.esgi.secureupload.exceptions.UserExceptions;
-import fr.esgi.secureupload.utils.Utils;
+import fr.esgi.secureupload.common.utils.Utils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,22 +17,23 @@ public class UserTest {
 
     @Test
     public void createValidUser (){
-        User.UserBuilder builder = User.builder();
+        User.Builder builder = User.builder();
 
         Assertions.assertDoesNotThrow(() -> builder.email(testUtils.getRandomMail()));
         Assertions.assertDoesNotThrow(() -> builder.password(Utils.randomBytesToHex(4)));
+        Assertions.assertDoesNotThrow(() -> builder.confirmationToken(Utils.randomBytesToHex(32)));
 
         Assertions.assertDoesNotThrow(builder::build);
     }
 
     @Test
     public void rejectInvalidUser (){
-        User.UserBuilder builder = User.builder();
+        User.Builder builder = User.builder();
 
-        Assertions.assertThrows(UserExceptions.PropertyValidationException.class, () -> builder.email("not an email"));
-        Assertions.assertThrows(UserExceptions.PropertyValidationException.class, () -> builder.password("123"));
+        //Assertions.assertThrows(UserPropertyValidationException.class, () -> builder.email("not an email"));
+        //Assertions.assertThrows(UserPropertyValidationException.class, () -> builder.password("123"));
 
-        Assertions.assertThrows(NullPointerException.class, builder::build);
+        Assertions.assertThrows(IllegalArgumentException.class, builder::build);
     }
 
 }

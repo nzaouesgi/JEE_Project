@@ -1,14 +1,14 @@
 package fr.esgi.secureupload;
 
-import fr.esgi.secureupload.entities.User;
-import fr.esgi.secureupload.services.UserService;
-import fr.esgi.secureupload.utils.Utils;
+import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepository;
+import fr.esgi.secureupload.users.adapters.repositories.UserRepositoryAdapter;
+import fr.esgi.secureupload.users.entities.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
@@ -19,15 +19,16 @@ import java.util.List;
 @SpringBootTest
 public class UserServiceTest {
 
-
-
     private List<User> toDelete = new ArrayList<>();
 
-    @Autowired
-    private UserService userService;
+    private UserRepositoryAdapter userJpaRepositoryImpl;
 
     @Autowired
     private TestUtils testUtils;
+
+    public UserServiceTest (@Autowired UserJpaRepository userJpaRepository){
+        this.userJpaRepositoryImpl = new UserRepositoryAdapter(userJpaRepository);
+    }
 
     @Test
     public void findById (){
@@ -36,51 +37,40 @@ public class UserServiceTest {
 
     @Test
     public void saveUser (){
-        User user = User.builder()
-                .email(testUtils.getRandomMail())
-                .password(Utils.randomBytesToHex(4))
-                .build();
+        User user = this.testUtils.getRandomUser(false);
         Assertions.assertDoesNotThrow(() -> {
-            this.userService.save(user);
+            this.userJpaRepositoryImpl.save(user);
         });
         this.toDelete.add(user);
     }
 
     @Test
     public void deleteUser (){
-        User user = User.builder()
-                .email(testUtils.getRandomMail())
-                .password(Utils.randomBytesToHex(4))
-                .build();
+        User user = this.testUtils.getRandomUser(false);
 
-        this.userService.save(user);
+        this.userJpaRepositoryImpl.save(user);
 
         Assertions.assertDoesNotThrow(() -> {
-            this.userService.delete(user);
+            this.userJpaRepositoryImpl.delete(user);
         });
     }
 
     @Test
     public void findByPattern (){
-        User user = User.builder()
-                .email(testUtils.getRandomMail())
-                .password(Utils.randomBytesToHex(4))
-                .build();
+        User user = this.testUtils.getRandomUser(false);
 
-        this.userService.save(user);
+        User saved = this.userJpaRepositoryImpl.save(user);
 
-        Assertions.assertTrue(this.userService.findAllByPattern(
-                user.getEmail()
-                        .substring(1), 0, 1, Sort.by("email"))
+        Assertions.assertTrue(this.userJpaRepositoryImpl.findAllByPattern(saved.getEmail().substring(1), PageRequest.of(0, 1, Sort.by("email")))
                 .getContent()
                 .stream()
-                .anyMatch(u -> u.getUuid().equals(user.getUuid())));
+                .anyMatch(u -> u.getId().equals(saved.getId())));
     }
 
     @AfterEach
     public void clean(){
         for (User user : this.toDelete){
-            this.userService.delete(user);
+            this.userJpaRepositoryImpl.delete(user);
         }
     }
 }
