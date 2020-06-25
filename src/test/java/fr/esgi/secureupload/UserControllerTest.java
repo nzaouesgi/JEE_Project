@@ -2,11 +2,12 @@ package fr.esgi.secureupload;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
-import fr.esgi.secureupload.dto.ConfirmMailDto;
-import fr.esgi.secureupload.dto.ResetPasswordDTO;
-import fr.esgi.secureupload.dto.UserDTO;
-import fr.esgi.secureupload.entities.User;
-import fr.esgi.secureupload.services.UserService;
+import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepository;
+import fr.esgi.secureupload.users.adapters.repositories.UserRepositoryAdapter;
+import fr.esgi.secureupload.users.dto.ConfirmMailDto;
+import fr.esgi.secureupload.users.dto.ResetPasswordDTO;
+import fr.esgi.secureupload.users.dto.UserDTO;
+import fr.esgi.secureupload.users.entities.User;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.*;
@@ -41,8 +42,7 @@ public class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private UserService userService;
+    private UserRepositoryAdapter userJpaRepositoryImpl;
 
     @Autowired
     private TestUtils testUtils;
@@ -53,24 +53,18 @@ public class UserControllerTest {
     private ArrayList<User> users = new ArrayList<>();
     private ArrayList<User> admins = new ArrayList<>();
 
+    public UserControllerTest (@Autowired  UserJpaRepository userJpaRepository){
+        this.userJpaRepositoryImpl = new UserRepositoryAdapter(userJpaRepository);
+    }
+
     @BeforeEach
     public void addTestUsers(){
 
         for (int i = 0; i < TEST_USERS; i ++){
-            this.users.add(User.builder()
-                    .isAdmin(false)
-                    .isConfirmed(true)
-                    .password("Password12345")
-                    .email(this.testUtils.getRandomMail()).build());
-            this.userService.save(this.users.get(i));
+            this.users.add(this.userJpaRepositoryImpl.save(this.testUtils.getRandomUser(false)));
         }
         for (int i = 0; i < TEST_ADMIN; i ++){
-            this.admins.add(User.builder()
-                    .isAdmin(true)
-                    .isConfirmed(true)
-                    .password("Password12345")
-                    .email(this.testUtils.getRandomMail()).build());
-            this.userService.save(this.admins.get(i));
+            this.admins.add(this.userJpaRepositoryImpl.save(this.testUtils.getRandomUser(true)));
         }
     }
 
@@ -86,7 +80,7 @@ public class UserControllerTest {
 
         for (int i = 0; i < TEST_USERS + TEST_ADMIN; i ++){
             String path = "$.data.content[" + i + "]";
-            res.andExpect(jsonPath(path + ".uuid").isNotEmpty())
+            res.andExpect(jsonPath(path + ".id").isNotEmpty())
                     .andExpect(jsonPath(path + ".email").isNotEmpty())
                     .andExpect(jsonPath(path + ".admin").isBoolean())
                     .andExpect(jsonPath(path + ".confirmed").isBoolean())
@@ -104,7 +98,7 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content").isArray())
                 .andExpect(jsonPath("$.data.content", hasSize(1)))
-                .andExpect(jsonPath("$.data.content[0].uuid", is(this.users.get(0).getUuid())));
+                .andExpect(jsonPath("$.data.content[0].id", is(this.users.get(0).getId())));
     }
 
     @Test
@@ -166,7 +160,7 @@ public class UserControllerTest {
                         .isUnauthorized());
     }
 
-    /* GET /{uuid} */
+    /* GET /{id} */
     @Test
     @WithAnonymousUser
     public void getUser_FromAnonymous_ShouldReturnUnauthorized () throws Exception {
@@ -176,21 +170,21 @@ public class UserControllerTest {
 
     @Test
     public void getUser_AnyUserFromAdmin_ShouldReturnUser () throws Exception {
-        this.mockMvc.perform(get(USERS_API_PATH + "/" + this.users.get(0).getUuid())
+        this.mockMvc.perform(get(USERS_API_PATH + "/" + this.users.get(0).getId())
                 .with(user(this.admins.get(0).getEmail()).roles("ADMIN")))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void getUser_FromSelfUser_ShouldReturnSelfUser () throws Exception {
-        this.mockMvc.perform(get(USERS_API_PATH + "/" + this.users.get(0).getUuid())
+        this.mockMvc.perform(get(USERS_API_PATH + "/" + this.users.get(0).getId())
                 .with(user(this.users.get(0).getEmail()).roles("USER")))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void getUser_FromAnotherUser_ShouldReturnUnauthorized () throws Exception {
-        this.mockMvc.perform(get(USERS_API_PATH + "/" + this.users.get(1).getUuid())
+        this.mockMvc.perform(get(USERS_API_PATH + "/" + this.users.get(1).getId())
                 .with(user(this.users.get(0).getEmail()).roles("USER")))
                 .andExpect(status().isForbidden());
     }
@@ -207,12 +201,12 @@ public class UserControllerTest {
 
         User user = this.users.get(0);
 
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(USERS_API_PATH + "/" + user.getUuid())
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(USERS_API_PATH + "/" + user.getId())
                 .with(user(user.getEmail()).roles("USER"));
 
         this.mockMvc.perform(requestBuilder)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.uuid", is(user.getUuid())))
+                .andExpect(jsonPath("$.data.id", is(user.getId())))
                 .andExpect(jsonPath("$.data.email", is(user.getEmail())))
                 .andExpect(jsonPath("$.data.admin", is(user.isAdmin())))
                 .andExpect(jsonPath("$.data.confirmed", is(user.isConfirmed())))
@@ -264,7 +258,7 @@ public class UserControllerTest {
         this.mockMvc.perform(post(USERS_API_PATH)
                 .content(new ObjectMapper().writeValueAsString(userDto))
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.data.uuid").isNotEmpty())
+                .andExpect(jsonPath("$.data.id").isNotEmpty())
                 .andExpect(jsonPath("$.data.email", is(userDto.getEmail())))
                 .andExpect(jsonPath("$.data.admin", is(false)))
                 .andExpect(jsonPath("$.data.confirmed", is(false)))
@@ -278,7 +272,7 @@ public class UserControllerTest {
 
         Assertions.assertNotNull(message);
 
-        User user = this.userService.findByEmail(userDto.getEmail()).orElse(null);
+        User user = this.userJpaRepositoryImpl.findByEmail(userDto.getEmail()).orElse(null);
         Assertions.assertNotNull(user);
 
         JSONObject headers = message.getJSONObject("Headers");
@@ -287,7 +281,7 @@ public class UserControllerTest {
         Assertions.assertTrue(message.getString("Body").contains(user.getConfirmationToken()));
     }
 
-    /* PUT /{uuid}/password */
+    /* PUT /{id}/password */
 
     @Test
     @WithAnonymousUser
@@ -297,7 +291,7 @@ public class UserControllerTest {
         resetPasswordDto.setCurrentPassword("Something123");
         resetPasswordDto.setNewPassword("321gnihtemoS");
 
-        this.mockMvc.perform(put(USERS_API_PATH + "/" + this.users.get(0).getUuid() + "/password")
+        this.mockMvc.perform(put(USERS_API_PATH + "/" + this.users.get(0).getId() + "/password")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(new ObjectMapper().writeValueAsString(resetPasswordDto)))
                 .andExpect(status().isUnauthorized());
@@ -310,7 +304,7 @@ public class UserControllerTest {
         resetPasswordDto.setCurrentPassword("abc123");
         resetPasswordDto.setNewPassword("abc123");
 
-        this.mockMvc.perform(put(USERS_API_PATH + "/" + this.users.get(0).getUuid() + "/password")
+        this.mockMvc.perform(put(USERS_API_PATH + "/" + this.users.get(0).getId() + "/password")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .with(user(users.get(0).getEmail()).roles("USER"))
                 .content(new ObjectMapper().writeValueAsString(resetPasswordDto)))
@@ -326,7 +320,7 @@ public class UserControllerTest {
         resetPasswordDto.setCurrentPassword("BadPassword :(");
         resetPasswordDto.setNewPassword("MyNewPassword12345");
 
-        this.mockMvc.perform(put(USERS_API_PATH + "/" + this.users.get(0).getUuid() + "/password")
+        this.mockMvc.perform(put(USERS_API_PATH + "/" + this.users.get(0).getId() + "/password")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(new ObjectMapper().writeValueAsString(resetPasswordDto))
                 .with(user(this.users.get(0).getEmail()).roles("USER")))
@@ -337,22 +331,22 @@ public class UserControllerTest {
     public void resetPassword_WhenSelfAndValidBody_ShouldChangePassword () throws Exception {
 
         ResetPasswordDTO resetPasswordDto = new ResetPasswordDTO();
-        resetPasswordDto.setCurrentPassword("Password12345");
+        resetPasswordDto.setCurrentPassword(TestUtils.DEFAULT_PASSWORD);
         resetPasswordDto.setNewPassword("MyNewPassword12345");
 
-        this.mockMvc.perform(put(USERS_API_PATH + "/" + this.users.get(0).getUuid() + "/password")
+        this.mockMvc.perform(put(USERS_API_PATH + "/" + this.users.get(0).getId() + "/password")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(new ObjectMapper().writeValueAsString(resetPasswordDto))
                 .with(user(this.users.get(0).getEmail()).roles("USER")))
                 .andExpect(status().isNoContent());
 
-        User modified = this.userService.findById(this.users.get(0).getUuid()).orElse(null);
+        User modified = this.userJpaRepositoryImpl.findById(this.users.get(0).getId()).orElse(null);
         if (modified == null)
             Assertions.fail();
         Assertions.assertNotEquals(modified.getPassword(), users.get(0).getPassword());
     }
 
-    /* POST /{uuid}/confirm */
+    /* POST /{id}/confirm */
 
     @Test
     @WithMockUser(roles = { "ADMIN", "USER" })
@@ -362,7 +356,7 @@ public class UserControllerTest {
         confirmMailDto.setConfirmationToken(this.users.get(0).getConfirmationToken());
 
         this.mockMvc.perform(
-                post(String.format("%s/%s/confirm", USERS_API_PATH, this.users.get(0).getUuid()))
+                post(String.format("%s/%s/confirm", USERS_API_PATH, this.users.get(0).getId()))
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(new ObjectMapper().writeValueAsString(confirmMailDto)))
                 .andExpect(status().isUnauthorized());
@@ -370,15 +364,15 @@ public class UserControllerTest {
 
     @Test
     @WithAnonymousUser
-    public void confirmUser_WhenAnonymousAndInvalidToken_ShouldReturnNotFound () throws Exception {
+    public void confirmUser_WhenAnonymousAndInvalidToken_ShouldReturnForbidden () throws Exception {
         ConfirmMailDto confirmMailDto = new ConfirmMailDto();
         confirmMailDto.setConfirmationToken("badtoken");
 
         this.mockMvc.perform(
-                post(String.format("%s/%s/confirm", USERS_API_PATH, this.users.get(0).getUuid()))
+                post(String.format("%s/%s/confirm", USERS_API_PATH, this.users.get(0).getId()))
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(new ObjectMapper().writeValueAsString(confirmMailDto)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -388,61 +382,61 @@ public class UserControllerTest {
         confirmMailDto.setConfirmationToken(this.users.get(0).getConfirmationToken());
 
         this.mockMvc.perform(
-                post(String.format("%s/%s/confirm", USERS_API_PATH, this.users.get(0).getUuid()))
+                post(String.format("%s/%s/confirm", USERS_API_PATH, this.users.get(0).getId()))
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(new ObjectMapper().writeValueAsString(confirmMailDto)))
                 .andExpect(status().isNoContent());
 
-        User user = this.userService.findById(this.users.get(0).getUuid()).orElse(null);
+        User user = this.userJpaRepositoryImpl.findById(this.users.get(0).getId()).orElse(null);
         if (user == null){
             Assertions.fail();
         }
         Assertions.assertTrue(user.isConfirmed());
     }
 
-    /* DELETE /{uuid} */
+    /* DELETE /{id} */
 
     @Test
     @WithAnonymousUser
     public void deleteUser_WhenAnonymous_ShouldReturnUnauthorized () throws Exception {
-        this.mockMvc.perform(delete(USERS_API_PATH + "/" + this.users.get(0).getUuid()))
+        this.mockMvc.perform(delete(USERS_API_PATH + "/" + this.users.get(0).getId()))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser
     public void deleteUser_WhenNotSelf_ShouldReturnForbidden () throws Exception {
-        this.mockMvc.perform(delete(USERS_API_PATH + "/" + this.users.get(0).getUuid()))
+        this.mockMvc.perform(delete(USERS_API_PATH + "/" + this.users.get(0).getId()))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(roles = { "ADMIN" })
     public void deleteUser_WhenAdmin_ShouldDeleteUserAndReturnNoContent () throws Exception {
-        this.mockMvc.perform(delete(USERS_API_PATH + "/" + this.users.get(0).getUuid()))
+        this.mockMvc.perform(delete(USERS_API_PATH + "/" + this.users.get(0).getId()))
                 .andExpect(status().isNoContent());
-        Assertions.assertNull(this.userService.findById(this.users.get(0).getUuid())
+        Assertions.assertNull(this.userJpaRepositoryImpl.findById(this.users.get(0).getId())
                 .orElse(null));
     }
 
     @Test
     public void deleteUser_WhenSelf_ShouldDeleteUserAndReturnNoContent () throws Exception {
         this.mockMvc.perform(
-                delete(USERS_API_PATH + "/" + this.users.get(0).getUuid())
+                delete(USERS_API_PATH + "/" + this.users.get(0).getId())
                 .with(user(this.users.get(0).getEmail())
                         .roles("USER")))
                 .andExpect(status().isNoContent());
-        Assertions.assertNull(this.userService.findById(this.users.get(0).getUuid())
+        Assertions.assertNull(this.userJpaRepositoryImpl.findById(this.users.get(0).getId())
                 .orElse(null));
     }
 
     @AfterEach
     public void cleanUsers(){
         for (User user: this.users){
-            userService.delete(user);
+            userJpaRepositoryImpl.delete(user);
         }
         for (User user: this.admins){
-           userService.delete(user);
+            userJpaRepositoryImpl.delete(user);
         }
     }
 }
