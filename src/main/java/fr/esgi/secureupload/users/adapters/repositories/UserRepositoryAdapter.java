@@ -51,8 +51,8 @@ public final class UserRepositoryAdapter implements UserRepository {
 
     @Override
     public Page<User> findAll(Pageable pageable) {
-        return this.jpaRepository.findAll(pageable)
-                .map(this::convertToUser);
+        Page<UserJpaEntity> usersJpa = this.jpaRepository.findAll(pageable);
+        return usersJpa.map(this::convertToUser);
     }
 
     @Override

@@ -6,7 +6,6 @@ import javax.persistence.*;
 import java.util.Date;
 import java.util.UUID;
 
-@Data
 @MappedSuperclass
 public abstract class BaseJPAEntity {
 
@@ -30,5 +29,29 @@ public abstract class BaseJPAEntity {
     @PreUpdate
     public void beforeUpdate() {
         this.updatedAt = new Date();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

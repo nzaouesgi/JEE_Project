@@ -9,6 +9,8 @@ public abstract class BaseEntity {
     private Date createdAt;
     private Date updatedAt;
 
+
+
     public String getId() {
         return this.id;
     }
