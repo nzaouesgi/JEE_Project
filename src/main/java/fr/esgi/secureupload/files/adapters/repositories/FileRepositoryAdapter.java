@@ -5,6 +5,7 @@ import fr.esgi.secureupload.files.repository.FileRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class FileRepositoryAdapter implements FileRepository {
@@ -38,7 +39,8 @@ public class FileRepositoryAdapter implements FileRepository {
 
     @Override
     public Optional<File> findById(String id) {
-        return Optional.empty();
+        return this.jpaRepository.findById(id)
+                .map(this::convertToFile);
     }
 
     @Override
@@ -53,11 +55,11 @@ public class FileRepositoryAdapter implements FileRepository {
 
     @Override
     public File save(File file) {
-        return null;
+        return this.convertToFile(this.jpaRepository.save(Objects.requireNonNull(this.convertToJpaEntity(file))));
     }
 
     @Override
     public void delete(File file) {
-
+        this.jpaRepository.delete(Objects.requireNonNull(this.convertToJpaEntity(file)));
     }
 }
