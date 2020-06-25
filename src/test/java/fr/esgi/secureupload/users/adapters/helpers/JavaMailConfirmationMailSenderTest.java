@@ -1,7 +1,6 @@
-package fr.esgi.secureupload;
+package fr.esgi.secureupload.users.adapters.helpers;
 
-import fr.esgi.secureupload.users.adapters.helpers.ConfirmationMailSenderImpl;
-import fr.esgi.secureupload.common.utils.Utils;
+import fr.esgi.secureupload.TestUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
@@ -15,22 +14,22 @@ import java.io.IOException;
 @SpringBootTest
 public class JavaMailConfirmationMailSenderTest {
 
-    private ConfirmationMailSenderImpl sender;
+    private JavaMailConfirmationMailSender sender;
 
     @Autowired
     private TestUtils testUtils;
 
-    public JavaMailConfirmationMailSenderTest (@Autowired JavaMailSender javaMailSender){
-        this.sender = new ConfirmationMailSenderImpl(javaMailSender);
+    public JavaMailConfirmationMailSenderTest(@Autowired JavaMailSender javaMailSender){
+        this.sender = new JavaMailConfirmationMailSender(javaMailSender);
     }
 
     @Test
     public void sendConfirmationMail_ShouldSendConfirmationMail () throws IOException, JSONException {
         String to = testUtils.getRandomMail();
-        String token = Utils.randomBytesToHex(8);
+        String token = "randomtoken";
 
         Assertions.assertDoesNotThrow(() -> {
-            this.sender.sendConfirmationMail(to, "http://confirmhere.com/users/" + Utils.randomBytesToHex(8) + "/confirm?confirmationToken=" + token);
+            this.sender.sendConfirmationMail(to, "http://confirmhere.com/users/someid/confirm?confirmationToken=" + token);
         });
 
 

@@ -1,8 +1,6 @@
 package fr.esgi.secureupload.users.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import fr.esgi.secureupload.common.entities.BaseEntity;
-import fr.esgi.secureupload.users.adapters.helpers.RandomTokenGeneratorImpl;
-import fr.esgi.secureupload.users.ports.RandomTokenGenerator;
 
 public class User extends BaseEntity {
 
@@ -10,8 +8,6 @@ public class User extends BaseEntity {
 
     public static final int PASSWORD_MIN_LENGTH = 8;
     public static final int PASSWORD_MAX_LENGTH = 100;
-
-    private static final RandomTokenGenerator randomTokenGenerator = new RandomTokenGeneratorImpl();
 
     /* Used for login */
     private String email = null;
@@ -128,7 +124,7 @@ public class User extends BaseEntity {
 
         public User build (){
 
-            if (this.confirmationToken == null){
+            /* if (this.confirmationToken == null){
                 throw new IllegalArgumentException("Confirmation token must not be null.");
             }
 
@@ -138,7 +134,7 @@ public class User extends BaseEntity {
 
             if (this.password == null){
                 throw new IllegalArgumentException("Password field cannot be null.");
-            }
+            } */
 
             return new User(this);
         }

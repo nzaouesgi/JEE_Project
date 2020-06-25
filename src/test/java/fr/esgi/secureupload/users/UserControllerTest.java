@@ -1,7 +1,8 @@
-package fr.esgi.secureupload;
+package fr.esgi.secureupload.users;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
+import fr.esgi.secureupload.TestUtils;
 import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepository;
 import fr.esgi.secureupload.users.adapters.repositories.UserRepositoryAdapter;
 import fr.esgi.secureupload.users.dto.ConfirmMailDto;
@@ -103,7 +104,7 @@ public class UserControllerTest {
 
     @Test
     @WithMockUser(roles = { "ADMIN" })
-    public void getUsers_ParamLimit_ShoudLimitResults () throws Exception {
+    public void getUsers_ParamLimit_ShouldLimitResults () throws Exception {
 
         int limitParam = TEST_USERS / 2;
 

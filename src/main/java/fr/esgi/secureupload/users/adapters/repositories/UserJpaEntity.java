@@ -1,7 +1,6 @@
 package fr.esgi.secureupload.users.adapters.repositories;
 
 import fr.esgi.secureupload.common.repository.BaseJPAEntity;
-import fr.esgi.secureupload.common.utils.Utils;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,7 +10,7 @@ import javax.persistence.Table;
 @Table(name="users")
 public class UserJpaEntity extends BaseJPAEntity {
 
-    protected UserJpaEntity(){}
+    public UserJpaEntity(){}
 
     @Column(name="email", unique = true, nullable = false)
     private String email;
@@ -21,16 +20,16 @@ public class UserJpaEntity extends BaseJPAEntity {
     private String password;
 
     @Column(name="isAdmin", nullable = false)
-    private boolean isAdmin = false;
+    private boolean isAdmin;
 
     @Column(name="isConfirmed", nullable = false)
-    private boolean isConfirmed = false;
+    private boolean isConfirmed;
 
     @Column(name="confirmationToken", nullable = false)
-    private String confirmationToken = Utils.randomBytesToHex(32);
+    private String confirmationToken;
 
     @Column(name="recoveryToken")
-    private String recoveryToken = null;
+    private String recoveryToken;
 
     public String getEmail() { return this.email; }
 

@@ -1,12 +1,13 @@
-package fr.esgi.secureupload.common.utils;
+package fr.esgi.secureupload.common.adapters.helpers;
+
+import fr.esgi.secureupload.users.ports.RandomTokenGenerator;
 
 import java.security.SecureRandom;
 
+public class SecureRandomTokenGenerator implements RandomTokenGenerator {
 
-public class Utils {
-
-    public static String randomBytesToHex(int bytesLength){
-
+    @Override
+    public String generate(int bytesLength) {
         SecureRandom random = new SecureRandom();
         byte[] bytes = new byte[bytesLength];
         random.nextBytes(bytes);
@@ -18,5 +19,4 @@ public class Utils {
 
         return out.toString();
     }
-
 }

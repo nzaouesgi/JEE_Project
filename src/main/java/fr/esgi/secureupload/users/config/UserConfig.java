@@ -1,8 +1,8 @@
 package fr.esgi.secureupload.users.config;
 
-import fr.esgi.secureupload.users.adapters.helpers.RandomTokenGeneratorImpl;
-import fr.esgi.secureupload.users.adapters.helpers.UserPasswordEncoderImpl;
-import fr.esgi.secureupload.users.adapters.helpers.ConfirmationMailSenderImpl;
+import fr.esgi.secureupload.common.adapters.helpers.SecureRandomTokenGenerator;
+import fr.esgi.secureupload.users.adapters.helpers.SpringUserPasswordEncoder;
+import fr.esgi.secureupload.users.adapters.helpers.JavaMailConfirmationMailSender;
 import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepository;
 import fr.esgi.secureupload.users.adapters.repositories.UserRepositoryAdapter;
 import fr.esgi.secureupload.users.ports.ConfirmationMailSender;
@@ -29,9 +29,9 @@ public class UserConfig {
                       @Autowired PasswordEncoder passwordEncoder){
 
         this.userJpaRepository = new UserRepositoryAdapter(userJpaRepository);
-        this.userPasswordEncoder = new UserPasswordEncoderImpl(passwordEncoder);
-        this.confirmationMailSender = new ConfirmationMailSenderImpl(javaMailSender);
-        this.randomTokenGenerator = new RandomTokenGeneratorImpl();
+        this.userPasswordEncoder = new SpringUserPasswordEncoder(passwordEncoder);
+        this.confirmationMailSender = new JavaMailConfirmationMailSender(javaMailSender);
+        this.randomTokenGenerator = new SecureRandomTokenGenerator();
     }
 
     @Bean
