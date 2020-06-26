@@ -40,7 +40,7 @@ public class ConfirmationMailSenderImplTest {
     }
 
     @Test
-    public void sendConfirmationMail_ShouldSendConfirmationMail_EndToEnd () throws IOException, JSONException {
+    public void sendConfirmationMail_ShouldSendConfirmationMail () throws IOException, JSONException {
 
         String to = testUtils.getRandomMail();
         String token = "randomtoken";
