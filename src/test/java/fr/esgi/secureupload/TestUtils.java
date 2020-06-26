@@ -20,7 +20,7 @@ import java.io.IOException;
 @Component
 public class TestUtils {
 
-    @Value("${spring.mail.port}")
+    @Value("${spring.mail.host}")
     private String smtpHost;
 
     private UserPasswordEncoder encoder;
@@ -35,8 +35,10 @@ public class TestUtils {
 
     public JSONObject getSentMail(String to) throws JSONException, IOException {
 
+        System.out.println(this.smtpHost);
+
         // Read sent message for Mailhog API.
-        JSONArray messages = new JSONArray(URLReader.readStringFromUrl("http://" + smtpHost + ":8025/api/v1/messages"));
+        JSONArray messages = new JSONArray(URLReader.readStringFromUrl("http://" + this.smtpHost + ":8025/api/v1/messages"));
 
         JSONObject sentMessage = null;
 
@@ -45,7 +47,7 @@ public class TestUtils {
                     .getJSONObject("Content")
                     .getJSONObject("Headers")
                     .getJSONArray("To")
-                    .getString(0).compareTo(to) == 0){
+                    .getString(0).equals(to)){
                 sentMessage = messages.getJSONObject(i).getJSONObject("Content");
             }
         }
