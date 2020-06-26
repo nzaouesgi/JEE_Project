@@ -59,7 +59,7 @@ public class ConfirmUserTest {
 
         User user = User.builder()
                 .email(this.testUtils.getRandomMail())
-                .password("$argon2id$v=19$m=16,t=2,p=1$ZlJGMXBBejNwRmt6bFZuRQ$oYWtKMFNUBV30OHw7YjcdQ")
+                .password("somehash")
                 .confirmed(false)
                 .admin(false)
                 .confirmationToken(confirmationToken)
