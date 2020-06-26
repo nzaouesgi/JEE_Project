@@ -3,11 +3,11 @@ package fr.esgi.secureupload.users.adapters.helpers;
 import fr.esgi.secureupload.users.ports.UserPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-public final class SpringUserPasswordEncoder implements UserPasswordEncoder {
+public final class UserPasswordEncoderImpl implements UserPasswordEncoder {
 
     PasswordEncoder encoder;
 
-    public SpringUserPasswordEncoder(PasswordEncoder passwordEncoder){
+    public UserPasswordEncoderImpl(PasswordEncoder passwordEncoder){
         this.encoder = passwordEncoder;
     }
 

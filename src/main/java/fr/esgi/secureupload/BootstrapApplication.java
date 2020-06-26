@@ -1,9 +1,9 @@
 package fr.esgi.secureupload;
 
 import fr.esgi.secureupload.common.adapters.helpers.SecureRandomTokenGenerator;
-import fr.esgi.secureupload.users.adapters.helpers.SpringUserPasswordEncoder;
+import fr.esgi.secureupload.users.adapters.helpers.UserPasswordEncoderImpl;
 import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepository;
-import fr.esgi.secureupload.users.adapters.repositories.UserRepositoryAdapter;
+import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepositoryAdapter;
 import fr.esgi.secureupload.users.entities.User;
 import fr.esgi.secureupload.users.ports.RandomTokenGenerator;
 import fr.esgi.secureupload.users.ports.UserPasswordEncoder;
@@ -16,7 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 class BootstrapApplication {
 
-    private UserRepositoryAdapter userJpaRepository;
+    private UserJpaRepositoryAdapter userJpaRepository;
     private RandomTokenGenerator tokenGenerator;
     private UserPasswordEncoder encoder;
 
@@ -27,9 +27,9 @@ class BootstrapApplication {
     private String adminPassword;
 
     BootstrapApplication(@Autowired UserJpaRepository userJpaRepository, @Autowired PasswordEncoder springPasswordEncoder) {
-        this.userJpaRepository = new UserRepositoryAdapter(userJpaRepository);
+        this.userJpaRepository = new UserJpaRepositoryAdapter(userJpaRepository);
         this.tokenGenerator = new SecureRandomTokenGenerator();
-        this.encoder = new SpringUserPasswordEncoder(springPasswordEncoder);
+        this.encoder = new UserPasswordEncoderImpl(springPasswordEncoder);
     }
 
     void createAdminUser(){

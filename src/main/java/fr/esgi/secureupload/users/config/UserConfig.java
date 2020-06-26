@@ -1,12 +1,14 @@
 package fr.esgi.secureupload.users.config;
 
 import fr.esgi.secureupload.common.adapters.helpers.SecureRandomTokenGenerator;
-import fr.esgi.secureupload.users.adapters.helpers.SpringUserPasswordEncoder;
-import fr.esgi.secureupload.users.adapters.helpers.JavaMailConfirmationMailSender;
+import fr.esgi.secureupload.users.adapters.helpers.UserFieldsValidatorImpl;
+import fr.esgi.secureupload.users.adapters.helpers.UserPasswordEncoderImpl;
+import fr.esgi.secureupload.users.adapters.helpers.ConfirmationMailSenderImpl;
 import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepository;
-import fr.esgi.secureupload.users.adapters.repositories.UserRepositoryAdapter;
+import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepositoryAdapter;
 import fr.esgi.secureupload.users.ports.ConfirmationMailSender;
 import fr.esgi.secureupload.users.ports.RandomTokenGenerator;
+import fr.esgi.secureupload.users.ports.UserFieldsValidator;
 import fr.esgi.secureupload.users.ports.UserPasswordEncoder;
 import fr.esgi.secureupload.users.repository.UserRepository;
 import fr.esgi.secureupload.users.usecases.*;
@@ -19,19 +21,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class UserConfig {
 
-    private UserRepository userJpaRepository;
-    private UserPasswordEncoder userPasswordEncoder;
-    private ConfirmationMailSender confirmationMailSender;
-    private RandomTokenGenerator randomTokenGenerator;
+    private final UserRepository userJpaRepository;
+    private final UserPasswordEncoder userPasswordEncoder;
+    private final ConfirmationMailSender confirmationMailSender;
+    private final RandomTokenGenerator randomTokenGenerator;
+    private final UserFieldsValidator userFieldsValidator;
 
     public UserConfig(@Autowired UserJpaRepository userJpaRepository,
                       @Autowired JavaMailSender javaMailSender,
                       @Autowired PasswordEncoder passwordEncoder){
 
-        this.userJpaRepository = new UserRepositoryAdapter(userJpaRepository);
-        this.userPasswordEncoder = new SpringUserPasswordEncoder(passwordEncoder);
-        this.confirmationMailSender = new JavaMailConfirmationMailSender(javaMailSender);
+        this.userJpaRepository = new UserJpaRepositoryAdapter(userJpaRepository);
+        this.userPasswordEncoder = new UserPasswordEncoderImpl(passwordEncoder);
+        this.confirmationMailSender = new ConfirmationMailSenderImpl(javaMailSender);
         this.randomTokenGenerator = new SecureRandomTokenGenerator();
+        this.userFieldsValidator = new UserFieldsValidatorImpl();
     }
 
     @Bean
@@ -41,7 +45,12 @@ public class UserConfig {
 
     @Bean
     public CreateUser createUser() {
-        return new CreateUser(this.userJpaRepository, this.userPasswordEncoder, this.confirmationMailSender, this.randomTokenGenerator);
+        return new CreateUser(
+                this.userJpaRepository,
+                this.userPasswordEncoder,
+                this.confirmationMailSender,
+                this.randomTokenGenerator,
+                this.userFieldsValidator);
     }
 
     @Bean

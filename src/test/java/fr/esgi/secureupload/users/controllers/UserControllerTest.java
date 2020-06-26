@@ -1,15 +1,16 @@
-package fr.esgi.secureupload.users;
+package fr.esgi.secureupload.users.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import fr.esgi.secureupload.TestUtils;
 import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepository;
-import fr.esgi.secureupload.users.adapters.repositories.UserRepositoryAdapter;
+import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepositoryAdapter;
 import fr.esgi.secureupload.users.dto.ConfirmMailDto;
 import fr.esgi.secureupload.users.dto.ResetPasswordDTO;
 import fr.esgi.secureupload.users.dto.UserDTO;
 import fr.esgi.secureupload.users.entities.User;
 
+import fr.esgi.secureupload.users.repository.UserRepository;
 import org.json.JSONObject;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ public class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private UserRepositoryAdapter userJpaRepositoryImpl;
+    private UserRepository userRepository;
 
     @Autowired
     private TestUtils testUtils;
@@ -55,17 +56,17 @@ public class UserControllerTest {
     private ArrayList<User> admins = new ArrayList<>();
 
     public UserControllerTest (@Autowired  UserJpaRepository userJpaRepository){
-        this.userJpaRepositoryImpl = new UserRepositoryAdapter(userJpaRepository);
+        this.userRepository = new UserJpaRepositoryAdapter(userJpaRepository);
     }
 
     @BeforeEach
     public void addTestUsers(){
 
         for (int i = 0; i < TEST_USERS; i ++){
-            this.users.add(this.userJpaRepositoryImpl.save(this.testUtils.getRandomUser(false)));
+            this.users.add(this.userRepository.save(this.testUtils.getRandomUser(false)));
         }
         for (int i = 0; i < TEST_ADMIN; i ++){
-            this.admins.add(this.userJpaRepositoryImpl.save(this.testUtils.getRandomUser(true)));
+            this.admins.add(this.userRepository.save(this.testUtils.getRandomUser(true)));
         }
     }
 
@@ -273,7 +274,7 @@ public class UserControllerTest {
 
         Assertions.assertNotNull(message);
 
-        User user = this.userJpaRepositoryImpl.findByEmail(userDto.getEmail()).orElse(null);
+        User user = this.userRepository.findByEmail(userDto.getEmail()).orElse(null);
         Assertions.assertNotNull(user);
 
         JSONObject headers = message.getJSONObject("Headers");
@@ -341,7 +342,7 @@ public class UserControllerTest {
                 .with(user(this.users.get(0).getEmail()).roles("USER")))
                 .andExpect(status().isNoContent());
 
-        User modified = this.userJpaRepositoryImpl.findById(this.users.get(0).getId()).orElse(null);
+        User modified = this.userRepository.findById(this.users.get(0).getId()).orElse(null);
         if (modified == null)
             Assertions.fail();
         Assertions.assertNotEquals(modified.getPassword(), users.get(0).getPassword());
@@ -388,7 +389,7 @@ public class UserControllerTest {
                         .content(new ObjectMapper().writeValueAsString(confirmMailDto)))
                 .andExpect(status().isNoContent());
 
-        User user = this.userJpaRepositoryImpl.findById(this.users.get(0).getId()).orElse(null);
+        User user = this.userRepository.findById(this.users.get(0).getId()).orElse(null);
         if (user == null){
             Assertions.fail();
         }
@@ -416,7 +417,7 @@ public class UserControllerTest {
     public void deleteUser_WhenAdmin_ShouldDeleteUserAndReturnNoContent () throws Exception {
         this.mockMvc.perform(delete(USERS_API_PATH + "/" + this.users.get(0).getId()))
                 .andExpect(status().isNoContent());
-        Assertions.assertNull(this.userJpaRepositoryImpl.findById(this.users.get(0).getId())
+        Assertions.assertNull(this.userRepository.findById(this.users.get(0).getId())
                 .orElse(null));
     }
 
@@ -427,17 +428,17 @@ public class UserControllerTest {
                 .with(user(this.users.get(0).getEmail())
                         .roles("USER")))
                 .andExpect(status().isNoContent());
-        Assertions.assertNull(this.userJpaRepositoryImpl.findById(this.users.get(0).getId())
+        Assertions.assertNull(this.userRepository.findById(this.users.get(0).getId())
                 .orElse(null));
     }
 
     @AfterEach
     public void cleanUsers(){
         for (User user: this.users){
-            userJpaRepositoryImpl.delete(user);
+            userRepository.delete(user);
         }
         for (User user: this.admins){
-            userJpaRepositoryImpl.delete(user);
+            userRepository.delete(user);
         }
     }
 }

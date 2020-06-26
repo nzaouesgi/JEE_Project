@@ -13,7 +13,6 @@ services:
     image: mcr.microsoft.com/azure-storage/azurite
     ports:
       - "10000:10000"
-      - "10001:10001"
   smtp:
     image: mailhog/mailhog:v1.0.0
     ports:

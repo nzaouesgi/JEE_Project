@@ -10,11 +10,11 @@ import java.util.Objects;
 import java.util.Optional;
 
 
-public final class UserRepositoryAdapter implements UserRepository {
+public final class UserJpaRepositoryAdapter implements UserRepository {
 
     private UserJpaRepository jpaRepository;
 
-    public UserRepositoryAdapter(UserJpaRepository jpaRepository){
+    public UserJpaRepositoryAdapter(UserJpaRepository jpaRepository){
         this.jpaRepository = jpaRepository;
     }
 

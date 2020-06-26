@@ -4,11 +4,11 @@ import fr.esgi.secureupload.users.ports.ConfirmationMailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
-public class JavaMailConfirmationMailSender implements ConfirmationMailSender {
+public class ConfirmationMailSenderImpl implements ConfirmationMailSender {
 
     private JavaMailSender emailSender;
 
-    public JavaMailConfirmationMailSender(JavaMailSender emailSender){
+    public ConfirmationMailSenderImpl(JavaMailSender emailSender){
         this.emailSender = emailSender;
     }
 

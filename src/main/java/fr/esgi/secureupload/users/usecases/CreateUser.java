@@ -1,7 +1,9 @@
 package fr.esgi.secureupload.users.usecases;
 
+import fr.esgi.secureupload.users.exceptions.UserPropertyValidationException;
 import fr.esgi.secureupload.users.ports.ConfirmationMailSender;
 import fr.esgi.secureupload.users.ports.RandomTokenGenerator;
+import fr.esgi.secureupload.users.ports.UserFieldsValidator;
 import fr.esgi.secureupload.users.ports.UserPasswordEncoder;
 import fr.esgi.secureupload.users.entities.User;
 import fr.esgi.secureupload.users.dto.UserDTO;
@@ -14,15 +16,23 @@ public final class CreateUser {
     private final UserPasswordEncoder encoder;
     private final ConfirmationMailSender sender;
     private final RandomTokenGenerator generator;
+    private final UserFieldsValidator validator;
 
-    public CreateUser(final UserRepository repository, final UserPasswordEncoder encoder, final ConfirmationMailSender sender, final RandomTokenGenerator generator){
+    public CreateUser(final UserRepository repository, final UserPasswordEncoder encoder, final ConfirmationMailSender sender, final RandomTokenGenerator generator, final UserFieldsValidator validator){
         this.repository = repository;
         this.encoder = encoder;
         this.sender = sender;
         this.generator = generator;
+        this.validator = validator;
     }
 
     public User execute(final UserDTO userDto){
+
+        userDto.setEmail(userDto.getEmail().trim());
+
+        if (!this.validator.validateMail(userDto.getEmail())){
+            throw new UserPropertyValidationException(String.format("%s is not a valid mail address.", userDto.getEmail()));
+        }
 
         if (this.repository.findByEmail(userDto.getEmail())
                 .isPresent()){

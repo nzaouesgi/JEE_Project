@@ -47,7 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new Argon2PasswordEncoder(32, 64, 4, 8096, 5);
+        return new Argon2PasswordEncoder(32, 32, 2, 4096, 5);
     }
 
 }

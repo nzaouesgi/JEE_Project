@@ -1,0 +1,68 @@
+package fr.esgi.secureupload.users.usecases;
+
+
+import fr.esgi.secureupload.TestUtils;
+import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepository;
+import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepositoryAdapter;
+import fr.esgi.secureupload.users.dto.UserDTO;
+import fr.esgi.secureupload.users.entities.User;
+import fr.esgi.secureupload.users.exceptions.UserMailAlreadyTakenException;
+import fr.esgi.secureupload.users.exceptions.UserPropertyValidationException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+public class CreateUserTest {
+
+    private final UserJpaRepositoryAdapter userRepository;
+    private final CreateUser createUser;
+    private final TestUtils testUtils;
+
+    public CreateUserTest(@Autowired CreateUser createUser, @Autowired UserJpaRepository userJpaRepository, @Autowired TestUtils testUtils){
+        this.createUser = createUser;
+        this.userRepository = new UserJpaRepositoryAdapter(userJpaRepository);
+        this.testUtils = testUtils;
+    }
+
+    @Test
+    public void execute_WithValidDTO_ShouldCreateUser (){
+
+        UserDTO userDto = new UserDTO();
+        userDto.setEmail("validemail@domain.com");
+        userDto.setPassword("ValidPassword12345");
+
+        Assertions.assertDoesNotThrow(() -> {
+            User user = this.createUser.execute(userDto);
+            Assertions.assertNotNull(user);
+        });
+    }
+
+    @Test
+    public void execute_WithAlreadyExistingMail_ShouldThrow (){
+
+        User existing = this.userRepository.save(this.testUtils.getRandomUser(false));
+
+        UserDTO userDto = new UserDTO();
+        userDto.setEmail(existing.getEmail());
+        userDto.setPassword("ValidPassword12345");
+
+        Assertions.assertThrows(UserMailAlreadyTakenException.class, () -> {
+            this.createUser.execute(userDto);
+        });
+    }
+
+    @Test
+    public void execute_WithBadEmail_ShouldThrow (){
+
+
+        UserDTO userDto = new UserDTO();
+        userDto.setEmail("not a mail address");
+        userDto.setPassword("ValidPassword12345");
+
+        Assertions.assertThrows(UserPropertyValidationException.class, () -> {
+            this.createUser.execute(userDto);
+        });
+    }
+}
