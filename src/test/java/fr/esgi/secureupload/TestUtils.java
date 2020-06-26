@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +19,9 @@ import java.io.IOException;
 
 @Component
 public class TestUtils {
+
+    @Value("${spring.mail.port}")
+    private String smtpHost;
 
     private UserPasswordEncoder encoder;
     private RandomTokenGenerator generator;
@@ -32,7 +36,7 @@ public class TestUtils {
     public JSONObject getSentMail(String to) throws JSONException, IOException {
 
         // Read sent message for Mailhog API.
-        JSONArray messages = new JSONArray(URLReader.readStringFromUrl("http://127.0.0.1:8025/api/v1/messages"));
+        JSONArray messages = new JSONArray(URLReader.readStringFromUrl("http://" + smtpHost + ":8025/api/v1/messages"));
 
         JSONObject sentMessage = null;
 
