@@ -28,26 +28,16 @@ public class ConfirmUserTest {
         this.confirmUser = confirmUser;
     }
 
-    // REAL TESTS
-
     @Test
     public void execute_WhenTokenIsValid_ShouldConfirmUser () {
 
-        String confirmationToken = "mytoken";
-
-        User user = User.builder()
-                .email(this.testUtils.getRandomMail())
-                .password("$argon2id$v=19$m=16,t=2,p=1$ZlJGMXBBejNwRmt6bFZuRQ$oYWtKMFNUBV30OHw7YjcdQ")
-                .confirmed(false)
-                .admin(false)
-                .confirmationToken(confirmationToken)
-                .build();
+        User user = this.testUtils.getRandomUser(false);
 
         User saved = this.userRepository.save(user);
 
-        Assertions.assertFalse(saved.isConfirmed());
+        Assertions.assertTrue(saved.isConfirmed());
 
-        User confirmed = this.confirmUser.execute(saved, confirmationToken);
+        User confirmed = this.confirmUser.execute(saved, saved.getConfirmationToken());
 
         Assertions.assertTrue(confirmed.isConfirmed());
     }
@@ -55,15 +45,8 @@ public class ConfirmUserTest {
     @Test
     public void execute_WhenTokenIsInvalid_ShouldThrowAndNotConfirm () {
 
-        String confirmationToken = "mytoken";
-
-        User user = User.builder()
-                .email(this.testUtils.getRandomMail())
-                .password("somehash")
-                .confirmed(false)
-                .admin(false)
-                .confirmationToken(confirmationToken)
-                .build();
+        User user = this.testUtils.getRandomUser(false);
+        user.setConfirmed(false);
 
         User saved = this.userRepository.save(user);
 

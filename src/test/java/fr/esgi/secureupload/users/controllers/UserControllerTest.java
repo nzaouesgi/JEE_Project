@@ -61,13 +61,10 @@ public class UserControllerTest {
 
     @BeforeEach
     public void addTestUsers(){
-
-        for (int i = 0; i < TEST_USERS; i ++){
+        for (int i = 0; i < TEST_USERS; i ++)
             this.users.add(this.userRepository.save(this.testUtils.getRandomUser(false)));
-        }
-        for (int i = 0; i < TEST_ADMIN; i ++){
+        for (int i = 0; i < TEST_ADMIN; i ++)
             this.admins.add(this.userRepository.save(this.testUtils.getRandomUser(true)));
-        }
     }
 
     /* GET / */
@@ -96,7 +93,15 @@ public class UserControllerTest {
     @WithMockUser(roles = { "ADMIN" })
     public void getUsers_WithSearchParam_ShouldSearchUsersByPattern () throws Exception {
 
+        // part of string search (email)
         this.mockMvc.perform(get(USERS_API_PATH).queryParam("search", this.users.get(0).getEmail().substring(0, 6)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content").isArray())
+                .andExpect(jsonPath("$.data.content", hasSize(1)))
+                .andExpect(jsonPath("$.data.content[0].id", is(this.users.get(0).getId())));
+
+        // full string search (id)
+        this.mockMvc.perform(get(USERS_API_PATH).queryParam("search", this.users.get(0).getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content").isArray())
                 .andExpect(jsonPath("$.data.content", hasSize(1)))
@@ -434,11 +439,9 @@ public class UserControllerTest {
 
     @AfterEach
     public void cleanUsers(){
-        for (User user: this.users){
+        for (User user: this.users)
             userRepository.delete(user);
-        }
-        for (User user: this.admins){
+        for (User user: this.admins)
             userRepository.delete(user);
-        }
     }
 }

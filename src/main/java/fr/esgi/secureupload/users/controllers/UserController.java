@@ -27,6 +27,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(
@@ -118,7 +119,9 @@ public class UserController {
 
         this.logger.info(String.format("POST /users : User %s was created.", createdUser.toString()));
 
-        return new ResponseEntity<>(new DataBody<>(createdUser, response.getStatus()), HttpStatus.CREATED);
+        HttpStatus status = HttpStatus.CREATED;
+
+        return new ResponseEntity<>(new DataBody<>(createdUser, status.value()), status);
     }
 
     @PostMapping(value = "/{id}/confirm")

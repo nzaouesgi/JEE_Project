@@ -8,6 +8,7 @@ import fr.esgi.secureupload.users.dto.UserDTO;
 import fr.esgi.secureupload.users.entities.User;
 import fr.esgi.secureupload.users.exceptions.UserMailAlreadyTakenException;
 import fr.esgi.secureupload.users.exceptions.UserPropertyValidationException;
+import fr.esgi.secureupload.users.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 public class CreateUserTest {
 
-    private final UserJpaRepositoryAdapter userRepository;
+    private final UserRepository userRepository;
     private final CreateUser createUser;
     private final TestUtils testUtils;
 
@@ -59,10 +60,12 @@ public class CreateUserTest {
 
         UserDTO userDto = new UserDTO();
         userDto.setEmail("not a mail address");
-        userDto.setPassword("ValidPassword12345");
+        userDto.setPassword("rrrrr");
 
-        Assertions.assertThrows(UserPropertyValidationException.class, () -> {
+        UserPropertyValidationException exception = Assertions.assertThrows(UserPropertyValidationException.class, () -> {
             this.createUser.execute(userDto);
         });
+
+        Assertions.assertEquals(2, exception.getErrors().size());
     }
 }

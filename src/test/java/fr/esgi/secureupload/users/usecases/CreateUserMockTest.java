@@ -32,6 +32,9 @@ public class CreateUserMockTest {
 
     private static final String existingMail = "exists@domain.com";
 
+    private static final String goodPassword = "Password12345";
+    private static final String badPassword = "abc";
+
     @Mock
     private UserRepository repository ;
     @Mock
@@ -53,15 +56,19 @@ public class CreateUserMockTest {
 
         when(repository.findByEmail(goodMail)).thenReturn(Optional.empty());
         when(repository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
+
         when(encoder.encode(any())).thenReturn(anyString());
+
         when(validator.validateMail(goodMail)).thenReturn(true);
+        when(validator.validatePassword(goodPassword)).thenReturn(true);
+
         when(generator.generate(anyInt())).thenReturn(anyString());
 
         CreateUser createUser = new CreateUser(repository, encoder, sender, generator, validator);
 
         UserDTO userDto = new UserDTO();
         userDto.setEmail(goodMail);
-        userDto.setPassword("Password123");
+        userDto.setPassword(goodPassword);
 
         Assertions.assertDoesNotThrow(() -> {
             User user = createUser.execute(userDto);
@@ -80,29 +87,34 @@ public class CreateUserMockTest {
     public void execute_BadMail_ShouldThrow (){
 
         when(validator.validateMail(badMail)).thenReturn(false);
+        when(validator.validatePassword(badPassword)).thenReturn(false);
 
         CreateUser createUser = new CreateUser(repository, encoder, sender, generator, validator);
 
         UserDTO userDto = new UserDTO();
         userDto.setEmail(badMail);
-        userDto.setPassword("Password123");
+        userDto.setPassword(badPassword);
 
-        Assertions.assertThrows(UserPropertyValidationException.class, () -> {
+        UserPropertyValidationException exception = Assertions.assertThrows(UserPropertyValidationException.class, () -> {
             createUser.execute(userDto);
         });
+
+        Assertions.assertEquals(2, exception.getErrors().size());
     }
 
     @Test
     public void execute_ExistingMail_ShouldThrow (){
 
         when(validator.validateMail(existingMail)).thenReturn(true);
+        when(validator.validatePassword(goodPassword)).thenReturn(true);
+
         when(repository.findByEmail(existingMail)).thenReturn(Optional.of(Mockito.mock(User.class)));
 
         CreateUser createUser = new CreateUser(repository, encoder, sender, generator, validator);
 
         UserDTO userDto = new UserDTO();
         userDto.setEmail(existingMail);
-        userDto.setPassword("Password123");
+        userDto.setPassword(goodPassword);
 
         Assertions.assertThrows(UserMailAlreadyTakenException.class, () -> {
             createUser.execute(userDto);

@@ -9,6 +9,9 @@ public class UserFieldsValidatorImpl implements UserFieldsValidator {
 
     @Override
     public boolean validateMail(String email) {
+
+
+
         try {
             InternetAddress emailAddr = new InternetAddress(email);
             emailAddr.validate();
@@ -16,5 +19,10 @@ public class UserFieldsValidatorImpl implements UserFieldsValidator {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public boolean validatePassword(String password) {
+        return password.length() >= 8 && password.length() <= 100;
     }
 }

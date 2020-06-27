@@ -63,16 +63,6 @@ public class TestUtils {
                 .email(this.getRandomMail()).build();
     }
 
-    public UserJpaEntity getRandomJpaUser (boolean admin){
-        UserJpaEntity userJpaEntity = new UserJpaEntity();
-        userJpaEntity.setEmail(this.getRandomMail());
-        userJpaEntity.setPassword(this.encoder.encode(DEFAULT_PASSWORD));
-        userJpaEntity.setAdmin(admin);
-        userJpaEntity.setConfirmed(true);
-        userJpaEntity.setConfirmationToken(this.generator.generate(32));
-        return userJpaEntity;
-    }
-
     public String getRandomMail (){
         return String.format("%suser@domain.fr", this.generator.generate(6));
     }

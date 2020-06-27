@@ -10,6 +10,9 @@ import fr.esgi.secureupload.users.dto.UserDTO;
 import fr.esgi.secureupload.users.exceptions.UserMailAlreadyTakenException;
 import fr.esgi.secureupload.users.repository.UserRepository;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class CreateUser {
 
     private final UserRepository repository;
@@ -30,14 +33,19 @@ public final class CreateUser {
 
         userDto.setEmail(userDto.getEmail().trim());
 
-        if (!this.validator.validateMail(userDto.getEmail())){
-            throw new UserPropertyValidationException(String.format("%s is not a valid mail address.", userDto.getEmail()));
-        }
+        List<String> errors = new ArrayList<>();
 
-        if (this.repository.findByEmail(userDto.getEmail())
-                .isPresent()){
+        if (!this.validator.validateMail(userDto.getEmail()))
+            errors.add(String.format("%s is not a valid mail address.", userDto.getEmail()));
+
+        if (!this.validator.validatePassword(userDto.getPassword()))
+            errors.add("Password does not meet security requirements.");
+
+        if (errors.size() > 0)
+            throw new UserPropertyValidationException(errors);
+
+        if (this.repository.findByEmail(userDto.getEmail()).isPresent())
             throw new UserMailAlreadyTakenException(String.format("Mail %s is already taken.", userDto.getEmail()));
-        }
 
         String hash = this.encoder.encode(userDto.getPassword());
 
