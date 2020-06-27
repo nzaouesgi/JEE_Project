@@ -1,61 +1,48 @@
 package fr.esgi.secureupload.users.usecases;
 
-import fr.esgi.secureupload.TestUtils;
-import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepository;
-import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepositoryAdapter;
+import fr.esgi.secureupload.users.TestWithUsers;
 import fr.esgi.secureupload.users.entities.User;
 import fr.esgi.secureupload.users.exceptions.UserSecurityException;
-import fr.esgi.secureupload.users.repository.UserRepository;
-import org.junit.jupiter.api.AfterAll;
+
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Random;
 
 @SpringBootTest
-public class FindUsersTest {
+public class FindUsersTest extends TestWithUsers {
 
-    private static final int USERS_COUNT = 200;
     private final FindUsers findUsers;
-
-    private static final List<User> users = new ArrayList<>();
 
     public FindUsersTest(@Autowired FindUsers findUsers) {
         this.findUsers = findUsers;
     }
 
-    @BeforeAll
-    public static void prepareUsers (@Autowired UserJpaRepository jpaRepository, @Autowired TestUtils testUtils){
-        UserRepository repository = new UserJpaRepositoryAdapter(jpaRepository);
-        for (int i = 0; i < USERS_COUNT; i ++)
-            FindUsersTest.users.add(repository.save(testUtils.getRandomUser(false)));
-    }
-
     @Test
     public void execute_ShouldPaginateUsers (){
 
-        Page<User> firstPage = findUsers.execute(50, 0, "email", "asc");
-        Assertions.assertNotNull(users);
-        Assertions.assertEquals(50, firstPage.getContent().size());
+        int limit = USERS_COUNT / 2;
 
-        Page<User> secondPage = findUsers.execute(50, 1, "email", "asc");
+        Page<User> firstPage = findUsers.execute(limit, 0, "email", "asc");
         Assertions.assertNotNull(users);
-        Assertions.assertEquals(50, secondPage.getContent().size());
+        Assertions.assertEquals(limit, firstPage.getContent().size());
 
-        for (int i = 0; i < 50; i ++){
+        Page<User> secondPage = findUsers.execute(limit, 1, "email", "asc");
+        Assertions.assertNotNull(users);
+        Assertions.assertEquals(limit, secondPage.getContent().size());
+
+        for (int i = 0; i < limit; i ++){
             Assertions.assertNotEquals(firstPage.getContent().get(i).getId(), secondPage.getContent().get(i).getId());
         }
 
-        Page<User> intermediatePage = findUsers.execute(25, 1, "email", "asc");
-        for (int i = 0; i < 25; i ++){
-            Assertions.assertEquals(firstPage.getContent().get(i + 25).getId(), intermediatePage.getContent().get(i).getId());
+        Page<User> intermediatePage = findUsers.execute(limit / 2, 1, "email", "asc");
+        for (int i = 0; i < limit / 2; i ++){
+            Assertions.assertEquals(firstPage.getContent().get(i + (limit / 2)).getId(), intermediatePage.getContent().get(i).getId());
         }
     }
 
@@ -69,7 +56,7 @@ public class FindUsersTest {
     @Test
     public void execute_ShouldThrowWhenPrivateFieldInOrderBy (){
         Assertions.assertThrows(UserSecurityException.class, () -> {
-            findUsers.execute(50, 0, User.PRIVATE_FIELDS[new Random().nextInt(User.PRIVATE_FIELDS.length)], "asc");
+            findUsers.execute(USERS_COUNT, 0, User.PRIVATE_FIELDS[new Random().nextInt(User.PRIVATE_FIELDS.length)], "asc");
         });
     }
 
@@ -90,57 +77,52 @@ public class FindUsersTest {
     }
 
     @Test
-    public void execute_ShouldOrderByAnyFieldWithSpecifedOrderMode (){
+    public void execute_ShouldOrderByAnyFieldWithSpecifiedOrderMode (){
 
         for (String stringField: List.of("email", "id")) {
 
-            Page<User> orderedDesc = findUsers.execute(1, 0, stringField, "desc");
+            Page<User> orderedDesc = findUsers.execute(10, 0, stringField, "desc");
 
-            String current = null;
+            String last = null;
             for (User user : orderedDesc.getContent()) {
-                String val = null;
+                String current = null;
                 switch (stringField){
                     case "email":
-                        val = user.getEmail();
+                        current = user.getEmail();
                         break;
                     case "id":
-                        val = user.getId();
+                        current = user.getId();
                         break;
                 }
-                if (current != null) {
-                    Assertions.assertTrue(val.compareTo(current) > 0);
+                if (last != null) {
+                    Assertions.assertTrue(current.compareTo(last) <= 0);
                 }
-                current = val;
+                last = current;
             }
         }
 
         for (String stringField: List.of("email", "id")) {
 
-            Page<User> orderedDesc = findUsers.execute(1, 0, stringField, "asc");
+            Page<User> orderedAsc = findUsers.execute(10, 0, stringField, "asc");
 
-            String current = null;
-            for (User user : orderedDesc.getContent()) {
-                String val = null;
+            String last = null;
+            for (User user : orderedAsc.getContent()) {
+                String current = null;
                 switch (stringField){
                     case "email":
-                        val = user.getEmail();
+                        current = user.getEmail();
                         break;
                     case "id":
-                        val = user.getId();
+                        current = user.getId();
                         break;
                 }
-                if (current != null) {
-                    Assertions.assertTrue(val.compareTo(current) < 0);
+                if (last != null) {
+                    System.out.println(current + " >= " + last);
+                    Assertions.assertTrue(current.compareTo(last) >= 0);
                 }
-                current = val;
+                last = current;
             }
         }
-    }
 
-    @AfterAll
-    public static void cleanUsers (@Autowired UserJpaRepository jpaRepository){
-        UserRepository repository = new UserJpaRepositoryAdapter(jpaRepository);
-        for (User user: users)
-            repository.delete(user);
     }
 }

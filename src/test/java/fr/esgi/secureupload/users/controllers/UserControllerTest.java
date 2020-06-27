@@ -3,6 +3,7 @@ package fr.esgi.secureupload.users.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import fr.esgi.secureupload.TestUtils;
+import fr.esgi.secureupload.users.TestWithUsers;
 import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepository;
 import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepositoryAdapter;
 import fr.esgi.secureupload.users.dto.ConfirmMailDto;
@@ -39,7 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class UserControllerTest {
+public class UserControllerTest extends TestWithUsers {
 
     @Autowired
     private MockMvc mockMvc;
@@ -50,21 +51,9 @@ public class UserControllerTest {
     private TestUtils testUtils;
 
     private final static String USERS_API_PATH = "/users";
-    private final static int TEST_USERS = 10;
-    private final static int TEST_ADMIN = 2;
-    private ArrayList<User> users = new ArrayList<>();
-    private ArrayList<User> admins = new ArrayList<>();
 
     public UserControllerTest (@Autowired  UserJpaRepository userJpaRepository){
         this.userRepository = new UserJpaRepositoryAdapter(userJpaRepository);
-    }
-
-    @BeforeEach
-    public void addTestUsers(){
-        for (int i = 0; i < TEST_USERS; i ++)
-            this.users.add(this.userRepository.save(this.testUtils.getRandomUser(false)));
-        for (int i = 0; i < TEST_ADMIN; i ++)
-            this.admins.add(this.userRepository.save(this.testUtils.getRandomUser(true)));
     }
 
     /* GET / */
@@ -72,12 +61,13 @@ public class UserControllerTest {
     @WithMockUser(roles = { "ADMIN" })
     public void getUsers_FromAdmin_ShouldListUsers () throws Exception {
 
-        ResultActions res = this.mockMvc.perform(get(USERS_API_PATH))
+        ResultActions res = this.mockMvc.perform(get(USERS_API_PATH)
+                    .queryParam("limit", String.valueOf(ADMINS_COUNT + USERS_COUNT)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content").isArray())
-                .andExpect(jsonPath("$.data.content.length()", greaterThanOrEqualTo(TEST_ADMIN + TEST_USERS)));
+                .andExpect(jsonPath("$.data.content.length()", equalTo(ADMINS_COUNT + USERS_COUNT)));
 
-        for (int i = 0; i < TEST_USERS + TEST_ADMIN; i ++){
+        for (int i = 0; i < ADMINS_COUNT + USERS_COUNT; i ++){
             String path = "$.data.content[" + i + "]";
             res.andExpect(jsonPath(path + ".id").isNotEmpty())
                     .andExpect(jsonPath(path + ".email").isNotEmpty())
@@ -94,25 +84,25 @@ public class UserControllerTest {
     public void getUsers_WithSearchParam_ShouldSearchUsersByPattern () throws Exception {
 
         // part of string search (email)
-        this.mockMvc.perform(get(USERS_API_PATH).queryParam("search", this.users.get(0).getEmail().substring(0, 6)))
+        this.mockMvc.perform(get(USERS_API_PATH).queryParam("search", users.get(0).getEmail().substring(0, 6)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content").isArray())
                 .andExpect(jsonPath("$.data.content", hasSize(1)))
-                .andExpect(jsonPath("$.data.content[0].id", is(this.users.get(0).getId())));
+                .andExpect(jsonPath("$.data.content[0].id", is(users.get(0).getId())));
 
         // full string search (id)
-        this.mockMvc.perform(get(USERS_API_PATH).queryParam("search", this.users.get(0).getId()))
+        this.mockMvc.perform(get(USERS_API_PATH).queryParam("search", users.get(0).getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content").isArray())
                 .andExpect(jsonPath("$.data.content", hasSize(1)))
-                .andExpect(jsonPath("$.data.content[0].id", is(this.users.get(0).getId())));
+                .andExpect(jsonPath("$.data.content[0].id", is(users.get(0).getId())));
     }
 
     @Test
     @WithMockUser(roles = { "ADMIN" })
     public void getUsers_ParamLimit_ShouldLimitResults () throws Exception {
 
-        int limitParam = TEST_USERS / 2;
+        int limitParam = TestWithUsers.USERS_COUNT / 2;
 
         this.mockMvc.perform(get(USERS_API_PATH)
                         .param("limit", String.valueOf(limitParam)))
@@ -135,13 +125,13 @@ public class UserControllerTest {
                 .getResponse()
                 .getContentAsString(), "$.data.content[*]");
 
-        String current = null;
+        String last = null;
         for (LinkedHashMap<String, ?> user: users){
             String email = (String)user.get("email");
-            if (current != null) {
-                Assertions.assertTrue(email.compareTo(current) > 0);
+            if (last != null) {
+                Assertions.assertTrue(email.compareTo(last) <= 0);
             }
-            current = email;
+            last = email;
         }
     }
 
@@ -171,42 +161,42 @@ public class UserControllerTest {
     @Test
     @WithAnonymousUser
     public void getUser_FromAnonymous_ShouldReturnUnauthorized () throws Exception {
-        this.mockMvc.perform(get(USERS_API_PATH + "/" + this.users.get(0)))
+        this.mockMvc.perform(get(USERS_API_PATH + "/" + users.get(0)))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     public void getUser_AnyUserFromAdmin_ShouldReturnUser () throws Exception {
-        this.mockMvc.perform(get(USERS_API_PATH + "/" + this.users.get(0).getId())
-                .with(user(this.admins.get(0).getEmail()).roles("ADMIN")))
+        this.mockMvc.perform(get(USERS_API_PATH + "/" + users.get(0).getId())
+                .with(user(admins.get(0).getEmail()).roles("ADMIN")))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void getUser_FromSelfUser_ShouldReturnSelfUser () throws Exception {
-        this.mockMvc.perform(get(USERS_API_PATH + "/" + this.users.get(0).getId())
-                .with(user(this.users.get(0).getEmail()).roles("USER")))
+        this.mockMvc.perform(get(USERS_API_PATH + "/" + users.get(0).getId())
+                .with(user(users.get(0).getEmail()).roles("USER")))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void getUser_FromAnotherUser_ShouldReturnUnauthorized () throws Exception {
-        this.mockMvc.perform(get(USERS_API_PATH + "/" + this.users.get(1).getId())
-                .with(user(this.users.get(0).getEmail()).roles("USER")))
+        this.mockMvc.perform(get(USERS_API_PATH + "/" + users.get(1).getId())
+                .with(user(users.get(0).getEmail()).roles("USER")))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     public void getUser_WhenNotExist_ShouldReturnNotFound () throws Exception {
         this.mockMvc.perform(get(USERS_API_PATH + "/" + UUID.randomUUID().toString())
-                .with(user(this.users.get(0).getEmail()).roles("ADMIN")))
+                .with(user(users.get(0).getEmail()).roles("ADMIN")))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     public void getUser_WhenAuthorized_ShouldReturnUser () throws Exception {
 
-        User user = this.users.get(0);
+        User user = users.get(0);
 
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(USERS_API_PATH + "/" + user.getId())
                 .with(user(user.getEmail()).roles("USER"));
@@ -298,7 +288,7 @@ public class UserControllerTest {
         resetPasswordDto.setCurrentPassword("Something123");
         resetPasswordDto.setNewPassword("321gnihtemoS");
 
-        this.mockMvc.perform(put(USERS_API_PATH + "/" + this.users.get(0).getId() + "/password")
+        this.mockMvc.perform(put(USERS_API_PATH + "/" + users.get(0).getId() + "/password")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(new ObjectMapper().writeValueAsString(resetPasswordDto)))
                 .andExpect(status().isUnauthorized());
@@ -311,7 +301,7 @@ public class UserControllerTest {
         resetPasswordDto.setCurrentPassword("abc123");
         resetPasswordDto.setNewPassword("abc123");
 
-        this.mockMvc.perform(put(USERS_API_PATH + "/" + this.users.get(0).getId() + "/password")
+        this.mockMvc.perform(put(USERS_API_PATH + "/" + users.get(0).getId() + "/password")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .with(user(users.get(0).getEmail()).roles("USER"))
                 .content(new ObjectMapper().writeValueAsString(resetPasswordDto)))
@@ -327,10 +317,10 @@ public class UserControllerTest {
         resetPasswordDto.setCurrentPassword("BadPassword :(");
         resetPasswordDto.setNewPassword("MyNewPassword12345");
 
-        this.mockMvc.perform(put(USERS_API_PATH + "/" + this.users.get(0).getId() + "/password")
+        this.mockMvc.perform(put(USERS_API_PATH + "/" + users.get(0).getId() + "/password")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(new ObjectMapper().writeValueAsString(resetPasswordDto))
-                .with(user(this.users.get(0).getEmail()).roles("USER")))
+                .with(user(users.get(0).getEmail()).roles("USER")))
                 .andExpect(status().isForbidden());
     }
 
@@ -341,13 +331,13 @@ public class UserControllerTest {
         resetPasswordDto.setCurrentPassword(TestUtils.DEFAULT_PASSWORD);
         resetPasswordDto.setNewPassword("MyNewPassword12345");
 
-        this.mockMvc.perform(put(USERS_API_PATH + "/" + this.users.get(0).getId() + "/password")
+        this.mockMvc.perform(put(USERS_API_PATH + "/" + users.get(0).getId() + "/password")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(new ObjectMapper().writeValueAsString(resetPasswordDto))
-                .with(user(this.users.get(0).getEmail()).roles("USER")))
+                .with(user(users.get(0).getEmail()).roles("USER")))
                 .andExpect(status().isNoContent());
 
-        User modified = this.userRepository.findById(this.users.get(0).getId()).orElse(null);
+        User modified = this.userRepository.findById(users.get(0).getId()).orElse(null);
         if (modified == null)
             Assertions.fail();
         Assertions.assertNotEquals(modified.getPassword(), users.get(0).getPassword());
@@ -360,10 +350,10 @@ public class UserControllerTest {
     public void confirmUser_WhenAuthenticated_ShouldReturnUnauthorized () throws Exception {
 
         ConfirmMailDto confirmMailDto = new ConfirmMailDto();
-        confirmMailDto.setConfirmationToken(this.users.get(0).getConfirmationToken());
+        confirmMailDto.setConfirmationToken(users.get(0).getConfirmationToken());
 
         this.mockMvc.perform(
-                post(String.format("%s/%s/confirm", USERS_API_PATH, this.users.get(0).getId()))
+                post(String.format("%s/%s/confirm", USERS_API_PATH, users.get(0).getId()))
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(new ObjectMapper().writeValueAsString(confirmMailDto)))
                 .andExpect(status().isUnauthorized());
@@ -376,7 +366,7 @@ public class UserControllerTest {
         confirmMailDto.setConfirmationToken("badtoken");
 
         this.mockMvc.perform(
-                post(String.format("%s/%s/confirm", USERS_API_PATH, this.users.get(0).getId()))
+                post(String.format("%s/%s/confirm", USERS_API_PATH, users.get(0).getId()))
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(new ObjectMapper().writeValueAsString(confirmMailDto)))
                 .andExpect(status().isForbidden());
@@ -386,15 +376,15 @@ public class UserControllerTest {
     @WithAnonymousUser
     public void confirmUser_WhenAnonymousAndValidToken_ShouldReturnNoContentAndConfirmUser () throws Exception {
         ConfirmMailDto confirmMailDto = new ConfirmMailDto();
-        confirmMailDto.setConfirmationToken(this.users.get(0).getConfirmationToken());
+        confirmMailDto.setConfirmationToken(users.get(0).getConfirmationToken());
 
         this.mockMvc.perform(
-                post(String.format("%s/%s/confirm", USERS_API_PATH, this.users.get(0).getId()))
+                post(String.format("%s/%s/confirm", USERS_API_PATH, users.get(0).getId()))
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(new ObjectMapper().writeValueAsString(confirmMailDto)))
                 .andExpect(status().isNoContent());
 
-        User user = this.userRepository.findById(this.users.get(0).getId()).orElse(null);
+        User user = this.userRepository.findById(users.get(0).getId()).orElse(null);
         if (user == null){
             Assertions.fail();
         }
@@ -406,42 +396,36 @@ public class UserControllerTest {
     @Test
     @WithAnonymousUser
     public void deleteUser_WhenAnonymous_ShouldReturnUnauthorized () throws Exception {
-        this.mockMvc.perform(delete(USERS_API_PATH + "/" + this.users.get(0).getId()))
+        this.mockMvc.perform(delete(USERS_API_PATH + "/" + users.get(0).getId()))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser
     public void deleteUser_WhenNotSelf_ShouldReturnForbidden () throws Exception {
-        this.mockMvc.perform(delete(USERS_API_PATH + "/" + this.users.get(0).getId()))
+        this.mockMvc.perform(delete(USERS_API_PATH + "/" + users.get(0).getId()))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(roles = { "ADMIN" })
     public void deleteUser_WhenAdmin_ShouldDeleteUserAndReturnNoContent () throws Exception {
-        this.mockMvc.perform(delete(USERS_API_PATH + "/" + this.users.get(0).getId()))
+        this.mockMvc.perform(delete(USERS_API_PATH + "/" + users.get(0).getId()))
                 .andExpect(status().isNoContent());
-        Assertions.assertNull(this.userRepository.findById(this.users.get(0).getId())
+        Assertions.assertNull(this.userRepository.findById(users.get(0).getId())
                 .orElse(null));
+        this.deleteFromUsers(0);
     }
 
     @Test
     public void deleteUser_WhenSelf_ShouldDeleteUserAndReturnNoContent () throws Exception {
         this.mockMvc.perform(
-                delete(USERS_API_PATH + "/" + this.users.get(0).getId())
-                .with(user(this.users.get(0).getEmail())
+                delete(USERS_API_PATH + "/" + users.get(0).getId())
+                .with(user(users.get(0).getEmail())
                         .roles("USER")))
                 .andExpect(status().isNoContent());
-        Assertions.assertNull(this.userRepository.findById(this.users.get(0).getId())
+        Assertions.assertNull(this.userRepository.findById(users.get(0).getId())
                 .orElse(null));
-    }
-
-    @AfterEach
-    public void cleanUsers(){
-        for (User user: this.users)
-            userRepository.delete(user);
-        for (User user: this.admins)
-            userRepository.delete(user);
+        this.deleteFromUsers(0);
     }
 }

@@ -13,39 +13,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import static org.mockito.Mockito.verify;
 
 @SpringBootTest
-@ExtendWith(MockitoExtension.class)
 public class UserPasswordEncoderImplTest {
 
     UserPasswordEncoder encoder;
 
-    @Mock
-    PasswordEncoder mockSpringEncoder;
-
     public UserPasswordEncoderImplTest(@Autowired PasswordEncoder springEncoder){
         this.encoder = new UserPasswordEncoderImpl(springEncoder);
-    }
-
-    @Test
-    public void encode_ShouldCallEncodeInSpringEncoder (){
-
-        UserPasswordEncoder encoderWithMockSpringEncoder = new UserPasswordEncoderImpl(mockSpringEncoder);
-
-        String password = "password";
-
-        encoderWithMockSpringEncoder.encode(password);
-        verify(mockSpringEncoder).encode(password);
-    }
-
-    @Test
-    public void verify_ShouldCallEncodeInSpringEncoder (){
-
-        UserPasswordEncoder encoderWithMockSpringEncoder = new UserPasswordEncoderImpl(mockSpringEncoder);
-
-        String password = "password";
-        String hash = "$argon2id$v=19$m=16,t=2,p=1$ZlJGMXBBejNwRmt6bFZuRQ$oYWtKMFNUBV30OHw7YjcdQ";
-
-        encoderWithMockSpringEncoder.verify(password, hash);
-        verify(mockSpringEncoder).matches(password, hash);
     }
 
     @Test

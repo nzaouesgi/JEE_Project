@@ -9,7 +9,7 @@ import org.springframework.data.domain.Sort;
 
 public class FindUsers {
 
-    public final static int FIND_USERS_LIMIT = 100;
+    public final static int FIND_USERS_LIMIT = 1000;
 
     private final UserRepository repository;
 
@@ -28,9 +28,10 @@ public class FindUsers {
         if (limit > FIND_USERS_LIMIT)
             throw new UserSecurityException(String.format("\"limit\" parameter must not exceed %d", FIND_USERS_LIMIT));
 
-        Sort sort = Sort.by(orderBy);
-        if (orderMode.equalsIgnoreCase("desc"))
-            sort.descending();
+        Sort sort = Sort.by(orderBy).ascending();
+        if (orderMode.equalsIgnoreCase("desc")) {
+            sort = sort.descending();
+        }
 
         return pattern == null ?
                 this.repository.findAll(PageRequest.of(page, limit, sort)) :
