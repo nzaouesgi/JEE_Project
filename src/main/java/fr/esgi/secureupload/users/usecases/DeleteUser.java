@@ -6,7 +6,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.Objects;
 
-public class DeleteUser {
+public final class DeleteUser {
 
     private final UserRepository repository;
 

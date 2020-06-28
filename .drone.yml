@@ -45,7 +45,6 @@ services:
     ports:
       - 1025
       - 8025
-
 ---
 # BUILD AND PUSH TO PRODUCTION FOR MASTER BRANCH
 kind: pipeline
@@ -67,3 +66,5 @@ steps:
       repo: secureuploadregistry.azurecr.io/secureupload
       tags:
         - latest
+depends_on:
+  - test

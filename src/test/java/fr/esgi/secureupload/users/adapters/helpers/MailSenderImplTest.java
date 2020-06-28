@@ -1,7 +1,7 @@
 package fr.esgi.secureupload.users.adapters.helpers;
 
 import fr.esgi.secureupload.TestUtils;
-import fr.esgi.secureupload.users.ports.ConfirmationMailSender;
+import fr.esgi.secureupload.users.ports.UserMailSender;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
@@ -14,15 +14,15 @@ import java.io.IOException;
 
 @SpringBootTest
 
-public class ConfirmationMailSenderImplTest {
+public class MailSenderImplTest {
 
-    private ConfirmationMailSender sender;
+    private UserMailSender sender;
 
     @Autowired
     private TestUtils testUtils;
 
-    public ConfirmationMailSenderImplTest(@Autowired JavaMailSender javaMailSender){
-        this.sender = new ConfirmationMailSenderImpl(javaMailSender);
+    public MailSenderImplTest(@Autowired JavaMailSender javaMailSender){
+        this.sender = new MailSenderImpl(javaMailSender);
     }
 
     @Test

@@ -4,8 +4,8 @@ import fr.esgi.secureupload.users.dto.UserDTO;
 import fr.esgi.secureupload.users.entities.User;
 import fr.esgi.secureupload.users.exceptions.UserMailAlreadyTakenException;
 import fr.esgi.secureupload.users.exceptions.UserPropertyValidationException;
-import fr.esgi.secureupload.users.ports.ConfirmationMailSender;
-import fr.esgi.secureupload.users.ports.RandomTokenGenerator;
+import fr.esgi.secureupload.users.ports.UserMailSender;
+import fr.esgi.secureupload.common.ports.RandomTokenGenerator;
 import fr.esgi.secureupload.users.ports.UserFieldsValidator;
 import fr.esgi.secureupload.users.ports.UserPasswordEncoder;
 import fr.esgi.secureupload.users.repository.UserRepository;
@@ -44,7 +44,7 @@ public class CreateUserMockTest {
     @Mock
     private RandomTokenGenerator generator;
     @Mock
-    private ConfirmationMailSender sender;
+    private UserMailSender sender;
 
     @Before
     public void setUp() {

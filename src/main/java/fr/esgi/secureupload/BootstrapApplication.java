@@ -5,7 +5,7 @@ import fr.esgi.secureupload.users.adapters.helpers.UserPasswordEncoderImpl;
 import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepository;
 import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepositoryAdapter;
 import fr.esgi.secureupload.users.entities.User;
-import fr.esgi.secureupload.users.ports.RandomTokenGenerator;
+import fr.esgi.secureupload.common.ports.RandomTokenGenerator;
 import fr.esgi.secureupload.users.ports.UserPasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

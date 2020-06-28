@@ -1,6 +1,5 @@
 package fr.esgi.secureupload.users.adapters.helpers;
 
-import fr.esgi.secureupload.users.ports.ConfirmationMailSender;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +16,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class ConfirmationMailSenderImplMockTest {
+public class MailSenderImplMockTest {
 
     @Mock
     JavaMailSender mockJavaMailSender;
@@ -33,7 +32,7 @@ public class ConfirmationMailSenderImplMockTest {
     @Test
     public void sendConfirmationMail_ShouldCallSendFromJavaMail (){
 
-        ConfirmationMailSenderImpl sender = new ConfirmationMailSenderImpl(this.mockJavaMailSender);
+        MailSenderImpl sender = new MailSenderImpl(this.mockJavaMailSender);
 
         sender.sendConfirmationMail(to, token);
 
@@ -48,7 +47,7 @@ public class ConfirmationMailSenderImplMockTest {
             if (Objects.requireNonNull(simpleMailMessage.getTo()).length < 1)
                 return false;
 
-            if (!simpleMailMessage.getTo()[0].equals(ConfirmationMailSenderImplMockTest.to))
+            if (!simpleMailMessage.getTo()[0].equals(MailSenderImplMockTest.to))
                 return false;
 
             return Objects.requireNonNull(simpleMailMessage.getText()).contains(token);

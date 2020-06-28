@@ -9,7 +9,7 @@ import org.springframework.data.domain.Sort;
 
 import java.util.Objects;
 
-public class FindUsers {
+public final class FindUsers {
 
     public final static int FIND_USERS_LIMIT = 1000;
     public final static String DEFAULT_ORDER_BY_FIELD = "email";

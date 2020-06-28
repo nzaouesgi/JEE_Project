@@ -1,14 +1,14 @@
 package fr.esgi.secureupload.users.adapters.helpers;
 
-import fr.esgi.secureupload.users.ports.ConfirmationMailSender;
+import fr.esgi.secureupload.users.ports.UserMailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
-public class ConfirmationMailSenderImpl implements ConfirmationMailSender {
+public class MailSenderImpl implements UserMailSender {
 
     private JavaMailSender emailSender;
 
-    public ConfirmationMailSenderImpl(JavaMailSender emailSender){
+    public MailSenderImpl(JavaMailSender emailSender){
         this.emailSender = emailSender;
     }
 
@@ -21,10 +21,18 @@ public class ConfirmationMailSenderImpl implements ConfirmationMailSender {
     }
 
     @Override
-    public void sendConfirmationMail(String mail, String confirmationLink){
+    public void sendConfirmationMail(String email, String confirmationLink){
         this.send(
-                mail,
+                email,
                 "Please confirm your account",
                 String.format("Use this link to confirm your account: %s", confirmationLink));
+    }
+
+    @Override
+    public void sendRecoveryMail(String email, String recoveryLink) {
+        this.send(
+                email,
+                "Here is your recovery token",
+                String.format("Use this link to recover your password: %s", recoveryLink));
     }
 }

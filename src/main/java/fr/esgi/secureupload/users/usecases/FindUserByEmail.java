@@ -6,7 +6,7 @@ import fr.esgi.secureupload.users.repository.UserRepository;
 
 import java.util.Objects;
 
-public class FindUserByEmail {
+public final class FindUserByEmail {
 
     private final UserRepository repository;
 

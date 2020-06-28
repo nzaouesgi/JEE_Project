@@ -2,6 +2,7 @@ package fr.esgi.secureupload.users.controllers;
 
 import fr.esgi.secureupload.common.controllers.response.DataBody;
 import fr.esgi.secureupload.users.dto.ConfirmMailDto;
+import fr.esgi.secureupload.users.dto.RecoverAccountDTO;
 import fr.esgi.secureupload.users.dto.ResetPasswordDTO;
 import fr.esgi.secureupload.users.dto.UserDTO;
 import fr.esgi.secureupload.users.entities.User;
@@ -42,26 +43,32 @@ public class UserController {
 
     private Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    private ConfirmUser confirmUser;
-    private CreateUser createUser;
-    private DeleteUser deleteUser;
-    private FindUserById findUserById;
-    private FindUsers findUsers;
-    private ResetUserPassword resetUserPassword;
+    private final ConfirmUser confirmUser;
+    private final CreateUser createUser;
+    private final DeleteUser deleteUser;
+    private final FindUserById findUserById;
+    private final FindUserByEmail findUserByEmail;
+    private final FindUsers findUsers;
+    private final ResetUserPassword resetUserPassword;
+    private final CreateRecoveryToken createRecoveryToken;
 
     public UserController (
             @Autowired ConfirmUser confirmUser,
             @Autowired CreateUser createUser,
             @Autowired DeleteUser deleteUser,
             @Autowired FindUserById findUserById,
+            @Autowired FindUserByEmail findUserByEmail,
             @Autowired FindUsers findUsers,
-            @Autowired ResetUserPassword resetUserPassword){
+            @Autowired ResetUserPassword resetUserPassword,
+            @Autowired CreateRecoveryToken createRecoveryToken){
         this.confirmUser = confirmUser;
         this.createUser = createUser;
         this.deleteUser = deleteUser;
         this.findUserById = findUserById;
+        this.findUserByEmail = findUserByEmail;
         this.findUsers = findUsers;
         this.resetUserPassword = resetUserPassword;
+        this.createRecoveryToken = createRecoveryToken;
     }
 
     private void checkIfSelfOrAdmin(String id) {
@@ -168,6 +175,14 @@ public class UserController {
         User updated = this.resetUserPassword.execute(this.findUserById.execute(id), resetPasswordDto);
 
         this.logger.info(String.format("DELETE /users/{id} : User %s has changed his password.", updated));
+    }
+
+    @PostMapping
+    @PreAuthorize("!isAuthenticated()")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createRecoveryToken (@RequestBody @Valid RecoverAccountDTO recoverAccountDTO){
+        User user = this.findUserByEmail.execute(recoverAccountDTO.getEmail());
+        this.createRecoveryToken.execute(user);
     }
 }
 

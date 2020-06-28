@@ -2,9 +2,8 @@ package fr.esgi.secureupload;
 
 import fr.esgi.secureupload.common.adapters.helpers.SecureRandomTokenGenerator;
 import fr.esgi.secureupload.users.adapters.helpers.UserPasswordEncoderImpl;
-import fr.esgi.secureupload.users.adapters.repositories.UserJpaEntity;
 import fr.esgi.secureupload.users.entities.User;
-import fr.esgi.secureupload.users.ports.RandomTokenGenerator;
+import fr.esgi.secureupload.common.ports.RandomTokenGenerator;
 import fr.esgi.secureupload.users.ports.UserPasswordEncoder;
 import fr.esgi.secureupload.common.utils.URLReader;
 import org.json.JSONArray;

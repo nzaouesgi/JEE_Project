@@ -11,7 +11,7 @@ import fr.esgi.secureupload.users.repository.UserRepository;
 import java.util.List;
 import java.util.Objects;
 
-public class ResetUserPassword {
+public final class ResetUserPassword {
 
     private final UserRepository repository;
     private final UserPasswordEncoder encoder;

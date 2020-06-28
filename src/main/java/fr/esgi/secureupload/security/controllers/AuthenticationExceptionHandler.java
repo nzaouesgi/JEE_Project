@@ -22,7 +22,7 @@ public class AuthenticationExceptionHandler {
         return new ResponseEntity<>(new ErrorBody("Login failed.", status.value()), status);
     }
 
-    @ExceptionHandler({ AccessDeniedException.class})
+    @ExceptionHandler({ AccessDeniedException.class })
     public ResponseEntity<ErrorBody> handleAccessDenied() {
         HttpStatus status = HttpStatus.UNAUTHORIZED;
         return new ResponseEntity<>(new ErrorBody("Access denied.", status.value()), status);

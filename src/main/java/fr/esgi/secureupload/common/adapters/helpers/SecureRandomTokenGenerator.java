@@ -1,6 +1,6 @@
 package fr.esgi.secureupload.common.adapters.helpers;
 
-import fr.esgi.secureupload.users.ports.RandomTokenGenerator;
+import fr.esgi.secureupload.common.ports.RandomTokenGenerator;
 
 import java.security.SecureRandom;
 
