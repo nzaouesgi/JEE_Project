@@ -10,6 +10,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Objects;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.util.StringUtils.hasText;
@@ -37,10 +38,20 @@ public class JWTFilter extends GenericFilterBean {
     }
 
     private String resolveToken(HttpServletRequest request) {
+
         String bearerToken = request.getHeader(AUTHORIZATION);
-        if (hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
+
+        if (!hasText(bearerToken))
+            return null;
+
+        String[] array = bearerToken.split(" ");
+
+        if (array.length != 2)
+            return null;
+
+        if (array[0].equals("Bearer"))
+            return array[1];
+
         return null;
     }
 }

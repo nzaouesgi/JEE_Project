@@ -18,5 +18,5 @@ public interface UserRepository {
 
     User save (User user);
 
-    void delete (User user);
+    void deleteById (String id);
 }

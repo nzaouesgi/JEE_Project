@@ -75,6 +75,9 @@ public class UserConfig {
 
     @Bean
     public ResetUserPassword resetUserPassword (){
-        return new ResetUserPassword(this.userJpaRepository, this.userPasswordEncoder);
+        return new ResetUserPassword(
+                this.userJpaRepository,
+                this.userPasswordEncoder,
+                this.userFieldsValidator);
     }
 }

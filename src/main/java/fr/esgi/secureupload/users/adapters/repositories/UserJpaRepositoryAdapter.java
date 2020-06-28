@@ -73,7 +73,7 @@ public final class UserJpaRepositoryAdapter implements UserRepository {
     }
 
     @Override
-    public void delete(User user) {
-        this.jpaRepository.delete(Objects.requireNonNull(this.convertToJpaEntity(user)));
+    public void deleteById(String id) {
+        this.jpaRepository.deleteById(id);
     }
 }

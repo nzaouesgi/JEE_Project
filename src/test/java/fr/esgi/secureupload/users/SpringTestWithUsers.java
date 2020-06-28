@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootTest
-public class TestWithUsers {
+public class SpringTestWithUsers {
 
     public static int USERS_COUNT = 100;
     public static int ADMINS_COUNT = 10;
@@ -34,20 +34,27 @@ public class TestWithUsers {
 
     @BeforeAll
     public static void prepareUsers (@Autowired UserJpaRepository jpaRepository, @Autowired TestUtils testUtils) {
+
         UserRepository repository = new UserJpaRepositoryAdapter(jpaRepository);
+
         for (int i = 0; i < USERS_COUNT; i++)
-            TestWithUsers.users.add(repository.save(testUtils.getRandomUser(false)));
+            SpringTestWithUsers.users.add(repository.save(testUtils.getRandomUser(false)));
+
         for (int i = 0; i < ADMINS_COUNT; i++)
-            TestWithUsers.admins.add(repository.save(testUtils.getRandomUser(true)));
+            SpringTestWithUsers.admins.add(repository.save(testUtils.getRandomUser(true)));
     }
 
     @AfterAll
     public static void cleanUsers (@Autowired UserJpaRepository jpaRepository){
+
         UserRepository repository = new UserJpaRepositoryAdapter(jpaRepository);
+
         for (User user: users)
-            repository.delete(user);
-        for (User user: admins)
-            repository.delete(user);
+            repository.deleteById(user.getId());
+
+        for (User admin: admins)
+            repository.deleteById(admin.getId());
+
         users.clear();
         admins.clear();
     }

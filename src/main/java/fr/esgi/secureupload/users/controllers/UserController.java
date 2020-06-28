@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -25,8 +26,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.persistence.Access;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -61,16 +64,18 @@ public class UserController {
         this.resetUserPassword = resetUserPassword;
     }
 
-    private void checkIfSelfOrAdmin(User user) {
+    private void checkIfSelfOrAdmin(String id) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (!auth.isAuthenticated())
+            throw new AccessDeniedException("User is not authenticated.");
 
         boolean isAdmin = auth.getAuthorities().stream()
                 .anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"));
 
-        if (!user.getEmail().equals(auth.getName()) && !isAdmin) {
+        if (!id.equals(auth.getName()) && !isAdmin)
             throw new UserSecurityException("Denied. This data belongs to another user.");
-        }
     }
 
     @GetMapping
@@ -91,11 +96,11 @@ public class UserController {
     @Secured({ "ROLE_USER", "ROLE_ADMIN" })
     public ResponseEntity<DataBody<User>> getUser (@PathVariable(name = "id") String id) {
 
-        User user = this.findUserById.execute(id);
+        this.checkIfSelfOrAdmin(id);
 
-        this.checkIfSelfOrAdmin(user);
-
-        return new ResponseEntity<>(new DataBody<>(user, HttpStatus.OK.value()), HttpStatus.OK);
+        return new ResponseEntity<>(new DataBody<>(
+                this.findUserById.execute(id),
+                HttpStatus.OK.value()), HttpStatus.OK);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -117,7 +122,7 @@ public class UserController {
 
         response.setHeader(HttpHeaders.LOCATION, location);
 
-        this.logger.info(String.format("POST /users : User %s was created.", createdUser.toString()));
+        this.logger.info(String.format("POST /users : User %s was created.", createdUser.getId()));
 
         HttpStatus status = HttpStatus.CREATED;
 
@@ -135,7 +140,7 @@ public class UserController {
 
         User confirmedUser = this.confirmUser.execute(user, confirmMailDto.getConfirmationToken());
 
-        this.logger.info(String.format("GET /users/{id}/confirm : User %s was confirmed.", confirmedUser));
+        this.logger.info(String.format("GET /users/{id}/confirm : User %s was confirmed.", confirmedUser.getId()));
     }
 
     @DeleteMapping(value = "/{id}")
@@ -143,27 +148,24 @@ public class UserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser (@PathVariable(name = "id") String id) {
 
-        User user = this.findUserById.execute(id);
+        this.checkIfSelfOrAdmin(id);
 
-        this.checkIfSelfOrAdmin(user);
+        this.deleteUser.execute(id);
 
-        this.deleteUser.execute(user);
-
-        this.logger.info(String.format("DELETE /users/{id} : User %s was deleted.", user));
+        this.logger.info(String.format("DELETE /users/{id} : User %s was deleted.", id));
     }
 
     @PutMapping(value = "/{id}/password", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @Secured({ "ROLE_USER", "ROLE_ADMIN" })
+    // @Secured({ "ROLE_USER", "ROLE_ADMIN" }) // Must not be secured.
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void resetPassword (
             @PathVariable(name = "id") String id,
             @RequestBody @Valid ResetPasswordDTO resetPasswordDto) {
 
-        User user = this.findUserById.execute(id);
+        if (Objects.isNull(resetPasswordDto.getRecoveryToken()))
+            this.checkIfSelfOrAdmin(id);
 
-        this.checkIfSelfOrAdmin(user);
-
-        User updated = this.resetUserPassword.execute(user, resetPasswordDto);
+        User updated = this.resetUserPassword.execute(this.findUserById.execute(id), resetPasswordDto);
 
         this.logger.info(String.format("DELETE /users/{id} : User %s has changed his password.", updated));
     }

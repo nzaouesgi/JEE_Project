@@ -2,10 +2,10 @@ provider azurerm {
   version = ">=2.0.0"
   features {}
 
-  subscription_id = "034e914f-d017-40b6-9bbf-69efc3549676"
-  client_id       = "369d7c46-14b7-4380-b2be-f180ac07ac37"
+  subscription_id = var.azure_subscription_id
+  client_id       = var.azure_client_id
   client_secret   = var.azure_secret
-  tenant_id       = "c371d4f5-b34f-4b06-9e66-517fed904220"
+  tenant_id       = var.azure_tenant_id
 }
 
 resource random_string jwt {
@@ -19,6 +19,22 @@ variable scale_count {
   default = 2
 }
 
+variable azure_secret {
+  description = "The password for the Azure service principal"
+}
+
+variable azure_subscription_id {
+  description = "The subscription ID for the Azure service principal"
+}
+
+variable azure_client_id {
+  description = "The client ID for the Azure service principal"
+}
+
+variable azure_tenant_id {
+  description = "The tenant ID for the Azure service principal"
+}
+
 variable main_prefix {
   description = "The main prefix to append for every resource name"
   default = "secureupload"
@@ -26,10 +42,6 @@ variable main_prefix {
 
 variable mysql_root_password {
   description="MYSQL server main password"
-}
-
-variable azure_secret {
-  description = "The password for the Azure service principal"
 }
 
 variable admin_email {

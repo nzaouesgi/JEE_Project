@@ -3,14 +3,9 @@ package fr.esgi.secureupload.users.adapters.helpers;
 import fr.esgi.secureupload.users.ports.UserPasswordEncoder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 public class UserPasswordEncoderImplTest {

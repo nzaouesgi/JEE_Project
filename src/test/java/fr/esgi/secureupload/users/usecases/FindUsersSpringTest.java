@@ -1,6 +1,6 @@
 package fr.esgi.secureupload.users.usecases;
 
-import fr.esgi.secureupload.users.TestWithUsers;
+import fr.esgi.secureupload.users.SpringTestWithUsers;
 import fr.esgi.secureupload.users.entities.User;
 import fr.esgi.secureupload.users.exceptions.UserSecurityException;
 
@@ -15,11 +15,11 @@ import java.util.List;
 import java.util.Random;
 
 @SpringBootTest
-public class FindUsersTest extends TestWithUsers {
+public class FindUsersSpringTest extends SpringTestWithUsers {
 
     private final FindUsers findUsers;
 
-    public FindUsersTest(@Autowired FindUsers findUsers) {
+    public FindUsersSpringTest(@Autowired FindUsers findUsers) {
         this.findUsers = findUsers;
     }
 
@@ -117,7 +117,6 @@ public class FindUsersTest extends TestWithUsers {
                         break;
                 }
                 if (last != null) {
-                    System.out.println(current + " >= " + last);
                     Assertions.assertTrue(current.compareTo(last) >= 0);
                 }
                 last = current;

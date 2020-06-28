@@ -12,6 +12,7 @@ import fr.esgi.secureupload.users.repository.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public final class CreateUser {
 
@@ -29,9 +30,11 @@ public final class CreateUser {
         this.validator = validator;
     }
 
-    public User execute(final UserDTO userDto){
-
+    private void sanitizeFields (final UserDTO userDto){
         userDto.setEmail(userDto.getEmail().trim());
+    }
+
+    private List<String> checkFields (final UserDTO userDto){
 
         List<String> errors = new ArrayList<>();
 
@@ -41,23 +44,35 @@ public final class CreateUser {
         if (!this.validator.validatePassword(userDto.getPassword()))
             errors.add("Password does not meet security requirements.");
 
+        return errors;
+    }
+
+    public User execute(final UserDTO userDto){
+
+        Objects.requireNonNull(userDto, "User DTO must not be null");
+        Objects.requireNonNull(userDto.getEmail(), "Email must not be null");
+        Objects.requireNonNull(userDto.getPassword(), "Password must not be null");
+
+        this.sanitizeFields(userDto);
+
+        List<String> errors = this.checkFields(userDto);
         if (errors.size() > 0)
             throw new UserPropertyValidationException(errors);
 
         if (this.repository.findByEmail(userDto.getEmail()).isPresent())
             throw new UserMailAlreadyTakenException(String.format("Mail %s is already taken.", userDto.getEmail()));
 
-        String hash = this.encoder.encode(userDto.getPassword());
-
         User user = User.builder()
                 .email(userDto.getEmail())
-                .password(hash)
+                .password(this.encoder.encode(userDto.getPassword()))
                 .admin(false)
                 .confirmed(false)
                 .confirmationToken(generator.generate(32))
+                .recoveryToken(null)
                 .build();
 
         this.sender.sendConfirmationMail(user.getEmail(),
+
                 // (this is a fake front end)
                 String.format("http://secureuploadfrontend.com/confirmAccount?id=%s&confirmationToken=%s",
                         user.getEmail(),

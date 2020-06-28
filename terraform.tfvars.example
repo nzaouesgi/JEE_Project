@@ -1,0 +1,35 @@
+# Commented values are defaults
+
+# How many instances for the app (more instances will require to change some SKUs) ?
+# scale_count=2
+
+# Azure service principal login informations
+azure_secret = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+azure_client_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+azure_tenant_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+azure_subscription_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+
+# Main name prefix for resources to be created
+# main_prefix = "secureupload"
+
+# The MySQL database root password
+mysql_root_password = "MustBeChanged"
+
+# The application admin account's mail address
+#admin_email = "secureupload@secureupload.com"
+
+# The application admin account's password
+admin_password = "MustBeChanged"
+
+# The host of the SMTP server to use
+smtp_host = "smtp.myserver.com"
+
+# The port of the SMTP server to use
+smtp_port = "587"
+
+# The user to use for sending emails
+smtp_user = "myuser@myserver.com"
+
+# The password of the SMTP user
+smtp_password = "SmtpUserPassword"
+

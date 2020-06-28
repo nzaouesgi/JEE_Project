@@ -95,7 +95,7 @@ public class UserJpaRepositoryAdapterTest {
 
     @Test
     public void delete_ShouldCallDelete (){
-        userJpaRepositoryAdapter.delete(this.userEntity);
-        verify(this.jpaRepository).delete(any(UserJpaEntity.class));
+        userJpaRepositoryAdapter.deleteById("ID");
+        verify(this.jpaRepository).deleteById(eq("ID"));
     }
 }
