@@ -1,7 +1,11 @@
 package fr.esgi.secureupload.files.port;
 
-public interface StorageFileHandler {
-    void deleteFile(String path);
+import org.springframework.web.multipart.MultipartFile;
 
-    void storeFile(String path);
+import java.io.InputStream;
+
+public interface StorageFileHandler {
+    boolean deleteFile(String id);
+
+    boolean storeFile(InputStream file, long size, String id);
 }
