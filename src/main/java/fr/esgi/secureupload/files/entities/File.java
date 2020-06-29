@@ -1,6 +1,7 @@
 package fr.esgi.secureupload.files.entities;
 
 import fr.esgi.secureupload.common.entities.BaseEntity;
+import fr.esgi.secureupload.users.entities.User;
 import lombok.*;
 
 import javax.persistence.*;
@@ -16,6 +17,8 @@ public class File extends BaseEntity {
     private long size;
 
     private Status status;
+
+    private User owner;
 
     public String getName() {
         return name;
@@ -49,11 +52,28 @@ public class File extends BaseEntity {
         this.status = status;
     }
 
-    public File(String id, Date createdAt, Date updatedAt, String name, String contentType, long size, Status status) {
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
+    public File(String name, String contentType, long size, Status status, User owner) {
+        this.name = name;
+        this.contentType = contentType;
+        this.size = size;
+        this.status = status;
+        this.owner = owner;
+    }
+
+    public File(String id, Date createdAt, Date updatedAt, String name, String contentType, long size, Status status, User owner) {
         super(id, createdAt, updatedAt);
         this.name = name;
         this.contentType = contentType;
         this.size = size;
         this.status = status;
+        this.owner = owner;
     }
 }

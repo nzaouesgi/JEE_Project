@@ -2,6 +2,7 @@ package fr.esgi.secureupload.files.adapters.repositories;
 
 import fr.esgi.secureupload.common.repository.BaseJPAEntity;
 import fr.esgi.secureupload.files.entities.Status;
+import fr.esgi.secureupload.users.adapters.repositories.UserJpaEntity;
 import lombok.NonNull;
 import lombok.Setter;
 
@@ -26,6 +27,10 @@ public class FileJpaEntity extends BaseJPAEntity {
     @Enumerated(EnumType.ORDINAL)
     @Column(name="status", nullable = false)
     private Status status;
+
+    @ManyToOne
+    @JoinColumn(name = "owner")
+    private UserJpaEntity owner;
 
     public String getName() {
         return name;
@@ -57,5 +62,13 @@ public class FileJpaEntity extends BaseJPAEntity {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public UserJpaEntity getOwner() {
+        return owner;
+    }
+
+    public void setOwner(UserJpaEntity owner) {
+        this.owner = owner;
     }
 }

@@ -5,6 +5,7 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import fr.esgi.secureupload.files.port.StorageFileHandler;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -13,8 +14,11 @@ import java.io.InputStream;
 
 public class StorageFileHandlerImpl implements StorageFileHandler {
 
-    String connectStr = System.getenv("AZURE_STORAGE_CONNECTION_STRING");
-    String containerStr = System.getenv("AZURE_STORAGE_CONTAINER_NAME");
+    @Value("${AZURE_STORAGE_CONNECTION_STRING}")
+    private String connectStr;
+
+    @Value("${AZURE_STORAGE_CONTAINER_NAME}")
+    private String containerStr;
 
     BlobServiceClient blobServiceClient = new BlobServiceClientBuilder().connectionString(connectStr).buildClient();
 

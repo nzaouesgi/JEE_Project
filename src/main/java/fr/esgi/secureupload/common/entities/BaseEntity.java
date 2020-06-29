@@ -39,6 +39,10 @@ public abstract class BaseEntity {
         this.updatedAt = updatedAt;
     }
 
+    public BaseEntity(){
+
+    }
+
     public static class Builder <T extends Builder<T>> {
 
         private String id;

@@ -2,8 +2,11 @@ package fr.esgi.secureupload.files.adapters.repositories;
 
 import fr.esgi.secureupload.files.entities.File;
 import fr.esgi.secureupload.files.repository.FileRepository;
+import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepository;
+import fr.esgi.secureupload.users.adapters.repositories.UserRepositoryAdapter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -11,6 +14,8 @@ import java.util.Optional;
 public class FileRepositoryAdapter implements FileRepository {
 
     private FileJpaRepository jpaRepository;
+
+    private UserRepositoryAdapter jpaUserRepositoryAdapter;
 
     public FileRepositoryAdapter(FileJpaRepository jpaRepository){ this.jpaRepository = jpaRepository; }
 
@@ -22,8 +27,8 @@ public class FileRepositoryAdapter implements FileRepository {
                 fileJpa.getName(),
                 fileJpa.getContentType(),
                 fileJpa.getSize(),
-                fileJpa.getStatus());
-
+                fileJpa.getStatus(),
+                jpaUserRepositoryAdapter.convertToUser(fileJpa.getOwner()));
     }
 
     public FileJpaEntity convertToJpaEntity(final File file){
@@ -44,13 +49,13 @@ public class FileRepositoryAdapter implements FileRepository {
     }
 
     @Override
-    public File findByAnalysis(String id) {
+    public File findByAnalysis(String id, Pageable pageable) {
         return null;
     }
 
-    @Override
-    public Page<File> findByUser(String id) {
-        return null;
+
+    public Page<File> findByUser(String id, Pageable pageable) {
+        return this.jpaRepository.findAllByUser(id, pageable).map(this::convertToFile);
     }
 
     @Override
