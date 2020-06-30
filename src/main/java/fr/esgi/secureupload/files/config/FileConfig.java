@@ -20,10 +20,10 @@ public class FileConfig {
 
     private StorageFileHandler storageFileHandler;
 
-    @Value("${AZURE_STORAGE_CONNECTION_STRING}")
+    @Value("${secureupload.storage.connection_string}")
     private String connectStr;
 
-    @Value("${AZURE_STORAGE_CONTAINER_NAME}")
+    @Value("${secureupload.storage.container_name}")
     private String containerStr;
 
     public FileConfig(@Autowired FileJpaRepository fileJpaRepository){
