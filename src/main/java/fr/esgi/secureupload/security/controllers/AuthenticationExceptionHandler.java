@@ -18,7 +18,7 @@ public class AuthenticationExceptionHandler {
     /* Login exceptions */
     @ExceptionHandler({BadCredentialsException.class})
     public ResponseEntity<ErrorBody> handleBadCredentialsException() {
-        HttpStatus status = HttpStatus.FORBIDDEN;
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
         return new ResponseEntity<>(new ErrorBody("Login failed.", status.value()), status);
     }
 

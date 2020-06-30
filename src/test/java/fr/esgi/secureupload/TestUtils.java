@@ -34,8 +34,6 @@ public class TestUtils {
 
     public JSONObject getSentMail(String to) throws JSONException, IOException {
 
-        System.out.println(this.smtpHost);
-
         // Read sent message for Mailhog API.
         JSONArray messages = new JSONArray(URLReader.readStringFromUrl("http://" + this.smtpHost + ":8025/api/v1/messages"));
 

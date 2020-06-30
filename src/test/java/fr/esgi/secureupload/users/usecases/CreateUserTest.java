@@ -57,7 +57,6 @@ public class CreateUserTest {
     @Test
     public void execute_WithBadEmail_ShouldThrow (){
 
-
         UserDTO userDto = new UserDTO();
         userDto.setEmail("not a mail address");
         userDto.setPassword("rrrrr");

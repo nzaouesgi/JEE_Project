@@ -111,7 +111,8 @@ public class ResetUserPasswordMockTest {
     @Test
     public void execute_WhenValidRecoveryTokenAndNewPassword_ShouldReturnUserWithNewPassword (){
 
-        when(user.getRecoveryToken()).thenReturn("good token");
+        when(user.getRecoveryToken()).thenCallRealMethod();
+        doCallRealMethod().when(user).setRecoveryToken(any());
 
         when(validator.validatePassword("new password")).thenReturn(true);
 
@@ -129,10 +130,12 @@ public class ResetUserPasswordMockTest {
         resetPasswordDTO.setRecoveryToken("good token");
         resetPasswordDTO.setNewPassword("new password");
 
+        user.setRecoveryToken("good token");
+
         User updated = resetUserPassword.execute(user, resetPasswordDTO);
 
         Assertions.assertNotNull(updated);
-
+        Assertions.assertNull(updated.getRecoveryToken());
         Assertions.assertEquals("new hash", updated.getPassword());
     }
 

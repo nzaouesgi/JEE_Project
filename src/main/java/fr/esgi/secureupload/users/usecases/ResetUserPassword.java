@@ -41,6 +41,8 @@ public final class ResetUserPassword {
 
             if (!resetPasswordDto.getRecoveryToken().equals(user.getRecoveryToken()))
                 throw new UserSecurityException("Token is invalid.");
+
+            user.setRecoveryToken(null);
         }
 
         // Regular password reset.

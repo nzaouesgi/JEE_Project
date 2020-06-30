@@ -7,6 +7,7 @@ import fr.esgi.secureupload.users.SpringTestWithUsers;
 import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepository;
 import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepositoryAdapter;
 import fr.esgi.secureupload.users.dto.ConfirmMailDto;
+import fr.esgi.secureupload.users.dto.RecoverAccountDTO;
 import fr.esgi.secureupload.users.dto.ResetPasswordDTO;
 import fr.esgi.secureupload.users.dto.UserDTO;
 import fr.esgi.secureupload.users.entities.User;
@@ -413,5 +414,62 @@ public class UserControllerSpringTest extends SpringTestWithUsers {
         Assertions.assertNull(this.userRepository.findById(users.get(0).getId())
                 .orElse(null));
         this.deleteFromUsers(0);
+    }
+
+    /* POST /recovery */
+
+    @Test
+    @WithMockUser
+    public void createRecoveryToken_WhenAuthenticated_ShouldReturnUnauthorized () throws Exception {
+
+        RecoverAccountDTO recoverAccountDto = new RecoverAccountDTO();
+        recoverAccountDto.setEmail(users.get(0).getEmail());
+
+        this.mockMvc.perform(
+                post(USERS_API_PATH + "/recovery")
+                .content(new ObjectMapper().writeValueAsString(recoverAccountDto))
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                    .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithAnonymousUser
+    public void createRecoveryToken_WhenUnknownMail_ShouldReturnOk () throws Exception {
+
+        RecoverAccountDTO recoverAccountDto = new RecoverAccountDTO();
+        recoverAccountDto.setEmail("unknown@domain.com");
+
+        this.mockMvc.perform(
+                post(USERS_API_PATH + "/recovery")
+                        .content(new ObjectMapper().writeValueAsString(recoverAccountDto))
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAnonymousUser
+    public void createRecoveryToken_WhenValidMail_ShouldReturnOkAndSendRecoveryMail () throws Exception {
+
+        RecoverAccountDTO recoverAccountDto = new RecoverAccountDTO();
+        recoverAccountDto.setEmail(users.get(0).getEmail());
+
+        this.mockMvc.perform(
+                post(USERS_API_PATH + "/recovery")
+                        .content(new ObjectMapper().writeValueAsString(recoverAccountDto))
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk());
+
+        JSONObject message = this.testUtils.getSentMail(recoverAccountDto.getEmail());
+
+        Assertions.assertNotNull(message);
+
+        User user = this.userRepository.findByEmail(recoverAccountDto.getEmail()).orElse(null);
+        Assertions.assertNotNull(user);
+
+        JSONObject headers = message.getJSONObject("Headers");
+
+        Assertions.assertEquals(user.getEmail(), headers.getJSONArray("To").get(0));
+        Assertions.assertTrue(message.getString("Body").contains(user.getRecoveryToken()));
+
     }
 }

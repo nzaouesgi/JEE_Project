@@ -7,6 +7,7 @@ import fr.esgi.secureupload.users.dto.ResetPasswordDTO;
 import fr.esgi.secureupload.users.dto.UserDTO;
 import fr.esgi.secureupload.users.entities.User;
 
+import fr.esgi.secureupload.users.exceptions.UserNotFoundException;
 import fr.esgi.secureupload.users.exceptions.UserSecurityException;
 import fr.esgi.secureupload.users.usecases.*;
 import org.slf4j.Logger;
@@ -177,12 +178,17 @@ public class UserController {
         this.logger.info(String.format("DELETE /users/{id} : User %s has changed his password.", updated));
     }
 
-    @PostMapping
+    @PostMapping(value = "/recovery", consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("!isAuthenticated()")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void createRecoveryToken (@RequestBody @Valid RecoverAccountDTO recoverAccountDTO){
-        User user = this.findUserByEmail.execute(recoverAccountDTO.getEmail());
-        this.createRecoveryToken.execute(user);
+    public ResponseEntity<?> createRecoveryToken (@RequestBody @Valid RecoverAccountDTO recoverAccountDTO){
+        try {
+            User user = this.findUserByEmail.execute(recoverAccountDTO.getEmail());
+            this.createRecoveryToken.execute(user);
+        } catch (UserNotFoundException e){
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
 

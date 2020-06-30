@@ -14,7 +14,7 @@ If you want to launch only the services and debug the app from your IDE in a reg
 This one will work for IntelliJ in a local environment (just copy and paste it):
 
 ```
-MYSQL_URL=jdbc:mysql://127.0.0.1:3306/secureupload;MYSQL_USER=secureupload;MYSQL_PASSWORD=DatabasePassword12345;SMTP_HOST=127.0.0.1;SMTP_PORT=1025;SMTP_USER=secureupload@secureupload.com;SMTP_PASSWORD=SmtpPassword12345;ADMIN_EMAIL=admin@secureupload.com;JWT_SECRET=SecretForDevOnly;AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=https\;AccountName=devstoreaccount1\;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==\;BlobEndpoint=https://storage:10000/devstoreaccount1\;fefe;AZURE_STORAGE_CONTAINER_NAME=my-container;ADMIN_PASSWORD=secureupload
+MYSQL_URL=jdbc:mysql://127.0.0.1:3306/secureupload;MYSQL_USER=secureupload;MYSQL_PASSWORD=DatabasePassword12345;SMTP_HOST=127.0.0.1;SMTP_PORT=1025;SMTP_USER=secureupload@secureupload.com;SMTP_PASSWORD=SmtpPassword12345;ADMIN_EMAIL=admin@secureupload.com;JWT_SECRET=SecretForDevOnly;AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=https\;AccountName=devstoreaccount1\;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==\;BlobEndpoint=https://127.0.0.1:10000/devstoreaccount1\;;AZURE_STORAGE_CONTAINER_NAME=my-container;ADMIN_PASSWORD=secureupload
 ```
 Then you can launch the services with:
 ```

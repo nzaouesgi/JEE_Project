@@ -1,4 +1,4 @@
-package fr.esgi.secureupload.common;
+package fr.esgi.secureupload.common.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
