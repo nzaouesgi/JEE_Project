@@ -5,28 +5,30 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import fr.esgi.secureupload.files.port.StorageFileHandler;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 
 public class StorageFileHandlerImpl implements StorageFileHandler {
 
-    private BlobServiceClient blobServiceClient;
+    private String connectStr;
 
-    private BlobContainerClient containerClient;
+    private String containerStr;
 
     public StorageFileHandlerImpl(String connectStr, String containerStr){
-        this.blobServiceClient = new BlobServiceClientBuilder().connectionString(connectStr).buildClient();
-        this.containerClient = this.blobServiceClient.getBlobContainerClient(containerStr);
+        this.connectStr = connectStr;
+        this.containerStr = containerStr;
+    }
+
+    private BlobContainerClient connect(){
+        BlobServiceClient client = new BlobServiceClientBuilder().connectionString(this.connectStr).buildClient();
+        return client.getBlobContainerClient(this.containerStr);
     }
 
     @Override
     public boolean deleteFile(String id) {
         try{
-            BlobClient blobClient = containerClient.getBlobClient(id);
+            BlobContainerClient client = connect();
+            BlobClient blobClient = client.getBlobClient(id);
             blobClient.delete();
         }
         catch(Exception e){
@@ -40,7 +42,8 @@ public class StorageFileHandlerImpl implements StorageFileHandler {
     @Override
     public boolean storeFile(InputStream file, long size, String id) {
         try {
-            BlobClient blobClient = containerClient.getBlobClient(id);
+            BlobContainerClient client = connect();
+            BlobClient blobClient = client.getBlobClient(id);
             blobClient.upload(file, size,true);
         } catch (Exception e) {
             e.printStackTrace();
