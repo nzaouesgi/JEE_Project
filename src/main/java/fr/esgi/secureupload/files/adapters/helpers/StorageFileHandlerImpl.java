@@ -19,7 +19,6 @@ public class StorageFileHandlerImpl implements StorageFileHandler {
     private BlobContainerClient containerClient;
 
     public StorageFileHandlerImpl(String connectStr, String containerStr){
-        System.out.println(connectStr);
         this.blobServiceClient = new BlobServiceClientBuilder().connectionString(connectStr).buildClient();
         this.containerClient = this.blobServiceClient.getBlobContainerClient(containerStr);
     }

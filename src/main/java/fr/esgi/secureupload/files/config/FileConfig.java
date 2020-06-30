@@ -20,13 +20,7 @@ public class FileConfig {
 
     private StorageFileHandler storageFileHandler;
 
-    @Value("${secureupload.storage.connection_string}")
-    private String connectStr;
-
-    @Value("${secureupload.storage.container_name}")
-    private String containerStr;
-
-    public FileConfig(@Autowired FileJpaRepository fileJpaRepository){
+    public FileConfig(@Autowired FileJpaRepository fileJpaRepository, @Value("${secureupload.storage.connection_string}") String connectStr, @Value("${secureupload.storage.container_name}") String containerStr){
         this.fileJpaRepository = new FileRepositoryAdapter(fileJpaRepository);
         this.storageFileHandler = new StorageFileHandlerImpl(connectStr, containerStr);
     }
