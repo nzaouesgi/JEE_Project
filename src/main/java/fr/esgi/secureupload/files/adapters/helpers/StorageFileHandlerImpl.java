@@ -14,15 +14,15 @@ import java.io.InputStream;
 
 public class StorageFileHandlerImpl implements StorageFileHandler {
 
-    @Value("${AZURE_STORAGE_CONNECTION_STRING}")
-    private String connectStr;
+    private BlobServiceClient blobServiceClient;
 
-    @Value("${AZURE_STORAGE_CONTAINER_NAME}")
-    private String containerStr;
+    private BlobContainerClient containerClient;
 
-    BlobServiceClient blobServiceClient = new BlobServiceClientBuilder().connectionString(connectStr).buildClient();
-
-    BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(containerStr);
+    public StorageFileHandlerImpl(String connectStr, String containerStr){
+        System.out.println(connectStr);
+        this.blobServiceClient = new BlobServiceClientBuilder().connectionString(connectStr).buildClient();
+        this.containerClient = this.blobServiceClient.getBlobContainerClient(containerStr);
+    }
 
     @Override
     public boolean deleteFile(String id) {

@@ -9,6 +9,7 @@ import fr.esgi.secureupload.files.usecases.*;
 import fr.esgi.secureupload.users.repository.UserRepository;
 import fr.esgi.secureupload.users.usecases.FindUserByEmail;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,9 +20,15 @@ public class FileConfig {
 
     private StorageFileHandler storageFileHandler;
 
+    @Value("${AZURE_STORAGE_CONNECTION_STRING}")
+    private String connectStr;
+
+    @Value("${AZURE_STORAGE_CONTAINER_NAME}")
+    private String containerStr;
+
     public FileConfig(@Autowired FileJpaRepository fileJpaRepository){
         this.fileJpaRepository = new FileRepositoryAdapter(fileJpaRepository);
-        this.storageFileHandler = new StorageFileHandlerImpl();
+        this.storageFileHandler = new StorageFileHandlerImpl(connectStr, containerStr);
     }
 
     @Bean
