@@ -1,8 +1,7 @@
 package fr.esgi.secureupload.security.services;
 
-import fr.esgi.secureupload.users.entities.User;
-import fr.esgi.secureupload.users.exceptions.UserNotFoundException;
-import fr.esgi.secureupload.users.usecases.FindUserByEmail;
+import fr.esgi.secureupload.users.domain.entities.User;
+import fr.esgi.secureupload.users.domain.exceptions.UserNotFoundException;
 import fr.esgi.secureupload.users.usecases.FindUserById;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

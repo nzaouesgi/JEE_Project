@@ -1,10 +1,9 @@
 package fr.esgi.secureupload.security.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.esgi.secureupload.TestUtils;
 import fr.esgi.secureupload.users.SpringTestWithUsers;
-import fr.esgi.secureupload.users.dto.LoginDTO;
+import fr.esgi.secureupload.users.infrastructure.dto.LoginDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

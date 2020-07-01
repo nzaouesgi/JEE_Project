@@ -1,12 +1,12 @@
 package fr.esgi.secureupload.users.usecases;
 
-import fr.esgi.secureupload.users.dto.ResetPasswordDTO;
-import fr.esgi.secureupload.users.entities.User;
-import fr.esgi.secureupload.users.exceptions.UserPropertyValidationException;
-import fr.esgi.secureupload.users.exceptions.UserSecurityException;
-import fr.esgi.secureupload.users.ports.UserFieldsValidator;
-import fr.esgi.secureupload.users.ports.UserPasswordEncoder;
-import fr.esgi.secureupload.users.repository.UserRepository;
+import fr.esgi.secureupload.users.infrastructure.dto.ResetPasswordDTO;
+import fr.esgi.secureupload.users.domain.entities.User;
+import fr.esgi.secureupload.users.domain.exceptions.UserPropertyValidationException;
+import fr.esgi.secureupload.users.domain.exceptions.UserSecurityException;
+import fr.esgi.secureupload.users.domain.ports.UserFieldsValidator;
+import fr.esgi.secureupload.users.domain.ports.UserPasswordEncoder;
+import fr.esgi.secureupload.users.domain.repository.UserRepository;
 
 import java.util.List;
 import java.util.Objects;

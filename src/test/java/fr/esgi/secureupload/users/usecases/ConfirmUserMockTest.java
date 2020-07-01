@@ -1,9 +1,9 @@
 package fr.esgi.secureupload.users.usecases;
 
 
-import fr.esgi.secureupload.users.entities.User;
-import fr.esgi.secureupload.users.exceptions.UserSecurityException;
-import fr.esgi.secureupload.users.repository.UserRepository;
+import fr.esgi.secureupload.users.domain.entities.User;
+import fr.esgi.secureupload.users.domain.exceptions.UserSecurityException;
+import fr.esgi.secureupload.users.domain.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

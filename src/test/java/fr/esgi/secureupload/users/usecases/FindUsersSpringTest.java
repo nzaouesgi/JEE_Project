@@ -1,8 +1,8 @@
 package fr.esgi.secureupload.users.usecases;
 
 import fr.esgi.secureupload.users.SpringTestWithUsers;
-import fr.esgi.secureupload.users.entities.User;
-import fr.esgi.secureupload.users.exceptions.UserSecurityException;
+import fr.esgi.secureupload.users.domain.entities.User;
+import fr.esgi.secureupload.users.domain.exceptions.UserSecurityException;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ public class FindUsersSpringTest extends SpringTestWithUsers {
     @Test
     public void execute_ShouldPaginateUsers (){
 
-        int limit = USERS_COUNT / 2;
+        int limit = users.size() / 2;
 
         Page<User> firstPage = findUsers.execute(limit, 0, "email", "asc");
         Assertions.assertNotNull(users);
@@ -56,7 +56,7 @@ public class FindUsersSpringTest extends SpringTestWithUsers {
     @Test
     public void execute_ShouldThrowWhenPrivateFieldInOrderBy (){
         Assertions.assertThrows(UserSecurityException.class, () -> {
-            findUsers.execute(USERS_COUNT, 0, User.PRIVATE_FIELDS[new Random().nextInt(User.PRIVATE_FIELDS.length)], "asc");
+            findUsers.execute(users.size(), 0, User.PRIVATE_FIELDS[new Random().nextInt(User.PRIVATE_FIELDS.length)], "asc");
         });
     }
 

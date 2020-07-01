@@ -1,7 +1,7 @@
 package fr.esgi.secureupload.users.usecases;
 
 import fr.esgi.secureupload.users.SpringTestWithUsers;
-import fr.esgi.secureupload.users.exceptions.UserNotFoundException;
+import fr.esgi.secureupload.users.domain.exceptions.UserNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ public class DeleteUserSpringTest extends SpringTestWithUsers {
     public void execute_WhenValidId_ShouldDeleteUser (){
         Assertions.assertDoesNotThrow(() -> {
             deleteUser.execute(users.get(0).getId());
-            deleteFromUsers(0);
+            users.remove(0);
         });
     }
 

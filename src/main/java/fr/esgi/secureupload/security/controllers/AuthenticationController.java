@@ -1,15 +1,13 @@
 package fr.esgi.secureupload.security.controllers;
 
 import fr.esgi.secureupload.security.jwt.JWTProvider;
-import fr.esgi.secureupload.users.dto.LoginDTO;
-import fr.esgi.secureupload.users.entities.User;
-import fr.esgi.secureupload.users.exceptions.UserNotFoundException;
+import fr.esgi.secureupload.users.infrastructure.dto.LoginDTO;
+import fr.esgi.secureupload.users.domain.entities.User;
+import fr.esgi.secureupload.users.domain.exceptions.UserNotFoundException;
 import fr.esgi.secureupload.users.usecases.FindUserByEmail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -17,9 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-
-import java.util.List;
-import java.util.Objects;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
