@@ -3,7 +3,6 @@ package fr.esgi.secureupload.files.infrastructure.adapters.repositories;
 import fr.esgi.secureupload.files.domain.entities.File;
 import fr.esgi.secureupload.files.domain.repository.FileRepository;
 import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepositoryAdapter;
-import fr.esgi.secureupload.users.adapters.repositories.UserRepositoryAdapter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
