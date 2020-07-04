@@ -2,6 +2,7 @@ package fr.esgi.secureupload.files.infrastructure.adapters.repositories;
 
 import fr.esgi.secureupload.files.domain.entities.File;
 import fr.esgi.secureupload.files.domain.repository.FileRepository;
+import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepositoryAdapter;
 import fr.esgi.secureupload.users.adapters.repositories.UserRepositoryAdapter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
@@ -10,13 +11,13 @@ import org.springframework.data.domain.Pageable;
 import java.util.Objects;
 import java.util.Optional;
 
-public class FileRepositoryAdapter implements FileRepository {
+public class FileJpaRepositoryAdapter implements FileRepository {
 
     private FileJpaRepository jpaRepository;
 
-    private UserRepositoryAdapter jpaUserRepositoryAdapter;
+    private UserJpaRepositoryAdapter jpaUserRepositoryAdapter;
 
-    public FileRepositoryAdapter(FileJpaRepository jpaRepository){ this.jpaRepository = jpaRepository; }
+    public FileJpaRepositoryAdapter(FileJpaRepository jpaRepository){ this.jpaRepository = jpaRepository; }
 
     public File convertToFile(final FileJpaEntity fileJpa){
 

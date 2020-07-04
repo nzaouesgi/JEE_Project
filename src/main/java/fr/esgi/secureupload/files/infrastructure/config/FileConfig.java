@@ -2,7 +2,7 @@ package fr.esgi.secureupload.files.infrastructure.config;
 
 import fr.esgi.secureupload.files.infrastructure.adapters.helpers.StorageFileHandlerAzure;
 import fr.esgi.secureupload.files.infrastructure.adapters.repositories.FileJpaRepository;
-import fr.esgi.secureupload.files.infrastructure.adapters.repositories.FileRepositoryAdapter;
+import fr.esgi.secureupload.files.infrastructure.adapters.repositories.FileJpaRepositoryAdapter;
 import fr.esgi.secureupload.files.domain.port.StorageFileHandler;
 import fr.esgi.secureupload.files.domain.repository.FileRepository;
 import fr.esgi.secureupload.files.domain.usecases.*;
@@ -19,7 +19,7 @@ public class FileConfig {
     private StorageFileHandler storageFileHandler;
 
     public FileConfig(@Autowired FileJpaRepository fileJpaRepository, @Value("${secureupload.storage.connection_string}") String connectStr, @Value("${secureupload.storage.container_name}") String containerStr){
-        this.fileJpaRepository = new FileRepositoryAdapter(fileJpaRepository);
+        this.fileJpaRepository = new FileJpaRepositoryAdapter(fileJpaRepository);
         this.storageFileHandler = new StorageFileHandlerAzure(connectStr, containerStr);
     }
 
