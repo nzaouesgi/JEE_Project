@@ -8,13 +8,13 @@ import fr.esgi.secureupload.files.domain.port.StorageFileHandler;
 
 import java.io.InputStream;
 
-public class StorageFileHandlerImpl implements StorageFileHandler {
+public class StorageFileHandlerAzure implements StorageFileHandler {
 
     private String connectStr;
 
     private String containerStr;
 
-    public StorageFileHandlerImpl(String connectStr, String containerStr){
+    public StorageFileHandlerAzure(String connectStr, String containerStr){
         this.connectStr = connectStr;
         this.containerStr = containerStr;
     }
