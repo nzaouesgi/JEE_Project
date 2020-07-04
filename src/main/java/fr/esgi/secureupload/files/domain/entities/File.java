@@ -13,6 +13,8 @@ public class File extends BaseEntity {
 
     private long size;
 
+    private String url;
+
     private Status status;
 
     private User owner;
@@ -55,6 +57,14 @@ public class File extends BaseEntity {
 
     public void setOwner(User owner) {
         this.owner = owner;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public File(String name, String contentType, long size, Status status, User owner) {

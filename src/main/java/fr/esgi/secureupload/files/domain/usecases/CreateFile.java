@@ -23,11 +23,12 @@ public final class CreateFile {
         File newFile = new File(file.getName(), file.getContentType(), file.getSize(), Status.ANALYSING, User.builder().id(userId).build());
         File registeredFile = this.fileRepository.save(newFile);
         try {
-            boolean result = this.fileHandler.storeFile(file.getInputStream(), file.getSize(), registeredFile.getId());
+            String fileUrl = this.fileHandler.storeFile(file.getInputStream(), file.getSize(), registeredFile.getId());
+            registeredFile.setUrl(fileUrl);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return registeredFile;
+        return this.fileRepository.save(registeredFile);
     }
 
 }

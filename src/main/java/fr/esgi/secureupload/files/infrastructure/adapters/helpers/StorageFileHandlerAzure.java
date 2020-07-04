@@ -40,15 +40,17 @@ public class StorageFileHandlerAzure implements StorageFileHandler {
     }
 
     @Override
-    public boolean storeFile(InputStream file, long size, String id) {
+    public String storeFile(InputStream file, long size, String id) {
+        String fileUrl = "";
         try {
             BlobContainerClient client = connect();
             BlobClient blobClient = client.getBlobClient(id);
             blobClient.upload(file, size,true);
+            fileUrl = blobClient.getBlobUrl();
+
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
         }
-        return true;
+        return fileUrl;
     }
 }

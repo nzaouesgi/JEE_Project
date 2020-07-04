@@ -5,5 +5,5 @@ import java.io.InputStream;
 public interface StorageFileHandler {
     boolean deleteFile(String id);
 
-    boolean storeFile(InputStream file, long size, String id);
+    String storeFile(InputStream file, long size, String id);
 }
