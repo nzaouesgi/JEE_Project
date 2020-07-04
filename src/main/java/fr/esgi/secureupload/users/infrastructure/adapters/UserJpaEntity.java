@@ -1,6 +1,6 @@
-package fr.esgi.secureupload.users.infrastructure.adapters.repositories;
+package fr.esgi.secureupload.users.infrastructure.adapters;
 
-import fr.esgi.secureupload.common.repository.BaseJPAEntity;
+import fr.esgi.secureupload.common.infrastructure.adapters.BaseJPAEntity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

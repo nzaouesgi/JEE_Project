@@ -1,5 +1,6 @@
-package fr.esgi.secureupload.users.infrastructure.adapters.repositories;
+package fr.esgi.secureupload.users.infrastructure.adapters;
 
+import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,18 +1,18 @@
 package fr.esgi.secureupload.users.usecases;
 
+import fr.esgi.secureupload.common.domain.entities.EntitiesPage;
+import fr.esgi.secureupload.common.domain.entities.OrderMode;
 import fr.esgi.secureupload.users.domain.entities.User;
+import fr.esgi.secureupload.users.domain.entities.UserOrderByField;
 import fr.esgi.secureupload.users.domain.exceptions.UserSecurityException;
 import fr.esgi.secureupload.users.domain.repository.UserRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 
 import java.util.Objects;
 
 public final class FindUsers {
 
     public final static int FIND_USERS_LIMIT = 1000;
-    public final static String DEFAULT_ORDER_BY_FIELD = "email";
+    public final static UserOrderByField DEFAULT_ORDER_BY_FIELD = UserOrderByField.EMAIL;
 
     private final UserRepository repository;
 
@@ -20,53 +20,36 @@ public final class FindUsers {
         this.repository = repository;
     }
 
-    private void checkFields (String orderBy, int limit){
-
-        for (String field : User.PRIVATE_FIELDS) {
-
-            if (orderBy.equalsIgnoreCase(field)) {
-                throw new UserSecurityException(String.format("Field %s is private.", orderBy));
-            }
-
-            if (limit > FIND_USERS_LIMIT)
-                throw new UserSecurityException(String.format("\"limit\" parameter must not exceed %d", FIND_USERS_LIMIT));
-        }
-    }
-
-    public Page<User> execute (int limit, int page, String orderBy, String orderMode, String pattern){
+    public EntitiesPage<User> execute (int limit, int page, UserOrderByField orderBy, OrderMode orderMode, String pattern){
 
         Objects.requireNonNull(orderBy, "orderBy must not be null");
         Objects.requireNonNull(orderMode, "orderMode must not be null");
 
-        this.checkFields(orderBy, limit);
-
-        Sort sort = Sort.by(orderBy).ascending();
-        if (orderMode.equalsIgnoreCase("desc")) {
-            sort = sort.descending();
-        }
+        if (limit > FIND_USERS_LIMIT)
+            throw new UserSecurityException(String.format("\"limit\" parameter must not exceed %d", FIND_USERS_LIMIT));
 
         return pattern == null ?
-                this.repository.findAll(PageRequest.of(page, limit, sort)) :
-                this.repository.findAllByPattern(pattern, PageRequest.of(page, limit, sort));
+                this.repository.findAll(limit, page, orderBy, orderMode) :
+                this.repository.findAllByPattern(limit, page, orderBy, orderMode, pattern);
     }
 
-    public Page<User> execute (int limit, int page, String orderBy, String orderMode){
+    public EntitiesPage<User> execute (int limit, int page, UserOrderByField orderBy, OrderMode orderMode){
         return this.execute(limit, page, orderBy, orderMode, null);
     }
 
-    public Page<User> execute (int limit, int page, String orderBy){
-        return this.execute(limit, page, orderBy, "asc", null);
+    public EntitiesPage<User> execute (int limit, int page, UserOrderByField orderBy){
+        return this.execute(limit, page, orderBy, OrderMode.ASC, null);
     }
 
-    public Page<User> execute (int limit, int page){
-        return this.execute(limit, page, DEFAULT_ORDER_BY_FIELD, "asc", null);
+    public EntitiesPage<User> execute (int limit, int page){
+        return this.execute(limit, page, DEFAULT_ORDER_BY_FIELD, OrderMode.ASC, null);
     }
 
-    public Page<User> execute (int limit){
-        return this.execute(limit, 0, DEFAULT_ORDER_BY_FIELD, "asc", null);
+    public EntitiesPage<User> execute (int limit){
+        return this.execute(limit, 0, DEFAULT_ORDER_BY_FIELD, OrderMode.ASC, null);
     }
 
-    public Page<User> execute (){
-        return this.execute(FIND_USERS_LIMIT, 0, DEFAULT_ORDER_BY_FIELD, "asc", null);
+    public EntitiesPage<User> execute (){
+        return this.execute(FIND_USERS_LIMIT, 0, DEFAULT_ORDER_BY_FIELD, OrderMode.ASC, null);
     }
 }

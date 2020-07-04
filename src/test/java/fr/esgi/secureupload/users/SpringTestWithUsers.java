@@ -1,8 +1,8 @@
 package fr.esgi.secureupload.users;
 
 import fr.esgi.secureupload.TestUtils;
-import fr.esgi.secureupload.users.infrastructure.adapters.repositories.UserJpaRepository;
-import fr.esgi.secureupload.users.infrastructure.adapters.repositories.UserJpaRepositoryAdapter;
+import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaRepository;
+import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaRepositoryAdapter;
 import fr.esgi.secureupload.users.domain.entities.User;
 import fr.esgi.secureupload.users.domain.repository.UserRepository;
 import org.junit.jupiter.api.AfterAll;

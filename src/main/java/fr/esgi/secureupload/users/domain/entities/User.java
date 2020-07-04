@@ -1,6 +1,6 @@
 package fr.esgi.secureupload.users.domain.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import fr.esgi.secureupload.common.entities.BaseEntity;
+import fr.esgi.secureupload.common.domain.entities.BaseEntity;
 
 public class User extends BaseEntity {
 
@@ -123,19 +123,6 @@ public class User extends BaseEntity {
         }
 
         public User build (){
-
-            /* if (this.confirmationToken == null){
-                throw new IllegalArgumentException("Confirmation token must not be null.");
-            }
-
-            if (this.email == null){
-                throw new IllegalArgumentException("Email field cannot be null.");
-            }
-
-            if (this.password == null){
-                throw new IllegalArgumentException("Password field cannot be null.");
-            } */
-
             return new User(this);
         }
     }

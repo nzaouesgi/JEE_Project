@@ -1,7 +1,13 @@
-package fr.esgi.secureupload.users.infrastructure.adapters.repositories;
+package fr.esgi.secureupload.users.infrastructure.adapters.persistence;
 
+import fr.esgi.secureupload.common.domain.entities.EntitiesPage;
+import fr.esgi.secureupload.common.domain.entities.OrderMode;
 import fr.esgi.secureupload.users.domain.entities.User;
 
+import fr.esgi.secureupload.users.domain.entities.UserOrderByField;
+import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaEntity;
+import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaRepository;
+import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaRepositoryAdapter;
 import org.junit.Before;
 
 import org.junit.jupiter.api.Assertions;
@@ -71,7 +77,7 @@ public class UserJpaRepositoryAdapterTest {
     public void findAllByPattern_ShouldReturnUsersPage (){
         when(userJpaEntitiesPage.map(any())).thenReturn(userEntitiesPage);
         when(jpaRepository.findAllByPattern(anyString(), any(PageRequest.class))).thenReturn(userJpaEntitiesPage);
-        Page<User> users = userJpaRepositoryAdapter.findAllByPattern("pattern", PageRequest.of(0, 10, Sort.by("email")));
+        EntitiesPage<User> users = userJpaRepositoryAdapter.findAllByPattern(10, 0, UserOrderByField.EMAIL, OrderMode.ASC, "pattern");
         verify(this.jpaRepository).findAllByPattern(eq("pattern"), eq(PageRequest.of(0, 10, Sort.by("email"))));
         Assertions.assertNotNull(users);
     }
@@ -80,7 +86,7 @@ public class UserJpaRepositoryAdapterTest {
     public void findAll_ShouldReturnUsersPage (){
         when(userJpaEntitiesPage.map(any())).thenReturn(userEntitiesPage);
         when(jpaRepository.findAll(any(PageRequest.class))).thenReturn(userJpaEntitiesPage);
-        Page<User> users = userJpaRepositoryAdapter.findAll(PageRequest.of(0, 10, Sort.by("email")));
+        EntitiesPage<User> users = userJpaRepositoryAdapter.findAll(10, 0, UserOrderByField.EMAIL, OrderMode.ASC);
         verify(this.jpaRepository).findAll(eq(PageRequest.of(0, 10, Sort.by("email"))));
         Assertions.assertNotNull(users);
     }

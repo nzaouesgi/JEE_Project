@@ -1,6 +1,4 @@
-package fr.esgi.secureupload.common.repository;
-
-import lombok.Data;
+package fr.esgi.secureupload.common.infrastructure.adapters;
 
 import javax.persistence.*;
 import java.util.Date;

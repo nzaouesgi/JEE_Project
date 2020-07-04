@@ -1,13 +1,13 @@
 package fr.esgi.secureupload.users.infrastructure.config;
 
-import fr.esgi.secureupload.common.adapters.helpers.SecureRandomTokenGenerator;
+import fr.esgi.secureupload.common.infrastructure.adapters.helpers.SecureRandomTokenGenerator;
 import fr.esgi.secureupload.users.infrastructure.adapters.helpers.UserFieldsValidatorImpl;
 import fr.esgi.secureupload.users.infrastructure.adapters.helpers.UserPasswordEncoderImpl;
 import fr.esgi.secureupload.users.infrastructure.adapters.helpers.MailSenderImpl;
-import fr.esgi.secureupload.users.infrastructure.adapters.repositories.UserJpaRepository;
-import fr.esgi.secureupload.users.infrastructure.adapters.repositories.UserJpaRepositoryAdapter;
+import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaRepository;
+import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaRepositoryAdapter;
 import fr.esgi.secureupload.users.domain.ports.UserMailSender;
-import fr.esgi.secureupload.common.ports.RandomTokenGenerator;
+import fr.esgi.secureupload.common.domain.ports.RandomTokenGenerator;
 import fr.esgi.secureupload.users.domain.ports.UserFieldsValidator;
 import fr.esgi.secureupload.users.domain.ports.UserPasswordEncoder;
 import fr.esgi.secureupload.users.domain.repository.UserRepository;

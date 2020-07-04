@@ -1,4 +1,4 @@
-package fr.esgi.secureupload.common.controllers.response;
+package fr.esgi.secureupload.common.infrastructure.controllers.response;
 
 import java.util.ArrayList;
 import java.util.List;

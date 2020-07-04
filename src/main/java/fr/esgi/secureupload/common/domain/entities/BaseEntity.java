@@ -1,4 +1,4 @@
-package fr.esgi.secureupload.common.entities;
+package fr.esgi.secureupload.common.domain.entities;
 
 import java.util.Date;
 

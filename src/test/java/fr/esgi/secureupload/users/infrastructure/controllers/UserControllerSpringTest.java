@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import fr.esgi.secureupload.TestUtils;
 import fr.esgi.secureupload.users.SpringTestWithUsers;
-import fr.esgi.secureupload.users.infrastructure.adapters.repositories.UserJpaRepository;
-import fr.esgi.secureupload.users.infrastructure.adapters.repositories.UserJpaRepositoryAdapter;
+import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaRepository;
+import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaRepositoryAdapter;
 import fr.esgi.secureupload.users.infrastructure.dto.ConfirmMailDto;
 import fr.esgi.secureupload.users.infrastructure.dto.RecoverAccountDTO;
 import fr.esgi.secureupload.users.infrastructure.dto.ResetPasswordDTO;
@@ -134,13 +134,6 @@ public class UserControllerSpringTest extends SpringTestWithUsers {
             }
             last = email;
         }
-    }
-
-    @Test
-    @WithMockUser(roles = { "ADMIN" })
-    public void getUsers_OrderByPrivateField_ShouldReturnForbidden () throws Exception {
-        this.mockMvc.perform(get(USERS_API_PATH).param("orderBy", "password"))
-                .andExpect(status().isForbidden());
     }
 
     @Test

@@ -1,7 +1,7 @@
 package fr.esgi.secureupload.users.usecases;
 
 import fr.esgi.secureupload.users.domain.entities.User;
-import fr.esgi.secureupload.common.ports.RandomTokenGenerator;
+import fr.esgi.secureupload.common.domain.ports.RandomTokenGenerator;
 import fr.esgi.secureupload.users.domain.exceptions.UserSecurityException;
 import fr.esgi.secureupload.users.domain.ports.UserMailSender;
 import fr.esgi.secureupload.users.domain.repository.UserRepository;

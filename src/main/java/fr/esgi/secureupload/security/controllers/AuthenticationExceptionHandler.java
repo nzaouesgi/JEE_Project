@@ -1,6 +1,6 @@
 package fr.esgi.secureupload.security.controllers;
 
-import fr.esgi.secureupload.common.controllers.response.ErrorBody;
+import fr.esgi.secureupload.common.infrastructure.controllers.response.ErrorBody;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;

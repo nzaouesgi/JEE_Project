@@ -1,4 +1,4 @@
-package fr.esgi.secureupload.common.controllers;
+package fr.esgi.secureupload.common.infrastructure.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;

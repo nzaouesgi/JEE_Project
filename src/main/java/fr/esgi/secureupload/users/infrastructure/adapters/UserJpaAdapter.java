@@ -1,4 +1,4 @@
-package fr.esgi.secureupload.users.infrastructure.adapters.repositories;
+package fr.esgi.secureupload.users.infrastructure.adapters;
 
 import fr.esgi.secureupload.users.domain.entities.User;
 import org.apache.commons.beanutils.BeanUtils;

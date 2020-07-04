@@ -1,6 +1,9 @@
 package fr.esgi.secureupload.users.infrastructure.controllers;
 
-import fr.esgi.secureupload.common.controllers.response.DataBody;
+import fr.esgi.secureupload.common.domain.entities.EntitiesPage;
+import fr.esgi.secureupload.common.domain.entities.OrderMode;
+import fr.esgi.secureupload.common.infrastructure.controllers.response.DataBody;
+import fr.esgi.secureupload.users.domain.entities.UserOrderByField;
 import fr.esgi.secureupload.users.infrastructure.dto.ConfirmMailDto;
 import fr.esgi.secureupload.users.infrastructure.dto.RecoverAccountDTO;
 import fr.esgi.secureupload.users.infrastructure.dto.ResetPasswordDTO;
@@ -86,14 +89,14 @@ public class UserController {
 
     @GetMapping
     @Secured({ "ROLE_ADMIN" })
-    public ResponseEntity<DataBody<Page<User>>> getUsers (
+    public ResponseEntity<DataBody<EntitiesPage<User>>> getUsers (
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "100") Integer limit,
-            @RequestParam(defaultValue = "email") String orderBy,
-            @RequestParam(defaultValue = "asc") String orderMode) {
+            @RequestParam(defaultValue = "email") UserOrderByField orderBy,
+            @RequestParam(defaultValue = "asc") OrderMode orderMode) {
 
-        Page<User> results = this.findUsers.execute(limit, page, orderBy, orderMode, search);
+        EntitiesPage<User> results = this.findUsers.execute(limit, page, orderBy, orderMode, search);
 
         return new ResponseEntity<>(new DataBody<>(results, HttpStatus.OK.value()), HttpStatus.OK);
     }

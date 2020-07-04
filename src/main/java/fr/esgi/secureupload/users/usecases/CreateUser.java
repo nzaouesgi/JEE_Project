@@ -2,7 +2,7 @@ package fr.esgi.secureupload.users.usecases;
 
 import fr.esgi.secureupload.users.domain.exceptions.UserPropertyValidationException;
 import fr.esgi.secureupload.users.domain.ports.UserMailSender;
-import fr.esgi.secureupload.common.ports.RandomTokenGenerator;
+import fr.esgi.secureupload.common.domain.ports.RandomTokenGenerator;
 import fr.esgi.secureupload.users.domain.ports.UserFieldsValidator;
 import fr.esgi.secureupload.users.domain.ports.UserPasswordEncoder;
 import fr.esgi.secureupload.users.domain.entities.User;

@@ -1,6 +1,9 @@
 package fr.esgi.secureupload.users.usecases;
 
+import fr.esgi.secureupload.common.domain.entities.EntitiesPage;
+import fr.esgi.secureupload.common.domain.entities.OrderMode;
 import fr.esgi.secureupload.users.domain.entities.User;
+import fr.esgi.secureupload.users.domain.entities.UserOrderByField;
 import fr.esgi.secureupload.users.domain.exceptions.UserSecurityException;
 import fr.esgi.secureupload.users.domain.repository.UserRepository;
 import org.junit.Before;
@@ -16,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import javax.persistence.OrderBy;
 import java.util.Random;
 
 import static org.mockito.Mockito.*;
@@ -34,27 +38,27 @@ public class FindUsersMockTest {
     @Test
     public void execute_WhenPatternNotSupplied_ShouldCallFindAll (){
 
-        Page<User> mockPage = Mockito.mock(Page.class);
-        when(repository.findAll(any(Pageable.class))).thenReturn(mockPage);
+        EntitiesPage<User> mockPage = Mockito.mock(EntitiesPage.class);
+        when(repository.findAll(anyInt(), anyInt(), any(), any())).thenReturn(mockPage);
 
         FindUsers findUsers = new FindUsers(this.repository);
 
-        Assertions.assertNotNull(findUsers.execute(10, 0, "email", "asc"));
+        Assertions.assertNotNull(findUsers.execute(10, 0, UserOrderByField.EMAIL, OrderMode.ASC));
 
-        verify(repository).findAll(eq(PageRequest.of(0, 10, Sort.by("email"))));
+        verify(repository).findAll(eq(10),eq(0), eq(UserOrderByField.EMAIL), eq(OrderMode.ASC));
     }
 
     @Test
     public void execute_WhenPatternIsSupplied_ShouldCallFindAllByPattern (){
 
-        Page<User> mockPage = (Page<User>) Mockito.mock(Page.class);
-        when(this.repository.findAllByPattern(anyString(), any(Pageable.class))).thenReturn(mockPage);
+        EntitiesPage<User> mockPage = Mockito.mock(EntitiesPage.class);
+        when(repository.findAllByPattern(anyInt(), anyInt(), any(), any(), anyString())).thenReturn(mockPage);
 
         FindUsers findUsers = new FindUsers(this.repository);
 
-        Assertions.assertNotNull(findUsers.execute(10, 0, "email", "asc", "1234"));
+        Assertions.assertNotNull(findUsers.execute(10, 0, UserOrderByField.EMAIL, OrderMode.ASC, "1234"));
 
-        verify(this.repository).findAllByPattern(eq("1234"), eq(PageRequest.of(0, 10, Sort.by("email"))));
+        verify(this.repository).findAllByPattern(eq(10), eq(0), eq(UserOrderByField.EMAIL), eq(OrderMode.ASC), eq("1234"));
     }
 
     @Test
@@ -63,16 +67,7 @@ public class FindUsersMockTest {
         FindUsers findUsers = new FindUsers(this.repository);
 
         Assertions.assertThrows(UserSecurityException.class, () -> {
-            findUsers.execute(FindUsers.FIND_USERS_LIMIT + 1, 0, "email", "asc");
-        });
-    }
-
-    @Test
-    public void execute_WhenPrivateFieldIsSuppliedInOrderBy_ShouldThrow (){
-        FindUsers findUsers = new FindUsers(this.repository);
-
-        Assertions.assertThrows(UserSecurityException.class, () -> {
-            findUsers.execute(FindUsers.FIND_USERS_LIMIT + 1, 0, User.PRIVATE_FIELDS[new Random().nextInt(User.PRIVATE_FIELDS.length)], "asc");
+            findUsers.execute(FindUsers.FIND_USERS_LIMIT + 1, 0, UserOrderByField.EMAIL, OrderMode.ASC);
         });
     }
 }

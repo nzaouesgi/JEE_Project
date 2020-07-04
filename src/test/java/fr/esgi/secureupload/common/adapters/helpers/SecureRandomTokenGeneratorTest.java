@@ -1,6 +1,7 @@
 package fr.esgi.secureupload.common.adapters.helpers;
 
-import fr.esgi.secureupload.common.ports.RandomTokenGenerator;
+import fr.esgi.secureupload.common.domain.ports.RandomTokenGenerator;
+import fr.esgi.secureupload.common.infrastructure.adapters.helpers.SecureRandomTokenGenerator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
