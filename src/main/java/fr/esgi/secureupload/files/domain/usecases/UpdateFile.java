@@ -1,7 +1,7 @@
-package fr.esgi.secureupload.files.usecases;
+package fr.esgi.secureupload.files.domain.usecases;
 
-import fr.esgi.secureupload.files.entities.File;
-import fr.esgi.secureupload.files.repository.FileRepository;
+import fr.esgi.secureupload.files.domain.entities.File;
+import fr.esgi.secureupload.files.domain.repository.FileRepository;
 
 public class UpdateFile {
 

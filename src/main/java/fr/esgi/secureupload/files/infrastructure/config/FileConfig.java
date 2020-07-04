@@ -1,13 +1,11 @@
-package fr.esgi.secureupload.files.config;
+package fr.esgi.secureupload.files.infrastructure.config;
 
-import fr.esgi.secureupload.files.adapters.helpers.StorageFileHandlerImpl;
-import fr.esgi.secureupload.files.adapters.repositories.FileJpaRepository;
-import fr.esgi.secureupload.files.adapters.repositories.FileRepositoryAdapter;
-import fr.esgi.secureupload.files.port.StorageFileHandler;
-import fr.esgi.secureupload.files.repository.FileRepository;
-import fr.esgi.secureupload.files.usecases.*;
-import fr.esgi.secureupload.users.repository.UserRepository;
-import fr.esgi.secureupload.users.usecases.FindUserByEmail;
+import fr.esgi.secureupload.files.infrastructure.adapters.helpers.StorageFileHandlerImpl;
+import fr.esgi.secureupload.files.infrastructure.adapters.repositories.FileJpaRepository;
+import fr.esgi.secureupload.files.infrastructure.adapters.repositories.FileRepositoryAdapter;
+import fr.esgi.secureupload.files.domain.port.StorageFileHandler;
+import fr.esgi.secureupload.files.domain.repository.FileRepository;
+import fr.esgi.secureupload.files.domain.usecases.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

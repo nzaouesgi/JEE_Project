@@ -1,8 +1,8 @@
-package fr.esgi.secureupload.files.controllers;
+package fr.esgi.secureupload.files.domain.controllers;
 
 import fr.esgi.secureupload.common.controllers.response.DataBody;
-import fr.esgi.secureupload.files.entities.File;
-import fr.esgi.secureupload.files.usecases.*;
+import fr.esgi.secureupload.files.domain.entities.File;
+import fr.esgi.secureupload.files.domain.usecases.*;
 import fr.esgi.secureupload.users.exceptions.UserSecurityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;

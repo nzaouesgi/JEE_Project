@@ -1,13 +1,10 @@
-package fr.esgi.secureupload.files.adapters.repositories;
+package fr.esgi.secureupload.files.infrastructure.adapters.repositories;
 
 import fr.esgi.secureupload.common.repository.BaseJPAEntity;
-import fr.esgi.secureupload.files.entities.Status;
+import fr.esgi.secureupload.files.domain.entities.Status;
 import fr.esgi.secureupload.users.adapters.repositories.UserJpaEntity;
-import lombok.NonNull;
-import lombok.Setter;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 
 
 @Entity(name="File")

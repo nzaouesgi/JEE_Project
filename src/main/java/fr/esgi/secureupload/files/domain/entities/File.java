@@ -1,11 +1,8 @@
-package fr.esgi.secureupload.files.entities;
+package fr.esgi.secureupload.files.domain.entities;
 
 import fr.esgi.secureupload.common.entities.BaseEntity;
 import fr.esgi.secureupload.users.entities.User;
-import lombok.*;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.util.Date;
 
 public class File extends BaseEntity {

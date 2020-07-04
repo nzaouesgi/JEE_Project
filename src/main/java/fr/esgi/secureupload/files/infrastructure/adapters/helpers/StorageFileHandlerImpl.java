@@ -1,10 +1,10 @@
-package fr.esgi.secureupload.files.adapters.helpers;
+package fr.esgi.secureupload.files.infrastructure.adapters.helpers;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
-import fr.esgi.secureupload.files.port.StorageFileHandler;
+import fr.esgi.secureupload.files.domain.port.StorageFileHandler;
 
 import java.io.InputStream;
 

@@ -1,6 +1,4 @@
-package fr.esgi.secureupload.files.port;
-
-import org.springframework.web.multipart.MultipartFile;
+package fr.esgi.secureupload.files.domain.port;
 
 import java.io.InputStream;
 

@@ -1,6 +1,6 @@
-package fr.esgi.secureupload.files.repository;
+package fr.esgi.secureupload.files.domain.repository;
 
-import fr.esgi.secureupload.files.entities.File;
+import fr.esgi.secureupload.files.domain.entities.File;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
