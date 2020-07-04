@@ -1,8 +1,8 @@
 package fr.esgi.secureupload.users.usecases;
 
 import fr.esgi.secureupload.users.SpringTestWithUsers;
-import fr.esgi.secureupload.users.entities.User;
-import fr.esgi.secureupload.users.exceptions.UserNotFoundException;
+import fr.esgi.secureupload.users.domain.entities.User;
+import fr.esgi.secureupload.users.domain.exceptions.UserNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

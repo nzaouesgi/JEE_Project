@@ -1,11 +1,10 @@
 package fr.esgi.secureupload;
 
-import fr.esgi.secureupload.common.adapters.helpers.SecureRandomTokenGenerator;
-import fr.esgi.secureupload.users.adapters.helpers.UserPasswordEncoderImpl;
-import fr.esgi.secureupload.users.adapters.repositories.UserJpaEntity;
-import fr.esgi.secureupload.users.entities.User;
-import fr.esgi.secureupload.users.ports.RandomTokenGenerator;
-import fr.esgi.secureupload.users.ports.UserPasswordEncoder;
+import fr.esgi.secureupload.common.infrastructure.adapters.helpers.SecureRandomTokenGenerator;
+import fr.esgi.secureupload.users.infrastructure.adapters.helpers.UserPasswordEncoderImpl;
+import fr.esgi.secureupload.users.domain.entities.User;
+import fr.esgi.secureupload.common.domain.ports.RandomTokenGenerator;
+import fr.esgi.secureupload.users.domain.ports.UserPasswordEncoder;
 import fr.esgi.secureupload.common.utils.URLReader;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,8 +33,6 @@ public class TestUtils {
     }
 
     public JSONObject getSentMail(String to) throws JSONException, IOException {
-
-        System.out.println(this.smtpHost);
 
         // Read sent message for Mailhog API.
         JSONArray messages = new JSONArray(URLReader.readStringFromUrl("http://" + this.smtpHost + ":8025/api/v1/messages"));

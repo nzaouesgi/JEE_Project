@@ -1,12 +1,12 @@
 package fr.esgi.secureupload.users.usecases;
 
-import fr.esgi.secureupload.users.entities.User;
-import fr.esgi.secureupload.users.exceptions.UserNotFoundException;
-import fr.esgi.secureupload.users.repository.UserRepository;
+import fr.esgi.secureupload.users.domain.entities.User;
+import fr.esgi.secureupload.users.domain.exceptions.UserNotFoundException;
+import fr.esgi.secureupload.users.domain.repository.UserRepository;
 
 import java.util.Objects;
 
-public class FindUserById {
+public final class FindUserById {
 
     private final UserRepository repository;
 

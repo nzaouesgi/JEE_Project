@@ -1,14 +1,14 @@
 package fr.esgi.secureupload.users.usecases;
 
-import fr.esgi.secureupload.users.exceptions.UserPropertyValidationException;
-import fr.esgi.secureupload.users.ports.ConfirmationMailSender;
-import fr.esgi.secureupload.users.ports.RandomTokenGenerator;
-import fr.esgi.secureupload.users.ports.UserFieldsValidator;
-import fr.esgi.secureupload.users.ports.UserPasswordEncoder;
-import fr.esgi.secureupload.users.entities.User;
-import fr.esgi.secureupload.users.dto.UserDTO;
-import fr.esgi.secureupload.users.exceptions.UserMailAlreadyTakenException;
-import fr.esgi.secureupload.users.repository.UserRepository;
+import fr.esgi.secureupload.users.domain.exceptions.UserPropertyValidationException;
+import fr.esgi.secureupload.users.domain.ports.UserMailSender;
+import fr.esgi.secureupload.common.domain.ports.RandomTokenGenerator;
+import fr.esgi.secureupload.users.domain.ports.UserFieldsValidator;
+import fr.esgi.secureupload.users.domain.ports.UserPasswordEncoder;
+import fr.esgi.secureupload.users.domain.entities.User;
+import fr.esgi.secureupload.users.infrastructure.dto.UserDTO;
+import fr.esgi.secureupload.users.domain.exceptions.UserMailAlreadyTakenException;
+import fr.esgi.secureupload.users.domain.repository.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,11 +18,11 @@ public final class CreateUser {
 
     private final UserRepository repository;
     private final UserPasswordEncoder encoder;
-    private final ConfirmationMailSender sender;
+    private final UserMailSender sender;
     private final RandomTokenGenerator generator;
     private final UserFieldsValidator validator;
 
-    public CreateUser(final UserRepository repository, final UserPasswordEncoder encoder, final ConfirmationMailSender sender, final RandomTokenGenerator generator, final UserFieldsValidator validator){
+    public CreateUser(final UserRepository repository, final UserPasswordEncoder encoder, final UserMailSender sender, final RandomTokenGenerator generator, final UserFieldsValidator validator){
         this.repository = repository;
         this.encoder = encoder;
         this.sender = sender;

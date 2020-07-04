@@ -1,12 +1,12 @@
 package fr.esgi.secureupload.users.usecases;
 
-import fr.esgi.secureupload.users.exceptions.UserNotFoundException;
-import fr.esgi.secureupload.users.repository.UserRepository;
+import fr.esgi.secureupload.users.domain.exceptions.UserNotFoundException;
+import fr.esgi.secureupload.users.domain.repository.UserRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.Objects;
 
-public class DeleteUser {
+public final class DeleteUser {
 
     private final UserRepository repository;
 

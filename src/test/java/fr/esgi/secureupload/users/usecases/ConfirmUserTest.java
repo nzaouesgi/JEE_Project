@@ -1,12 +1,11 @@
 package fr.esgi.secureupload.users.usecases;
 
 import fr.esgi.secureupload.TestUtils;
-import fr.esgi.secureupload.users.adapters.repositories.UserJpaEntity;
-import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepository;
-import fr.esgi.secureupload.users.adapters.repositories.UserJpaRepositoryAdapter;
-import fr.esgi.secureupload.users.entities.User;
-import fr.esgi.secureupload.users.exceptions.UserSecurityException;
-import fr.esgi.secureupload.users.repository.UserRepository;
+import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaRepository;
+import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaRepositoryAdapter;
+import fr.esgi.secureupload.users.domain.entities.User;
+import fr.esgi.secureupload.users.domain.exceptions.UserSecurityException;
+import fr.esgi.secureupload.users.domain.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

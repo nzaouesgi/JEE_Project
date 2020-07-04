@@ -1,6 +1,6 @@
 package fr.esgi.secureupload.security.controllers;
 
-import fr.esgi.secureupload.common.controllers.response.ErrorBody;
+import fr.esgi.secureupload.common.infrastructure.controllers.response.ErrorBody;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -18,11 +18,11 @@ public class AuthenticationExceptionHandler {
     /* Login exceptions */
     @ExceptionHandler({BadCredentialsException.class})
     public ResponseEntity<ErrorBody> handleBadCredentialsException() {
-        HttpStatus status = HttpStatus.FORBIDDEN;
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
         return new ResponseEntity<>(new ErrorBody("Login failed.", status.value()), status);
     }
 
-    @ExceptionHandler({ AccessDeniedException.class})
+    @ExceptionHandler({ AccessDeniedException.class })
     public ResponseEntity<ErrorBody> handleAccessDenied() {
         HttpStatus status = HttpStatus.UNAUTHORIZED;
         return new ResponseEntity<>(new ErrorBody("Access denied.", status.value()), status);

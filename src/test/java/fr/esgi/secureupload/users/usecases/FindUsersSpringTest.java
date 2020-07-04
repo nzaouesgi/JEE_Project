@@ -1,8 +1,11 @@
 package fr.esgi.secureupload.users.usecases;
 
+import fr.esgi.secureupload.common.domain.entities.EntitiesPage;
+import fr.esgi.secureupload.common.domain.entities.OrderMode;
 import fr.esgi.secureupload.users.SpringTestWithUsers;
-import fr.esgi.secureupload.users.entities.User;
-import fr.esgi.secureupload.users.exceptions.UserSecurityException;
+import fr.esgi.secureupload.users.domain.entities.User;
+import fr.esgi.secureupload.users.domain.entities.UserOrderByField;
+import fr.esgi.secureupload.users.domain.exceptions.UserSecurityException;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -26,13 +29,13 @@ public class FindUsersSpringTest extends SpringTestWithUsers {
     @Test
     public void execute_ShouldPaginateUsers (){
 
-        int limit = USERS_COUNT / 2;
+        int limit = users.size() / 2;
 
-        Page<User> firstPage = findUsers.execute(limit, 0, "email", "asc");
+        EntitiesPage<User> firstPage = findUsers.execute(limit, 0, UserOrderByField.EMAIL, OrderMode.ASC);
         Assertions.assertNotNull(users);
         Assertions.assertEquals(limit, firstPage.getContent().size());
 
-        Page<User> secondPage = findUsers.execute(limit, 1, "email", "asc");
+        EntitiesPage<User> secondPage = findUsers.execute(limit, 1, UserOrderByField.EMAIL, OrderMode.ASC);
         Assertions.assertNotNull(users);
         Assertions.assertEquals(limit, secondPage.getContent().size());
 
@@ -40,7 +43,7 @@ public class FindUsersSpringTest extends SpringTestWithUsers {
             Assertions.assertNotEquals(firstPage.getContent().get(i).getId(), secondPage.getContent().get(i).getId());
         }
 
-        Page<User> intermediatePage = findUsers.execute(limit / 2, 1, "email", "asc");
+        EntitiesPage<User> intermediatePage = findUsers.execute(limit / 2, 1, UserOrderByField.EMAIL, OrderMode.ASC);
         for (int i = 0; i < limit / 2; i ++){
             Assertions.assertEquals(firstPage.getContent().get(i + (limit / 2)).getId(), intermediatePage.getContent().get(i).getId());
         }
@@ -49,48 +52,66 @@ public class FindUsersSpringTest extends SpringTestWithUsers {
     @Test
     public void execute_ShouldThrowWhenMaxLimitIsReached (){
         Assertions.assertThrows(UserSecurityException.class, () -> {
-           findUsers.execute(FindUsers.FIND_USERS_LIMIT + 1, 0, "email", "asc");
-        });
-    }
-
-    @Test
-    public void execute_ShouldThrowWhenPrivateFieldInOrderBy (){
-        Assertions.assertThrows(UserSecurityException.class, () -> {
-            findUsers.execute(USERS_COUNT, 0, User.PRIVATE_FIELDS[new Random().nextInt(User.PRIVATE_FIELDS.length)], "asc");
+           findUsers.execute(FindUsers.FIND_USERS_LIMIT + 1, 0, UserOrderByField.EMAIL, OrderMode.ASC);
         });
     }
 
     @Test
     public void execute_ShouldSearchByPattern (){
 
-        Page<User> foundByFullMail = findUsers.execute(1, 0, "email", "asc", users.get(0).getEmail());
+        EntitiesPage<User> foundByFullMail = findUsers.execute(
+                1,
+                0,
+                UserOrderByField.EMAIL,
+                OrderMode.ASC,
+                users.get(0).getEmail());
+
         Assertions.assertEquals(1, foundByFullMail.getContent().size());
+        Assertions.assertTrue(foundByFullMail.getContent().get(0).getId().equals(users.get(0).getId()));
 
-        Page<User> foundBySliceOfMail = findUsers.execute(1, 0, "email", "asc", users.get(0).getEmail().substring(0, 6));
+        EntitiesPage<User> foundBySliceOfMail = findUsers.execute(
+                1,
+                0,
+                UserOrderByField.EMAIL,
+                OrderMode.ASC,
+                users.get(0).getEmail().substring(0, 6));
         Assertions.assertEquals(1, foundBySliceOfMail.getContent().size());
+        Assertions.assertEquals(foundBySliceOfMail.getContent().get(0).getId(), users.get(0).getId());
 
-        Page<User> foundByFullId = findUsers.execute(1, 0, "email", "asc", users.get(0).getId());
+        EntitiesPage<User> foundByFullId = findUsers.execute(
+                1,
+                0,
+                UserOrderByField.EMAIL,
+                OrderMode.ASC,
+                users.get(0).getId());
         Assertions.assertEquals(1, foundByFullId.getContent().size());
+        Assertions.assertEquals(foundByFullId.getContent().get(0).getId(), users.get(0).getId());
 
-        Page<User> foundBySliceOfId = findUsers.execute(1, 0, "email", "asc", users.get(0).getId().substring(0, 6));
+        EntitiesPage<User> foundBySliceOfId = findUsers.execute(
+                1,
+                0,
+                UserOrderByField.EMAIL,
+                OrderMode.ASC,
+                users.get(0).getId().substring(0, 6));
         Assertions.assertEquals(1, foundBySliceOfId.getContent().size());
+        Assertions.assertEquals(users.get(0).getId(), foundByFullId.getContent().get(0).getId());
     }
 
     @Test
     public void execute_ShouldOrderByAnyFieldWithSpecifiedOrderMode (){
 
-        for (String stringField: List.of("email", "id")) {
+        for (UserOrderByField field: List.of(UserOrderByField.EMAIL, UserOrderByField.ID)) {
 
-            Page<User> orderedDesc = findUsers.execute(10, 0, stringField, "desc");
+            EntitiesPage<User> orderedDesc = findUsers.execute(10, 0, field, OrderMode.DESC);
 
             String last = null;
             for (User user : orderedDesc.getContent()) {
                 String current = null;
-                switch (stringField){
-                    case "email":
+                switch (field){
+                    case EMAIL:
                         current = user.getEmail();
                         break;
-                    case "id":
+                    case ID:
                         current = user.getId();
                         break;
                 }
@@ -101,18 +122,18 @@ public class FindUsersSpringTest extends SpringTestWithUsers {
             }
         }
 
-        for (String stringField: List.of("email", "id")) {
+        for (UserOrderByField field: List.of(UserOrderByField.EMAIL, UserOrderByField.ID)) {
 
-            Page<User> orderedAsc = findUsers.execute(10, 0, stringField, "asc");
+            EntitiesPage<User> orderedAsc = findUsers.execute(10, 0, field, OrderMode.ASC);
 
             String last = null;
             for (User user : orderedAsc.getContent()) {
                 String current = null;
-                switch (stringField){
-                    case "email":
+                switch (field){
+                    case EMAIL:
                         current = user.getEmail();
                         break;
-                    case "id":
+                    case ID:
                         current = user.getId();
                         break;
                 }
