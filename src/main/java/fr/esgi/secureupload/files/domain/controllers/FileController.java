@@ -71,7 +71,7 @@ public class FileController {
 
         File registerFile = this.createFile.execute(userId, file);
 
-        //Start analysis with virustotal async
+        //Start analysis with virustotal
 
         this.logger.debug("POST /upload : file %s was register", file.getName());
 

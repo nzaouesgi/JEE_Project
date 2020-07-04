@@ -25,7 +25,7 @@ public class FileConfig {
 
     @Bean
     public CreateFile createFile() {
-        return new CreateFile(this.fileJpaRepository);
+        return new CreateFile(this.fileJpaRepository, this.storageFileHandler);
     }
 
     @Bean
