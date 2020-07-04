@@ -59,17 +59,42 @@ public class FindUsersSpringTest extends SpringTestWithUsers {
     @Test
     public void execute_ShouldSearchByPattern (){
 
-        EntitiesPage<User> foundByFullMail = findUsers.execute(1, 0, UserOrderByField.EMAIL, OrderMode.ASC, users.get(0).getEmail());
+        EntitiesPage<User> foundByFullMail = findUsers.execute(
+                1,
+                0,
+                UserOrderByField.EMAIL,
+                OrderMode.ASC,
+                users.get(0).getEmail());
+
         Assertions.assertEquals(1, foundByFullMail.getContent().size());
+        Assertions.assertTrue(foundByFullMail.getContent().get(0).getId().equals(users.get(0).getId()));
 
-        EntitiesPage<User> foundBySliceOfMail = findUsers.execute(1, 0, UserOrderByField.EMAIL, OrderMode.ASC, users.get(0).getEmail().substring(0, 6));
+        EntitiesPage<User> foundBySliceOfMail = findUsers.execute(
+                1,
+                0,
+                UserOrderByField.EMAIL,
+                OrderMode.ASC,
+                users.get(0).getEmail().substring(0, 6));
         Assertions.assertEquals(1, foundBySliceOfMail.getContent().size());
+        Assertions.assertEquals(foundBySliceOfMail.getContent().get(0).getId(), users.get(0).getId());
 
-        EntitiesPage<User> foundByFullId = findUsers.execute(1, 0, UserOrderByField.EMAIL, OrderMode.ASC, users.get(0).getId());
+        EntitiesPage<User> foundByFullId = findUsers.execute(
+                1,
+                0,
+                UserOrderByField.EMAIL,
+                OrderMode.ASC,
+                users.get(0).getId());
         Assertions.assertEquals(1, foundByFullId.getContent().size());
+        Assertions.assertEquals(foundByFullId.getContent().get(0).getId(), users.get(0).getId());
 
-        EntitiesPage<User> foundBySliceOfId = findUsers.execute(1, 0, UserOrderByField.EMAIL, OrderMode.ASC, users.get(0).getId().substring(0, 6));
+        EntitiesPage<User> foundBySliceOfId = findUsers.execute(
+                1,
+                0,
+                UserOrderByField.EMAIL,
+                OrderMode.ASC,
+                users.get(0).getId().substring(0, 6));
         Assertions.assertEquals(1, foundBySliceOfId.getContent().size());
+        Assertions.assertEquals(users.get(0).getId(), foundByFullId.getContent().get(0).getId());
     }
 
     @Test

@@ -84,19 +84,21 @@ public class UserControllerSpringTest extends SpringTestWithUsers {
     @WithMockUser(roles = { "ADMIN" })
     public void getUsers_WithSearchParam_ShouldSearchUsersByPattern () throws Exception {
 
+        User user = randomUser();
+
         // part of string search (email)
-        this.mockMvc.perform(get(USERS_API_PATH).queryParam("search", users.get(0).getEmail().substring(0, 6)))
+        this.mockMvc.perform(get(USERS_API_PATH).queryParam("search",user.getEmail().substring(0, 6)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content").isArray())
                 .andExpect(jsonPath("$.data.content", hasSize(1)))
-                .andExpect(jsonPath("$.data.content[0].id", is(users.get(0).getId())));
+                .andExpect(jsonPath("$.data.content[0].id", is(user.getId())));
 
         // full string search (id)
-        this.mockMvc.perform(get(USERS_API_PATH).queryParam("search", users.get(0).getId()))
+        this.mockMvc.perform(get(USERS_API_PATH).queryParam("search", user.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content").isArray())
                 .andExpect(jsonPath("$.data.content", hasSize(1)))
-                .andExpect(jsonPath("$.data.content[0].id", is(users.get(0).getId())));
+                .andExpect(jsonPath("$.data.content[0].id", is(user.getId())));
     }
 
     @Test
@@ -155,42 +157,44 @@ public class UserControllerSpringTest extends SpringTestWithUsers {
     @Test
     @WithAnonymousUser
     public void getUser_FromAnonymous_ShouldReturnUnauthorized () throws Exception {
-        this.mockMvc.perform(get(USERS_API_PATH + "/" + users.get(0)))
+        this.mockMvc.perform(get(USERS_API_PATH + "/" + randomUser().getId()))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     public void getUser_AnyUserFromAdmin_ShouldReturnUser () throws Exception {
-        this.mockMvc.perform(get(USERS_API_PATH + "/" + users.get(0).getId())
+        this.mockMvc.perform(get(USERS_API_PATH + "/" + randomUser().getId())
                 .with(user(admins.get(0).getId()).roles("ADMIN")))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void getUser_FromSelfUser_ShouldReturnSelfUser () throws Exception {
-        this.mockMvc.perform(get(USERS_API_PATH + "/" + users.get(0).getId())
-                .with(user(users.get(0).getId()).roles("USER")))
+        User u = randomUser();
+        this.mockMvc.perform(get(USERS_API_PATH + "/" + u.getId())
+                .with(user(u.getId()).roles("USER")))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void getUser_FromAnotherUser_ShouldReturnUnauthorized () throws Exception {
-        this.mockMvc.perform(get(USERS_API_PATH + "/" + users.get(1).getId())
-                .with(user(users.get(0).getId()).roles("USER")))
+        this.mockMvc.perform(get(USERS_API_PATH + "/" + users.get(0).getId())
+                .with(user(users.get(1).getId()).roles("USER")))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     public void getUser_WhenNotExist_ShouldReturnNotFound () throws Exception {
+        User u = randomUser();
         this.mockMvc.perform(get(USERS_API_PATH + "/" + UUID.randomUUID().toString())
-                .with(user(users.get(0).getId()).roles("ADMIN")))
+                .with(user(u.getId()).roles("ADMIN")))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     public void getUser_WhenAuthorized_ShouldReturnUser () throws Exception {
 
-        User user = users.get(0);
+        User user = randomUser();
 
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(USERS_API_PATH + "/" + user.getId())
                 .with(user(user.getId()).roles("USER"));
@@ -281,9 +285,11 @@ public class UserControllerSpringTest extends SpringTestWithUsers {
         resetPasswordDto.setCurrentPassword("abc123");
         resetPasswordDto.setNewPassword("abc123");
 
-        this.mockMvc.perform(put(USERS_API_PATH + "/" + users.get(0).getId() + "/password")
+        User user = randomUser();
+
+        this.mockMvc.perform(put(USERS_API_PATH + "/" + user.getId() + "/password")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .with(user(users.get(0).getId()).roles("USER"))
+                .with(user(user.getId()).roles("USER"))
                 .content(new ObjectMapper().writeValueAsString(resetPasswordDto)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors").isArray())
@@ -297,10 +303,12 @@ public class UserControllerSpringTest extends SpringTestWithUsers {
         resetPasswordDto.setCurrentPassword("BadPassword :(");
         resetPasswordDto.setNewPassword("MyNewPassword12345");
 
-        this.mockMvc.perform(put(USERS_API_PATH + "/" + users.get(0).getId() + "/password")
+        User user = randomUser();
+
+        this.mockMvc.perform(put(USERS_API_PATH + "/" + user.getId() + "/password")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(new ObjectMapper().writeValueAsString(resetPasswordDto))
-                .with(user(users.get(0).getId()).roles("USER")))
+                .with(user(user.getId()).roles("USER")))
                 .andExpect(status().isForbidden());
     }
 
@@ -311,16 +319,18 @@ public class UserControllerSpringTest extends SpringTestWithUsers {
         resetPasswordDto.setCurrentPassword(TestUtils.DEFAULT_PASSWORD);
         resetPasswordDto.setNewPassword("MyNewPassword12345");
 
-        this.mockMvc.perform(put(USERS_API_PATH + "/" + users.get(0).getId() + "/password")
+        User user = randomUser();
+
+        this.mockMvc.perform(put(USERS_API_PATH + "/" + user.getId() + "/password")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(new ObjectMapper().writeValueAsString(resetPasswordDto))
-                .with(user(users.get(0).getId()).roles("USER")))
+                .with(user(user.getId()).roles("USER")))
                 .andExpect(status().isNoContent());
 
-        User modified = this.userRepository.findById(users.get(0).getId()).orElse(null);
+        User modified = this.userRepository.findById(user.getId()).orElse(null);
         if (modified == null)
             Assertions.fail();
-        Assertions.assertNotEquals(modified.getPassword(), users.get(0).getPassword());
+        Assertions.assertNotEquals(modified.getPassword(), user.getPassword());
     }
 
     /* POST /{id}/confirm */
@@ -329,11 +339,13 @@ public class UserControllerSpringTest extends SpringTestWithUsers {
     @WithMockUser(roles = { "ADMIN", "USER" })
     public void confirmUser_WhenAuthenticated_ShouldReturnUnauthorized () throws Exception {
 
+        User user = randomUser();
+
         ConfirmMailDto confirmMailDto = new ConfirmMailDto();
-        confirmMailDto.setConfirmationToken(users.get(0).getConfirmationToken());
+        confirmMailDto.setConfirmationToken(user.getConfirmationToken());
 
         this.mockMvc.perform(
-                post(String.format("%s/%s/confirm", USERS_API_PATH, users.get(0).getId()))
+                post(String.format("%s/%s/confirm", USERS_API_PATH, user.getId()))
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(new ObjectMapper().writeValueAsString(confirmMailDto)))
                 .andExpect(status().isUnauthorized());
@@ -345,8 +357,10 @@ public class UserControllerSpringTest extends SpringTestWithUsers {
         ConfirmMailDto confirmMailDto = new ConfirmMailDto();
         confirmMailDto.setConfirmationToken("badtoken");
 
+        User user = randomUser();
+
         this.mockMvc.perform(
-                post(String.format("%s/%s/confirm", USERS_API_PATH, users.get(0).getId()))
+                post(String.format("%s/%s/confirm", USERS_API_PATH, user.getId()))
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(new ObjectMapper().writeValueAsString(confirmMailDto)))
                 .andExpect(status().isForbidden());
@@ -355,20 +369,23 @@ public class UserControllerSpringTest extends SpringTestWithUsers {
     @Test
     @WithAnonymousUser
     public void confirmUser_WhenAnonymousAndValidToken_ShouldReturnNoContentAndConfirmUser () throws Exception {
+
+        User user = randomUser();
+
         ConfirmMailDto confirmMailDto = new ConfirmMailDto();
-        confirmMailDto.setConfirmationToken(users.get(0).getConfirmationToken());
+        confirmMailDto.setConfirmationToken(user.getConfirmationToken());
 
         this.mockMvc.perform(
-                post(String.format("%s/%s/confirm", USERS_API_PATH, users.get(0).getId()))
+                post(String.format("%s/%s/confirm", USERS_API_PATH, user.getId()))
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(new ObjectMapper().writeValueAsString(confirmMailDto)))
                 .andExpect(status().isNoContent());
 
-        User user = this.userRepository.findById(users.get(0).getId()).orElse(null);
-        if (user == null){
+        User updated = this.userRepository.findById(user.getId()).orElse(null);
+        if (updated == null){
             Assertions.fail();
         }
-        Assertions.assertTrue(user.isConfirmed());
+        Assertions.assertTrue(updated.isConfirmed());
     }
 
     /* DELETE /{id} */
@@ -376,14 +393,14 @@ public class UserControllerSpringTest extends SpringTestWithUsers {
     @Test
     @WithAnonymousUser
     public void deleteUser_WhenAnonymous_ShouldReturnUnauthorized () throws Exception {
-        this.mockMvc.perform(delete(USERS_API_PATH + "/" + users.get(0).getId()))
+        this.mockMvc.perform(delete(USERS_API_PATH + "/" + randomUser().getId()))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser
     public void deleteUser_WhenNotSelf_ShouldReturnForbidden () throws Exception {
-        this.mockMvc.perform(delete(USERS_API_PATH + "/" + users.get(0).getId()))
+        this.mockMvc.perform(delete(USERS_API_PATH + "/" + randomUser().getId()))
                 .andExpect(status().isForbidden());
     }
 
@@ -416,7 +433,7 @@ public class UserControllerSpringTest extends SpringTestWithUsers {
     public void createRecoveryToken_WhenAuthenticated_ShouldReturnUnauthorized () throws Exception {
 
         RecoverAccountDTO recoverAccountDto = new RecoverAccountDTO();
-        recoverAccountDto.setEmail(users.get(0).getEmail());
+        recoverAccountDto.setEmail(randomUser().getEmail());
 
         this.mockMvc.perform(
                 post(USERS_API_PATH + "/recovery")
@@ -444,7 +461,7 @@ public class UserControllerSpringTest extends SpringTestWithUsers {
     public void createRecoveryToken_WhenValidMail_ShouldReturnOkAndSendRecoveryMail () throws Exception {
 
         RecoverAccountDTO recoverAccountDto = new RecoverAccountDTO();
-        recoverAccountDto.setEmail(users.get(0).getEmail());
+        recoverAccountDto.setEmail(randomUser().getEmail());
 
         this.mockMvc.perform(
                 post(USERS_API_PATH + "/recovery")

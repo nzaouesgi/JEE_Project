@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @SpringBootTest
 public class SpringTestWithUsers {
@@ -32,6 +33,10 @@ public class SpringTestWithUsers {
 
         for (int i = 0; i < ADMINS_COUNT; i++)
             SpringTestWithUsers.admins.add(repository.save(testUtils.getRandomUser(true)));
+    }
+
+    public static User randomUser(){
+        return users.get(new Random().nextInt(users.size()));
     }
 
     @AfterAll
