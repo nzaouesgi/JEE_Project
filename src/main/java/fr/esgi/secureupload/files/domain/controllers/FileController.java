@@ -1,9 +1,9 @@
 package fr.esgi.secureupload.files.domain.controllers;
 
-import fr.esgi.secureupload.common.controllers.response.DataBody;
+import fr.esgi.secureupload.common.infrastructure.controllers.response.DataBody;
 import fr.esgi.secureupload.files.domain.entities.File;
 import fr.esgi.secureupload.files.domain.usecases.*;
-import fr.esgi.secureupload.users.exceptions.UserSecurityException;
+import fr.esgi.secureupload.users.domain.exceptions.UserSecurityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +64,7 @@ public class FileController {
 
     @PostMapping("/files")
     @Secured({ "ROLE_USER", "ROLE_ADMIN" })
-    public ResponseEntity secureUpload(@RequestParam("file") MultipartFile file){
+    public ResponseEntity<?> secureUpload(@RequestParam("file") MultipartFile file){
         //Get user
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userId = auth.getName();
@@ -75,7 +75,7 @@ public class FileController {
 
         this.logger.debug("POST /upload : file %s was register", file.getName());
 
-        return new ResponseEntity(HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 
     @GetMapping("/files/{id}")
@@ -87,7 +87,7 @@ public class FileController {
 
         File file = this.findFileById.execute(id);
 
-        if(file.getOwner().getId() != userId){
+        if(!file.getOwner().getId().equals(userId)){
             throw new UserSecurityException("Denied. This file belongs to another user.");
         }
 
@@ -96,24 +96,24 @@ public class FileController {
     
     @DeleteMapping("/files/{id}")
     @Secured({"ROLE_USER", "ROLE_ADMIN"})
-    public ResponseEntity deleteFile(@PathVariable(name = "id") String id){
+    public ResponseEntity<?> deleteFile(@PathVariable(name = "id") String id){
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userId = auth.getName();
 
         File file = this.findFileById.execute(id);
 
-        if(file.getOwner().getId() != userId){
+        if(!file.getOwner().getId().equals(userId)){
             throw new UserSecurityException("Denied. This file belongs to another user.");
         }
 
         boolean result = this.deleteFile.execute(file);
 
         if(!result){
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

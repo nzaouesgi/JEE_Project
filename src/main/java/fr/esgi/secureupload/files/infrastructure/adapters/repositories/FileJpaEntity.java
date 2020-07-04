@@ -1,8 +1,8 @@
 package fr.esgi.secureupload.files.infrastructure.adapters.repositories;
 
-import fr.esgi.secureupload.common.repository.BaseJPAEntity;
+import fr.esgi.secureupload.common.infrastructure.adapters.BaseJPAEntity;
 import fr.esgi.secureupload.files.domain.entities.Status;
-import fr.esgi.secureupload.users.adapters.repositories.UserJpaEntity;
+import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaEntity;
 
 import javax.persistence.*;
 

@@ -1,7 +1,7 @@
 package fr.esgi.secureupload.files.domain.entities;
 
-import fr.esgi.secureupload.common.entities.BaseEntity;
-import fr.esgi.secureupload.users.entities.User;
+import fr.esgi.secureupload.common.domain.entities.BaseEntity;
+import fr.esgi.secureupload.users.domain.entities.User;
 
 import java.util.Date;
 

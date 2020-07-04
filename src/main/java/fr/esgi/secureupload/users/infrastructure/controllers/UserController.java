@@ -28,11 +28,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.Objects;
 
 @RestController
@@ -116,20 +118,16 @@ public class UserController {
     @PreAuthorize("!isAuthenticated()")
     public ResponseEntity<DataBody<User>> createUser(
             @RequestBody @Valid UserDTO userDto,
-            UriComponentsBuilder uriComponentsBuilder,
             HttpServletResponse response) {
 
         User createdUser = this.createUser.execute(userDto);
 
-        String resourcePath = String.format("/users/%s", createdUser.getId());
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(createdUser.getId())
+                .toUri();
 
-        UriComponents components = uriComponentsBuilder
-                .replacePath(resourcePath)
-                .build();
-
-        String location = components.toUri().toString();
-
-        response.setHeader(HttpHeaders.LOCATION, location);
+        response.setHeader(HttpHeaders.LOCATION, uri.toString());
 
         this.logger.info(String.format("POST /users : User %s was created.", createdUser.getId()));
 

@@ -4,6 +4,8 @@ import fr.esgi.secureupload.common.infrastructure.converters.StringToOrderModeCo
 import fr.esgi.secureupload.users.infrastructure.converters.StringToUserOrderByFieldConverter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
+import org.springframework.http.MediaType;
+import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
@@ -13,5 +15,10 @@ public class WebConfig implements WebMvcConfigurer {
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverter(new StringToOrderModeConverter());
         registry.addConverter(new StringToUserOrderByFieldConverter());
+    }
+
+    @Override
+    public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+        configurer.ignoreAcceptHeader(true).defaultContentType(MediaType.APPLICATION_JSON);
     }
 }
