@@ -9,7 +9,7 @@ import java.net.MalformedURLException;
 
 public interface AnalysisAPIHandler {
 
-    String sendAnalysisRequest(MultipartFile file) throws IOException;
+    String sendAnalysisRequest(String path) throws IOException;
 
     Analysis getAnalysisResult(Analysis analysis) throws JsonProcessingException;
 }

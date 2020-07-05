@@ -15,4 +15,5 @@ public class AnalysisConfig {
         this.analysisJpaRepository = new AnalysisJpaRepositoryAdapter(analysisJpaRepository);
     }
 
+
 }
