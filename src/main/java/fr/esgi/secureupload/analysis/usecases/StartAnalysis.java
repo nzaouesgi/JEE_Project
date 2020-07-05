@@ -3,23 +3,24 @@ package fr.esgi.secureupload.analysis.usecases;
 import fr.esgi.secureupload.analysis.domain.entities.Analysis;
 import fr.esgi.secureupload.analysis.domain.port.AnalysisAPIHandler;
 import fr.esgi.secureupload.analysis.domain.repository.AnalysisRepository;
-import fr.esgi.secureupload.analysis.infrastructure.adapters.helpers.VirusTotalAPIHandler;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-public class CreateAnalysis {
+public class StartAnalysis {
 
     private final AnalysisAPIHandler analysisAPI;
     private final AnalysisRepository analysisRepository;
 
-    public CreateAnalysis(AnalysisAPIHandler analysisAPI, AnalysisRepository analysisRepository){
+    public StartAnalysis(AnalysisAPIHandler analysisAPI, AnalysisRepository analysisRepository){
         this.analysisAPI = analysisAPI;
         this.analysisRepository = analysisRepository;
     }
 
-    public void execute(String path){
+    public void execute(String path) throws IOException {
+        String scanId = this.analysisAPI.sendAnalysisRequest(path);
         Analysis analysis = new Analysis();
+        analysis.setScanId(scanId);
         this.analysisRepository.save(analysis);
     }
+
 }
