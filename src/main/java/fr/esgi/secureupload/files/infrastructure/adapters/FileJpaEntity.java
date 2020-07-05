@@ -10,13 +10,14 @@ import javax.persistence.*;
 @Entity(name="File")
 @Table(name="files")
 public class FileJpaEntity extends BaseJPAEntity {
+
     protected FileJpaEntity(){}
 
     @Column(name="name", nullable = false)
     private String name;
 
-    @Column(name="contentType", nullable = false)
-    private String contentType;
+    @Column(name="type", nullable = false)
+    private String type;
 
     @Column(name="size", nullable = false)
     private long size;
@@ -25,12 +26,9 @@ public class FileJpaEntity extends BaseJPAEntity {
     @Column(name="status", nullable = false)
     private FileStatus status;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "owner")
     private UserJpaEntity owner;
-
-    @Column(name="url", nullable = true)
-    private String url;
 
     public String getName() {
         return name;
@@ -40,12 +38,12 @@ public class FileJpaEntity extends BaseJPAEntity {
         this.name = name;
     }
 
-    public String getContentType() {
-        return contentType;
+    public String getType() {
+        return type;
     }
 
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
+    public void setType(String contentType) {
+        this.type = contentType;
     }
 
     public long getSize() {
@@ -71,8 +69,4 @@ public class FileJpaEntity extends BaseJPAEntity {
     public void setOwner(UserJpaEntity owner) {
         this.owner = owner;
     }
-
-    public String getUrl() { return this.url; }
-
-    public void setUrl(String url) { this.url = url; }
 }

@@ -17,20 +17,23 @@ import java.util.Random;
 @SpringBootTest
 public class SpringTestWithUsers {
 
-    private static int USERS_COUNT = 100;
-    private static int ADMINS_COUNT = 10;
-
     public static final List<User> users = new ArrayList<>();
     public static final List<User> admins = new ArrayList<>();
 
     @BeforeAll
-    public static void prepareUsers (@Autowired UserJpaRepository jpaRepository, @Autowired TestUtils testUtils) {
+    public static void prepare (@Autowired UserJpaRepository jpaRepository, @Autowired TestUtils testUtils){
+        prepareUsers(jpaRepository, testUtils);
+    }
+
+    public static void prepareUsers (UserJpaRepository jpaRepository, TestUtils testUtils) {
 
         UserRepository repository = new UserJpaRepositoryAdapter(jpaRepository);
 
+        int USERS_COUNT = 100;
         for (int i = 0; i < USERS_COUNT; i++)
             SpringTestWithUsers.users.add(repository.save(testUtils.getRandomUser(false)));
 
+        int ADMINS_COUNT = 10;
         for (int i = 0; i < ADMINS_COUNT; i++)
             SpringTestWithUsers.admins.add(repository.save(testUtils.getRandomUser(true)));
     }
@@ -40,19 +43,13 @@ public class SpringTestWithUsers {
     }
 
     @AfterAll
+    public static void clean (@Autowired UserJpaRepository jpaRepository){
+        cleanUsers(jpaRepository);
+    }
+
     public static void cleanUsers (@Autowired UserJpaRepository jpaRepository){
-
-        UserRepository repository = new UserJpaRepositoryAdapter(jpaRepository);
-
-        for (User user: users)
-            repository.deleteById(user.getId());
-
-        for (User admin: admins)
-            repository.deleteById(admin.getId());
-
+        jpaRepository.deleteAll();
         users.clear();
         admins.clear();
     }
-
-
 }

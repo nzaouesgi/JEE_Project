@@ -11,10 +11,9 @@ public class FileJpaAdapter {
         file.setCreatedAt(fileJpa.getCreatedAt());
         file.setUpdatedAt(fileJpa.getUpdatedAt());
         file.setName(fileJpa.getName());
-        file.setContentType(fileJpa.getContentType());
+        file.setType(fileJpa.getType());
         file.setSize(fileJpa.getSize());
         file.setOwner(UserJpaAdapter.convertToUser(fileJpa.getOwner()));
-        file.setUrl(fileJpa.getUrl());
         file.setStatus(fileJpa.getStatus());
         return file;
     }
@@ -25,10 +24,9 @@ public class FileJpaAdapter {
         fileJpa.setCreatedAt(file.getCreatedAt());
         fileJpa.setUpdatedAt(file.getUpdatedAt());
         fileJpa.setName(file.getName());
-        fileJpa.setContentType(file.getContentType());
+        fileJpa.setType(file.getType());
         fileJpa.setSize(file.getSize());
         fileJpa.setOwner(UserJpaAdapter.convertToJpaEntity(file.getOwner()));
-        fileJpa.setUrl(file.getUrl());
         fileJpa.setStatus(file.getStatus());
         return fileJpa;
     }

@@ -1,22 +1,22 @@
 package fr.esgi.secureupload.files.usecases;
 
 import fr.esgi.secureupload.files.domain.entities.File;
-import fr.esgi.secureupload.files.domain.port.StorageFileHandler;
 import fr.esgi.secureupload.files.domain.repository.FileRepository;
+
+import java.util.Objects;
 
 public class DeleteFile {
 
     private final FileRepository fileRepository;
 
-    private final StorageFileHandler storageFileHandler;
-
-    public DeleteFile(FileRepository fileRepository, StorageFileHandler storageFileHandler) {
+    public DeleteFile(FileRepository fileRepository) {
         this.fileRepository = fileRepository;
-        this.storageFileHandler = storageFileHandler;
     }
 
     public void execute(final File file){
-        this.storageFileHandler.deleteFile(file.getId());
+
+        Objects.requireNonNull(file, "file must not be null");
+
         this.fileRepository.delete(file);
     }
 

@@ -9,11 +9,9 @@ public class File extends BaseEntity {
 
     private String name;
 
-    private String contentType;
+    private String type;
 
     private long size;
-
-    private String url;
 
     private FileStatus status;
 
@@ -27,12 +25,12 @@ public class File extends BaseEntity {
         this.name = name;
     }
 
-    public String getContentType() {
-        return contentType;
+    public String getType() {
+        return type;
     }
 
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
+    public void setType(String type) {
+        this.type = type;
     }
 
     public long getSize() {
@@ -59,28 +57,20 @@ public class File extends BaseEntity {
         this.owner = owner;
     }
 
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
     public File(){}
 
-    public File(String name, String contentType, long size, FileStatus status, User owner) {
+    public File(String name, String type, long size, FileStatus status, User owner) {
         this.name = name;
-        this.contentType = contentType;
+        this.type = type;
         this.size = size;
         this.status = status;
         this.owner = owner;
     }
 
-    public File(String id, Date createdAt, Date updatedAt, String name, String contentType, long size, FileStatus status, User owner) {
+    public File(String id, Date createdAt, Date updatedAt, String name, String type, long size, FileStatus status, User owner) {
         super(id, createdAt, updatedAt);
         this.name = name;
-        this.contentType = contentType;
+        this.type = type;
         this.size = size;
         this.status = status;
         this.owner = owner;
