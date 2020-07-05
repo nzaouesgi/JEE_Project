@@ -18,9 +18,10 @@ public class CreateAnalysis {
         this.analysisRepository = analysisRepository;
     }
 
-    /*public void execute(MultipartFile file, Analysis analysis) throws IOException {
-        String scanId = this.analysisAPI.sendAnalysisRequest(file);
+    public void execute(String path) throws IOException {
+        String scanId = this.analysisAPI.sendAnalysisRequest(path);
+        Analysis analysis = new Analysis();
         analysis.setScanId(scanId);
         this.analysisRepository.save(analysis);
-    }*/
+    }
 }
