@@ -1,4 +1,4 @@
-package fr.esgi.secureupload.files.domain.usecases;
+package fr.esgi.secureupload.files.usecases;
 
 import fr.esgi.secureupload.files.domain.entities.File;
 import fr.esgi.secureupload.files.domain.port.StorageFileHandler;
@@ -15,14 +15,9 @@ public class DeleteFile {
         this.storageFileHandler = storageFileHandler;
     }
 
-    public boolean execute(final File file){
-        boolean delete = this.storageFileHandler.deleteFile(file.getId());
-        if(delete){
-            this.fileRepository.delete(file);
-            return true;
-        }
-        return false;
-
+    public void execute(final File file){
+        this.storageFileHandler.deleteFile(file.getId());
+        this.fileRepository.delete(file);
     }
 
 }

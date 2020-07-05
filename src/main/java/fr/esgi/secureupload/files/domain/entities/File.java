@@ -15,7 +15,7 @@ public class File extends BaseEntity {
 
     private String url;
 
-    private Status status;
+    private FileStatus status;
 
     private User owner;
 
@@ -43,11 +43,11 @@ public class File extends BaseEntity {
         this.size = size;
     }
 
-    public Status getStatus() {
+    public FileStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(FileStatus status) {
         this.status = status;
     }
 
@@ -67,7 +67,9 @@ public class File extends BaseEntity {
         this.url = url;
     }
 
-    public File(String name, String contentType, long size, Status status, User owner) {
+    public File(){}
+
+    public File(String name, String contentType, long size, FileStatus status, User owner) {
         this.name = name;
         this.contentType = contentType;
         this.size = size;
@@ -75,7 +77,7 @@ public class File extends BaseEntity {
         this.owner = owner;
     }
 
-    public File(String id, Date createdAt, Date updatedAt, String name, String contentType, long size, Status status, User owner) {
+    public File(String id, Date createdAt, Date updatedAt, String name, String contentType, long size, FileStatus status, User owner) {
         super(id, createdAt, updatedAt);
         this.name = name;
         this.contentType = contentType;

@@ -1,5 +1,5 @@
 package fr.esgi.secureupload.files.domain.entities;
 
-public enum Status {
-    ACCEPTED, REJECTED, ANALYSING
+public enum FileStatus {
+    UPLOADING, FAILED, READY
 }

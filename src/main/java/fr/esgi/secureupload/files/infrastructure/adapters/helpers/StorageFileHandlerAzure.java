@@ -10,47 +10,41 @@ import java.io.InputStream;
 
 public class StorageFileHandlerAzure implements StorageFileHandler {
 
-    private String connectStr;
+    private String connectionString;
 
-    private String containerStr;
+    private String containerName;
 
-    public StorageFileHandlerAzure(String connectStr, String containerStr){
-        this.connectStr = connectStr;
-        this.containerStr = containerStr;
+    public StorageFileHandlerAzure(String connectionString, String containerName){
+        this.connectionString = connectionString;
+        this.containerName = containerName;
     }
 
     private BlobContainerClient connect(){
-        BlobServiceClient client = new BlobServiceClientBuilder().connectionString(this.connectStr).buildClient();
-        return client.getBlobContainerClient(this.containerStr);
+
+        BlobServiceClient client = new BlobServiceClientBuilder().connectionString(this.connectionString).buildClient();
+
+        boolean exists = client.listBlobContainers()
+                .stream()
+                .anyMatch((c) -> c.getName().equals(this.containerName));
+
+        if (!exists)
+            return client.createBlobContainer(this.containerName);
+
+        return client.getBlobContainerClient(this.containerName);
     }
 
     @Override
-    public boolean deleteFile(String id) {
-        try{
+    public void deleteFile(String id) {
             BlobContainerClient client = connect();
             BlobClient blobClient = client.getBlobClient(id);
             blobClient.delete();
-        }
-        catch(Exception e){
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-
     }
 
     @Override
-    public String storeFile(InputStream file, long size, String id) {
-        String fileUrl = "";
-        try {
-            BlobContainerClient client = connect();
-            BlobClient blobClient = client.getBlobClient(id);
-            blobClient.upload(file, size,true);
-            fileUrl = blobClient.getBlobUrl();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return fileUrl;
+    public String storeFile(InputStream file, long size, String id)  {
+        BlobContainerClient client = connect();
+        BlobClient blobClient = client.getBlobClient(id);
+        blobClient.upload(file, size,true);
+        return blobClient.getBlobUrl();
     }
 }

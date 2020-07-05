@@ -1,7 +1,7 @@
-package fr.esgi.secureupload.files.infrastructure.adapters.repositories;
+package fr.esgi.secureupload.files.infrastructure.adapters;
 
 import fr.esgi.secureupload.common.infrastructure.adapters.BaseJPAEntity;
-import fr.esgi.secureupload.files.domain.entities.Status;
+import fr.esgi.secureupload.files.domain.entities.FileStatus;
 import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaEntity;
 
 import javax.persistence.*;
@@ -23,11 +23,14 @@ public class FileJpaEntity extends BaseJPAEntity {
 
     @Enumerated(EnumType.ORDINAL)
     @Column(name="status", nullable = false)
-    private Status status;
+    private FileStatus status;
 
     @ManyToOne
     @JoinColumn(name = "owner")
     private UserJpaEntity owner;
+
+    @Column(name="url", nullable = true)
+    private String url;
 
     public String getName() {
         return name;
@@ -53,11 +56,11 @@ public class FileJpaEntity extends BaseJPAEntity {
         this.size = size;
     }
 
-    public Status getStatus() {
+    public FileStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(FileStatus status) {
         this.status = status;
     }
 
@@ -68,4 +71,8 @@ public class FileJpaEntity extends BaseJPAEntity {
     public void setOwner(UserJpaEntity owner) {
         this.owner = owner;
     }
+
+    public String getUrl() { return this.url; }
+
+    public void setUrl(String url) { this.url = url; }
 }

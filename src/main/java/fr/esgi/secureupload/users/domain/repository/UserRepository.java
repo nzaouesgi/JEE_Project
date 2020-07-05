@@ -20,4 +20,6 @@ public interface UserRepository {
     User save (User user);
 
     void deleteById (String id);
+
+    User getOne (String id);
 }

@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 public class JWTProvider {
 
     private static final String AUTHORITIES_KEY = "auth";
-    private final long tokenValidityInMilliseconds = Duration.ofMinutes(5).getSeconds() * 1000;
     private final byte[] secret;
 
     public JWTProvider(@Value("${security.token.secret}") CharSequence secret) {
@@ -34,7 +33,8 @@ public class JWTProvider {
                 .collect(Collectors.joining(","));
 
         long now = (new Date()).getTime();
-        Date validity = new Date(now + this.tokenValidityInMilliseconds);
+        long tokenValidityInMilliseconds = 1000 * 60 * 60 * 24;
+        Date validity = new Date(now + tokenValidityInMilliseconds);
 
         return Jwts.builder()
                 .setSubject(authentication.getName())
@@ -63,7 +63,7 @@ public class JWTProvider {
             return true;
 
         } catch (JwtException | IllegalArgumentException e) {
-            log.info("Bad token could not be parsed.");
+            log.info(String.format("Bad token could not be parsed (%s).", e.getMessage()));
             return false;
         }
     }

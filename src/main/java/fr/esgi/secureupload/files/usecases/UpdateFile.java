@@ -1,4 +1,4 @@
-package fr.esgi.secureupload.files.domain.usecases;
+package fr.esgi.secureupload.files.usecases;
 
 import fr.esgi.secureupload.files.domain.entities.File;
 import fr.esgi.secureupload.files.domain.repository.FileRepository;

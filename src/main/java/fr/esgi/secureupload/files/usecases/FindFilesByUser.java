@@ -1,4 +1,4 @@
-package fr.esgi.secureupload.files.domain.usecases;
+package fr.esgi.secureupload.files.usecases;
 
 import fr.esgi.secureupload.files.domain.entities.File;
 import fr.esgi.secureupload.files.domain.repository.FileRepository;
@@ -15,6 +15,7 @@ public class FindFilesByUser {
     }
 
     public Page<File> execute(String userId, int page, int limit, String orderBy, String orderMode){
+
         Sort sort = Sort.by(orderBy);
         if (orderMode.equalsIgnoreCase("desc"))
             sort.descending();

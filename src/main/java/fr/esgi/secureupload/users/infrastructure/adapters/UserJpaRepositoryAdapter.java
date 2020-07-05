@@ -69,4 +69,9 @@ public final class UserJpaRepositoryAdapter implements UserRepository {
     public void deleteById(String id) {
         this.jpaRepository.deleteById(id);
     }
+
+    @Override
+    public User getOne(String id) {
+        return UserJpaAdapter.convertToUser(this.jpaRepository.getOne(id));
+    }
 }

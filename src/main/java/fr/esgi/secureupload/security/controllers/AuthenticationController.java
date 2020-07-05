@@ -48,7 +48,7 @@ public class AuthenticationController {
             response.setHeader(AUTHORIZATION, String.join(" ", "Bearer", token));
 
         } catch (UserNotFoundException e){
-            throw new AccessDeniedException("Login failed");
+            throw new AccessDeniedException("Login failed.");
         }
     }
 
