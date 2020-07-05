@@ -1,9 +1,10 @@
 package fr.esgi.secureupload.files.infrastructures.controllers;
 
 import fr.esgi.secureupload.files.domain.entities.File;
+import fr.esgi.secureupload.files.infrastructure.adapters.FileJpaRepository;
+import fr.esgi.secureupload.files.infrastructure.adapters.FileJpaRepositoryAdapter;
 import fr.esgi.secureupload.files.infrastructures.SpringTestWithFiles;
 import fr.esgi.secureupload.users.domain.entities.User;
-import lombok.With;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
@@ -33,6 +32,9 @@ public class FileControllerTest extends SpringTestWithFiles {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private FileJpaRepository repository;
 
     private final String FILES_API = "/files";
 
@@ -82,7 +84,7 @@ public class FileControllerTest extends SpringTestWithFiles {
                 get(FILES_API + "/" + randomFile().getId())
                         .with(user("someid")
                                 .roles("USER")))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -116,9 +118,10 @@ public class FileControllerTest extends SpringTestWithFiles {
                 .andExpect(status().isUnauthorized());
     }
 
+
     @Test
     @WithMockUser
-    public void uploadFile_WhenNoFile_ShouldReturnBadRequest () throws Exception {
+    public void uploadFile_WhenNoFileSupplied_ShouldReturnBadRequest () throws Exception {
         this.mockMvc.perform(multipart(FILES_API))
                 .andExpect(status().isBadRequest());
     }
@@ -161,6 +164,22 @@ public class FileControllerTest extends SpringTestWithFiles {
     }
 
     @Test
+    @WithAnonymousUser
+    public void downloadFile_WhenUnauthenticated_ShouldReturnUnauthorized () throws Exception {
+        File f = randomFile();
+        this.mockMvc.perform(get(FILES_API + "/" + f.getId() + "/download"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser
+    public void downloadFile_WhenFilesDoesNotBelongToUser_ShouldReturnForbidden () throws Exception {
+        File f = randomFile();
+        this.mockMvc.perform(get(FILES_API + "/" + f.getId() + "/download"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     public void downloadFile_ShouldReturnFile () throws Exception {
 
         File f = randomFile();
@@ -169,11 +188,42 @@ public class FileControllerTest extends SpringTestWithFiles {
                 .with(user(f.getOwner().getId()).roles("USER")))
                 .andExpect(status().isOk())
                 .andReturn()
-                .getResponse().getContentAsByteArray();
+                .getResponse()
+                .getContentAsByteArray();
 
         byte [] original = getFileContent(f);
 
         Assertions.assertArrayEquals(original, content);
+    }
+
+    @Test
+    @WithAnonymousUser
+    public void deleteFile_WhenUnauthenticated_ShouldReturnUnauthorized () throws Exception {
+        this.mockMvc.perform(delete(FILES_API + "/" + randomFile().getId()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser
+    public void deleteFile_WhenFileDoesNotBelongToAuthenticatedUser_ShouldReturnForbidden () throws Exception {
+        this.mockMvc.perform(delete(FILES_API + "/" + randomFile().getId()))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void deleteFile_ShouldDeleteFile () throws Exception {
+        File f = files.get(0);
+        this.mockMvc.perform(delete(FILES_API + "/" + f.getId())
+                    .with(user(f.getOwner().getId()).roles("USER")))
+                .andExpect(status().isNoContent());
+
+        FileJpaRepositoryAdapter repoAdapter = new FileJpaRepositoryAdapter(this.repository);
+
+        File deleted = repoAdapter.findById(f.getId()).orElse(null);
+
+        Assertions.assertNull(deleted);
+
+        files.remove(0);
     }
 }
 

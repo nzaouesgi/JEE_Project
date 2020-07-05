@@ -63,7 +63,7 @@ public class FileController {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if(!file.getOwner().getId().equals(userId)){
-            throw new AccessDeniedException("Denied. This file belongs to another user.");
+            throw new FileSecurityException("This file belongs to another user.");
         }
     }
 

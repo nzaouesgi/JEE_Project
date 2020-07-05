@@ -69,6 +69,9 @@ variable smtp_password {
   description = "The password of the SMTP user"
 }
 
+variable virus_total_api_key {
+  description = "The API key to use for the VirusTotal API"
+}
 
 # Create a resource group
 resource azurerm_resource_group secure_upload {
@@ -275,7 +278,7 @@ resource azurerm_app_service app_service {
     # These are app specific environment variables
     SPRING_PROFILES_ACTIVE     = "prod"
 
-    MYSQL_URL = "jdbc:mysql://${azurerm_mysql_server.mysql.fqdn}:3306/${azurerm_mysql_database.database.name}?useSSL=true&requireSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
+    MYSQL_URL = "jdbc:mysql://${azurerm_mysql_server.mysql.fqdn}:3306/${azurerm_mysql_database.database.name}?useSSL=true&requireSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&zeroDateTimeBehavior=convertToNull"
     MYSQL_PASSWORD = azurerm_mysql_server.mysql.administrator_login_password
     MYSQL_USER = "${azurerm_mysql_server.mysql.administrator_login}@${azurerm_mysql_server.mysql.name}"
 
@@ -291,6 +294,8 @@ resource azurerm_app_service app_service {
 
     AZURE_STORAGE_CONNECTION_STRING = azurerm_storage_account.storage_account.primary_connection_string
     AZURE_STORAGE_CONTAINER_NAME = azurerm_storage_container.file_storage.name
+
+    VIRUS_TOTAL_API_KEY = var.virus_total_api_key
   }
 
   depends_on = [
