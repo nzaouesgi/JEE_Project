@@ -77,9 +77,9 @@ public class SpringTestWithFiles extends SpringTestWithUsers {
         return files.get(new Random().nextInt(files.size()));
     }
 
-    /*public static String getFileContent (File f) throws FileNotFoundException {
-        return (new FileInputStream(tmp + "/" +f.getName())).readAllBytes();
-    }*/
+    public static byte [] getFileContent (File f) throws IOException {
+        return Files.readAllBytes(Paths.get(tmp + "/" + f.getName()));
+    }
 
     @AfterAll
     public static void clean (@Autowired FileJpaRepository fileJpaRepository,

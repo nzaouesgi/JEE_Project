@@ -4,6 +4,7 @@ import fr.esgi.secureupload.files.domain.entities.File;
 import fr.esgi.secureupload.files.infrastructures.SpringTestWithFiles;
 import fr.esgi.secureupload.users.domain.entities.User;
 import lombok.With;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,7 +16,9 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
@@ -162,15 +165,15 @@ public class FileControllerTest extends SpringTestWithFiles {
 
         File f = randomFile();
 
-
-
-        String data = this.mockMvc.perform(get(FILES_API + "/" + f.getId() + "/download")
+        byte [] content = this.mockMvc.perform(get(FILES_API + "/" + f.getId() + "/download")
                 .with(user(f.getOwner().getId()).roles("USER")))
                 .andExpect(status().isOk())
                 .andReturn()
-                .getResponse()
-                .getContentAsString();
+                .getResponse().getContentAsByteArray();
 
+        byte [] original = getFileContent(f);
+
+        Assertions.assertArrayEquals(original, content);
     }
 }
 
