@@ -19,16 +19,16 @@ public class UserJpaEntity extends BaseJPAEntity {
     @Column(name="password", nullable = false)
     private String password;
 
-    @Column(name="isAdmin", nullable = false)
+    @Column(name="is_admin", nullable = false)
     private boolean isAdmin;
 
-    @Column(name="isConfirmed", nullable = false)
+    @Column(name="is_confirmed", nullable = false)
     private boolean isConfirmed;
 
-    @Column(name="confirmationToken", nullable = false)
+    @Column(name="confirmation_token", nullable = false)
     private String confirmationToken;
 
-    @Column(name="recoveryToken")
+    @Column(name="recovery_token")
     private String recoveryToken;
 
     public String getEmail() { return this.email; }

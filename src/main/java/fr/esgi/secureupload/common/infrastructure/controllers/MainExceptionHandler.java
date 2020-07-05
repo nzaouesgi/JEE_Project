@@ -4,6 +4,7 @@ import fr.esgi.secureupload.common.infrastructure.controllers.response.ErrorBody
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
+import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +49,7 @@ public class MainExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleConversionNotSupported(ConversionNotSupportedException e, HttpHeaders headers, HttpStatus status, WebRequest request){
-        return ResponseEntity.status(status).body(new ErrorBody(e.getMessage(), status.value()));
+        return ResponseEntity.status(status).body(new ErrorBody(e.getPropertyName() + " cannot be converted.", status.value()));
     }
 
     @Override

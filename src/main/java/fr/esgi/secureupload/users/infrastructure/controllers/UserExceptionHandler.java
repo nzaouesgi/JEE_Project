@@ -4,6 +4,7 @@ import fr.esgi.secureupload.common.infrastructure.controllers.response.ErrorBody
 import fr.esgi.secureupload.users.domain.exceptions.*;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -42,5 +43,11 @@ public class UserExceptionHandler {
     public ResponseEntity<ErrorBody> handleUserNotFound(UserNotFoundException e) {
         HttpStatus status = HttpStatus.NOT_FOUND;
         return new ResponseEntity<>(new ErrorBody(e.getMessage(), status.value()), status);
+    }
+
+    @ExceptionHandler({ConversionFailedException.class})
+    protected ResponseEntity<?> handleConversionFailed(ConversionFailedException e){
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        return ResponseEntity.status(status).body(new ErrorBody(e.getValue() + " cannot be converted.", status.value()));
     }
 }

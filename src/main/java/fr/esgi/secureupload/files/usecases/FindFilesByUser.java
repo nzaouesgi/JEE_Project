@@ -1,25 +1,31 @@
 package fr.esgi.secureupload.files.usecases;
 
+import fr.esgi.secureupload.common.domain.entities.EntitiesPage;
+import fr.esgi.secureupload.common.domain.entities.OrderMode;
 import fr.esgi.secureupload.files.domain.entities.File;
+import fr.esgi.secureupload.files.domain.entities.FileOrderByField;
+import fr.esgi.secureupload.files.domain.exceptions.FileSecurityException;
 import fr.esgi.secureupload.files.domain.repository.FileRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+
+import java.util.Objects;
 
 public class FindFilesByUser {
 
+    private final int FIND_FILES_LIMIT = 1000;
     private final FileRepository fileRepository;
 
     public FindFilesByUser(FileRepository fileRepository) {
         this.fileRepository = fileRepository;
     }
 
-    public Page<File> execute(String userId, int page, int limit, String orderBy, String orderMode){
+    public EntitiesPage<File> execute(String userId, int page, int limit, FileOrderByField orderBy, OrderMode orderMode){
 
-        Sort sort = Sort.by(orderBy);
-        if (orderMode.equalsIgnoreCase("desc"))
-            sort.descending();
+        Objects.requireNonNull(orderBy, "orderBy must not be null");
+        Objects.requireNonNull(orderMode, "orderMode must not be null");
 
-        return this.fileRepository.findByUser(userId, PageRequest.of(page, limit, sort));
+        if (limit > FIND_FILES_LIMIT)
+            throw new FileSecurityException(String.format("\"limit\" parameter must not exceed %d", FIND_FILES_LIMIT));
+
+        return this.fileRepository.findByUser(userId, page, limit, orderBy, orderMode);
     }
 }

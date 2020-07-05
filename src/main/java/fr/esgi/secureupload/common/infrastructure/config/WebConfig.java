@@ -1,6 +1,7 @@
 package fr.esgi.secureupload.common.infrastructure.config;
 
 import fr.esgi.secureupload.common.infrastructure.converters.StringToOrderModeConverter;
+import fr.esgi.secureupload.files.infrastructure.converters.StringToFileOrderByFieldConverter;
 import fr.esgi.secureupload.users.infrastructure.converters.StringToUserOrderByFieldConverter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
@@ -15,6 +16,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverter(new StringToOrderModeConverter());
         registry.addConverter(new StringToUserOrderByFieldConverter());
+        registry.addConverter(new StringToFileOrderByFieldConverter());
     }
 
     @Override

@@ -1,6 +1,8 @@
 package fr.esgi.secureupload;
 
 import fr.esgi.secureupload.common.infrastructure.adapters.helpers.SecureRandomTokenGenerator;
+import fr.esgi.secureupload.files.domain.entities.File;
+import fr.esgi.secureupload.files.domain.entities.FileStatus;
 import fr.esgi.secureupload.users.infrastructure.adapters.helpers.UserPasswordEncoderImpl;
 import fr.esgi.secureupload.users.domain.entities.User;
 import fr.esgi.secureupload.common.domain.ports.RandomTokenGenerator;
@@ -15,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Random;
 
 @Component
 public class TestUtils {
@@ -58,6 +61,14 @@ public class TestUtils {
                 .password(this.encoder.encode(DEFAULT_PASSWORD))
                 .confirmationToken(this.generator.generate(32))
                 .email(this.getRandomMail()).build();
+    }
+
+    public File getRandomFile (User user){
+        return new File(getRandomFileName(), "application/octet-stream", (new Random()).nextInt(1000) + 1, FileStatus.READY, user == null ? getRandomUser(false) : user);
+    }
+
+    public String getRandomFileName (){
+        return String.format("%s.file", this.generator.generate(10));
     }
 
     public String getRandomMail (){

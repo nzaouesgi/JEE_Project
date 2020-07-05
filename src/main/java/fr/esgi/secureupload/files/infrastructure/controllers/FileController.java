@@ -1,17 +1,20 @@
 package fr.esgi.secureupload.files.infrastructure.controllers;
 
+import fr.esgi.secureupload.common.domain.entities.EntitiesPage;
+import fr.esgi.secureupload.common.domain.entities.OrderMode;
 import fr.esgi.secureupload.common.infrastructure.controllers.response.DataBody;
 import fr.esgi.secureupload.files.domain.entities.File;
+import fr.esgi.secureupload.files.domain.entities.FileOrderByField;
+import fr.esgi.secureupload.files.domain.exceptions.FileSecurityException;
 import fr.esgi.secureupload.files.usecases.*;
-import fr.esgi.secureupload.users.domain.exceptions.UserSecurityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,12 +37,10 @@ public class FileController {
     private Logger logger = LoggerFactory.getLogger(FileController.class);
 
     private final CreateFile createFile;
-
     private final FindFilesByUser findFilesByUser;
-
     private final FindFileById findFileById;
-
     private final DeleteFile deleteFile;
+    private final DownloadFile downloadFile;
 
     private final AsyncFileHandler asyncFileHandler;
 
@@ -48,27 +49,37 @@ public class FileController {
                           @Autowired FindFilesByUser findFilesByUser,
                           @Autowired FindFileById findFileById,
                           @Autowired DeleteFile deleteFile,
+                          @Autowired DownloadFile downloadFile,
                           @Autowired AsyncFileHandler asyncFileHandler){
         this.createFile = createFile;
         this.findFilesByUser = findFilesByUser;
         this.findFileById = findFileById;
         this.deleteFile = deleteFile;
+        this.downloadFile = downloadFile;
         this.asyncFileHandler = asyncFileHandler;
+    }
+
+    private void checkIfFileBelongsToSelf (File file){
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if(!file.getOwner().getId().equals(userId)){
+            throw new AccessDeniedException("Denied. This file belongs to another user.");
+        }
     }
 
     @GetMapping
     @Secured({ "ROLE_USER", "ROLE_ADMIN" })
-    public ResponseEntity<DataBody<Page<File>>> getFiles(@RequestParam(defaultValue = "0") Integer page,
-                                                         @RequestParam(defaultValue = "100") Integer limit,
-                                                         @RequestParam(defaultValue = "status") String orderBy,
-                                                         @RequestParam(defaultValue = "asc") String orderMode) {
+    public ResponseEntity<DataBody<EntitiesPage<File>>> getFiles(@RequestParam(defaultValue = "0") Integer page,
+                                                                 @RequestParam(defaultValue = "100") Integer limit,
+                                                                 @RequestParam(defaultValue = "status") FileOrderByField orderBy,
+                                                                 @RequestParam(defaultValue = "asc") OrderMode orderMode) {
 
         String userId = SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getName();
 
-        Page<File> results = this.findFilesByUser.execute(userId, page, limit, orderBy, orderMode);
+        EntitiesPage<File> results = this.findFilesByUser.execute(userId, page, limit, orderBy, orderMode);
 
         return new ResponseEntity<>(new DataBody<>(results, HttpStatus.OK.value()),HttpStatus.OK);
     }
@@ -100,38 +111,43 @@ public class FileController {
         return new ResponseEntity<>(new DataBody<>(registered, HttpStatus.CREATED.value()), HttpStatus.CREATED);
     }
 
-    @GetMapping("/files/{id}")
+    @GetMapping("/{id}")
     @Secured({"ROLE_USER", "ROLE_ADMIN"})
-    public ResponseEntity<DataBody<File>> getFile(@PathVariable(name = "id") String id){
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String userId = auth.getName();
+    public ResponseEntity<DataBody<File>> getFile(@PathVariable(name = "id") String id) {
 
         File file = this.findFileById.execute(id);
 
-        if(!file.getOwner().getId().equals(userId)){
-            throw new UserSecurityException("Denied. This file belongs to another user.");
-        }
+        this.checkIfFileBelongsToSelf(file);
 
         return new ResponseEntity<>(new DataBody<>(file, HttpStatus.OK.value()),HttpStatus.OK);
     }
-    
-    @DeleteMapping("/files/{id}")
-    @Secured({"ROLE_USER", "ROLE_ADMIN"})
-    public ResponseEntity<?> deleteFile(@PathVariable(name = "id") String id){
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String userId = auth.getName();
+    @GetMapping("/{id}/download")
+    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    public void downloadFile (@PathVariable(name = "id") String id, HttpServletResponse response) throws IOException {
 
         File file = this.findFileById.execute(id);
 
-        if(!file.getOwner().getId().equals(userId)){
-            throw new UserSecurityException("Denied. This file belongs to another user.");
-        }
+        this.checkIfFileBelongsToSelf(file);
+
+        this.downloadFile.execute(file, response.getOutputStream());
+
+        response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        response.flushBuffer();
+    }
+    
+    @DeleteMapping("/{id}")
+    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    public ResponseEntity<?> deleteFile(@PathVariable(name = "id") String id){
+
+        File file = this.findFileById.execute(id);
+
+        this.checkIfFileBelongsToSelf(file);
 
         this.deleteFile.execute(file);
 
+        this.asyncFileHandler.eraseFile(file);
+
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
 }
