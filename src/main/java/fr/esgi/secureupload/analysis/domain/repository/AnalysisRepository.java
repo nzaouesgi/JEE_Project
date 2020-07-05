@@ -6,4 +6,6 @@ public interface AnalysisRepository {
 
     Analysis save(Analysis analysis);
 
+    Analysis getByScanId(String scanId);
+
 }
