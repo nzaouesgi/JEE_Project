@@ -2,7 +2,7 @@ package fr.esgi.secureupload.users.infrastructure.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
-import fr.esgi.secureupload.TestUtils;
+import fr.esgi.secureupload.utils.TestUtils;
 import fr.esgi.secureupload.users.SpringTestWithUsers;
 import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaRepository;
 import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaRepositoryAdapter;

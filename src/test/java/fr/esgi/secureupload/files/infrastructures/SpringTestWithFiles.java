@@ -1,6 +1,6 @@
 package fr.esgi.secureupload.files.infrastructures;
 
-import fr.esgi.secureupload.TestUtils;
+import fr.esgi.secureupload.utils.TestUtils;
 import fr.esgi.secureupload.files.domain.entities.File;
 import fr.esgi.secureupload.files.domain.port.FileStorageHandler;
 import fr.esgi.secureupload.files.domain.repository.FileRepository;
@@ -8,7 +8,6 @@ import fr.esgi.secureupload.files.infrastructure.adapters.FileJpaRepository;
 import fr.esgi.secureupload.files.infrastructure.adapters.FileJpaRepositoryAdapter;
 
 import fr.esgi.secureupload.users.SpringTestWithUsers;
-import fr.esgi.secureupload.users.domain.entities.User;
 import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaRepository;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -16,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -55,21 +53,19 @@ public class SpringTestWithFiles extends SpringTestWithUsers {
 
         FileRepository repository = new FileJpaRepositoryAdapter(jpaRepository);
 
-        System.out.println("Before prepare" + jpaRepository.findAll().size());
-
         for (int i = 0; i < FILES_COUNT; i++) {
 
             SpringTestWithFiles.files.add(repository.save(testUtils.getRandomFile(randomUser())));
 
-            FileOutputStream writer = new FileOutputStream(tmp + "/" + files.get(i).getName());
+            try (FileOutputStream writer = new FileOutputStream(tmp + "/" + files.get(i).getName())) {
+                byte[] bytes = new byte[(int)files.get(i).getSize()];
+                new Random().nextBytes(bytes);
+                writer.write(bytes);
+            }
 
-            byte[] bytes = new byte[(int)files.get(i).getSize()];
-            new Random().nextBytes(bytes);
-            writer.write(bytes);
-            writer.close();
-            FileInputStream inputStream = new FileInputStream(tmp + "/" + files.get(i).getName());
-            handler.storeFile(inputStream, files.get(i).getSize(), files.get(i).getId());
-            inputStream.close();
+            try (FileInputStream inputStream = new FileInputStream(tmp + "/" + files.get(i).getName())) {
+                handler.storeFile(inputStream, files.get(i).getSize(), files.get(i).getId());
+            }
         }
     }
 
@@ -93,7 +89,7 @@ public class SpringTestWithFiles extends SpringTestWithUsers {
         jpaRepository.deleteAll();
         handler.deleteAll();
         for (File f: files)
-            Files.deleteIfExists(Paths.get(tmp + "/" + f.getName()));
+            Files.delete(Paths.get(tmp + "/" + f.getName()));
         files.clear();
     }
 }

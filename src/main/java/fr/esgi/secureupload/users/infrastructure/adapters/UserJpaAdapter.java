@@ -21,11 +21,14 @@ public class UserJpaAdapter {
 
     public static UserJpaEntity convertToJpaEntity (final User user) {
         UserJpaEntity userJpa = new UserJpaEntity();
-        try {
-            BeanUtils.copyProperties(userJpa, user);
-        } catch (Exception e){
-            return null;
-        }
+        userJpa.setId(user.getId());
+        userJpa.setCreatedAt(user.getCreatedAt());
+        userJpa.setUpdatedAt(user.getUpdatedAt());
+        userJpa.setEmail(user.getEmail());
+        userJpa.setAdmin(user.isAdmin());
+        userJpa.setConfirmed(user.isConfirmed());
+        userJpa.setConfirmationToken(user.getConfirmationToken());
+        userJpa.setRecoveryToken(user.getRecoveryToken());
         return userJpa;
     }
 }

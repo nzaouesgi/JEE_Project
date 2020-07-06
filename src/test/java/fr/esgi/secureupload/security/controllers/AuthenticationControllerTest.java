@@ -1,7 +1,7 @@
 package fr.esgi.secureupload.security.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.esgi.secureupload.TestUtils;
+import fr.esgi.secureupload.utils.TestUtils;
 import fr.esgi.secureupload.users.SpringTestWithUsers;
 import fr.esgi.secureupload.users.infrastructure.dto.LoginDTO;
 import org.junit.jupiter.api.Test;
