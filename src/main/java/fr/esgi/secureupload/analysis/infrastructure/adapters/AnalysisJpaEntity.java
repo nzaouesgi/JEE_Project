@@ -17,7 +17,7 @@ public class AnalysisJpaEntity extends BaseJPAEntity {
     @Column(name="status", nullable = false)
     private AnalysisStatus status;
 
-    @Column(name="scanId", nullable = false)
+    @Column(name="scanId", nullable = true)
     private String scanId;
 
     @Column(name="totalScans", nullable = false)
