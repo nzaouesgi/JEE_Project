@@ -16,9 +16,9 @@ public class StartAnalysis {
         this.analysisRepository = analysisRepository;
     }
 
-    public void execute(String path) throws IOException {
+    public void execute(String path, String analysisId) throws IOException {
         String scanId = this.analysisAPI.sendAnalysisRequest(path);
-        Analysis analysis = new Analysis();
+        Analysis analysis = this.analysisRepository.getOne(analysisId);
         analysis.setScanId(scanId);
         this.analysisRepository.save(analysis);
     }

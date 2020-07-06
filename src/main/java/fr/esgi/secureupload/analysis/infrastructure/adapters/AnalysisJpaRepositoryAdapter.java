@@ -20,4 +20,9 @@ public class AnalysisJpaRepositoryAdapter implements AnalysisRepository {
     public Analysis getByScanId(String scanId){
         return AnalysisJpaAdapter.convertToAnalysis(this.analysisJpaRepository.getByScanId(scanId));
     }
+
+    @Override
+    public Analysis getOne(String id) {
+        return AnalysisJpaAdapter.convertToAnalysis(this.analysisJpaRepository.getOne(id));
+    }
 }
