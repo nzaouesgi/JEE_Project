@@ -16,4 +16,13 @@ public class AnalysisJpaRepositoryAdapter implements AnalysisRepository {
     public Analysis save(Analysis analysis) {
         return AnalysisJpaAdapter.convertToAnalysis(this.analysisJpaRepository.save(AnalysisJpaAdapter.convertToJpaAnalysis(analysis)));
     }
+
+    public Analysis getByScanId(String scanId){
+        return AnalysisJpaAdapter.convertToAnalysis(this.analysisJpaRepository.getByScanId(scanId));
+    }
+
+    @Override
+    public Analysis getOne(String id) {
+        return AnalysisJpaAdapter.convertToAnalysis(this.analysisJpaRepository.getOne(id));
+    }
 }
