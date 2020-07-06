@@ -15,7 +15,6 @@ public class AnalysisJpaAdapter {
         analysis.setTotalScans((analysisJpaEntity.getTotalScans()));
         analysis.setAnalysisStatus(analysisJpaEntity.getStatus());
         analysis.setFile(FileJpaAdapter.convertToFile(analysisJpaEntity.getFile()));
-
         return analysis;
     }
 
@@ -29,7 +28,6 @@ public class AnalysisJpaAdapter {
         analysisJpaEntity.setTotalScans(analysis.getTotalScans());
         analysisJpaEntity.setStatus(analysis.getAnalysisStatus());
         analysisJpaEntity.setFile(FileJpaAdapter.convertToJpaEntity(analysis.getFile()));
-
         return analysisJpaEntity;
     }
 }

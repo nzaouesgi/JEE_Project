@@ -1,4 +1,4 @@
-package fr.esgi.secureupload.common.utils;
+package fr.esgi.secureupload.utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;

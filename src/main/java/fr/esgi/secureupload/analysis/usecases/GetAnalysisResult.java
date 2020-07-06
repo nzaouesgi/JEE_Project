@@ -16,7 +16,7 @@ public class GetAnalysisResult {
     }
 
     public void execute(String scanId) throws IOException {
-        Analysis analysis = this.analysisRepository.getByScanId(scanId);
+        Analysis analysis = this.analysisRepository.findByScanId(scanId).orElseThrow(() -> new RuntimeException("Analysis was not found."));
         analysis = this.analysisAPI.getAnalysisResult(analysis);
         this.analysisRepository.save(analysis);
     }

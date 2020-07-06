@@ -33,3 +33,6 @@ smtp_user = "myuser@myserver.com"
 # The password of the SMTP user
 smtp_password = "SmtpUserPassword"
 
+# The VirusTotal API token
+virus_total_api_key = "7f0de137cc97388a8de..."
+

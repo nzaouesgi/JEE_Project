@@ -3,6 +3,7 @@ package fr.esgi.secureupload.files.domain.entities;
 import fr.esgi.secureupload.common.domain.entities.BaseEntity;
 import fr.esgi.secureupload.users.domain.entities.User;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 public class File extends BaseEntity {
@@ -67,7 +68,7 @@ public class File extends BaseEntity {
         this.owner = owner;
     }
 
-    public File(String id, Date createdAt, Date updatedAt, String name, String type, long size, FileStatus status, User owner) {
+    public File(String id, Timestamp createdAt, Timestamp updatedAt, String name, String type, long size, FileStatus status, User owner) {
         super(id, createdAt, updatedAt);
         this.name = name;
         this.type = type;

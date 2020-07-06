@@ -63,7 +63,7 @@ public class FileController {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if(!file.getOwner().getId().equals(userId)){
-            throw new AccessDeniedException("Denied. This file belongs to another user.");
+            throw new FileSecurityException("This file belongs to another user.");
         }
     }
 
@@ -93,7 +93,7 @@ public class FileController {
 
         File registered = this.createFile.execute(
                 userId,
-                file.getName(),
+                file.getOriginalFilename(),
                 file.getContentType(),
                 file.getSize());
 
@@ -130,9 +130,11 @@ public class FileController {
 
         this.checkIfFileBelongsToSelf(file);
 
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", file.getName()));
+        response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
         this.downloadFile.execute(file, response.getOutputStream());
 
-        response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
         response.flushBuffer();
     }
     

@@ -1,6 +1,6 @@
 package fr.esgi.secureupload.users.infrastructure.adapters.helpers;
 
-import fr.esgi.secureupload.TestUtils;
+import fr.esgi.secureupload.utils.TestUtils;
 import fr.esgi.secureupload.users.domain.ports.UserMailSender;
 import org.json.JSONException;
 import org.json.JSONObject;

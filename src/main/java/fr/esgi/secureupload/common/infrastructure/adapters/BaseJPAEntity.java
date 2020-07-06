@@ -1,6 +1,7 @@
 package fr.esgi.secureupload.common.infrastructure.adapters;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.UUID;
 
@@ -12,21 +13,21 @@ public abstract class BaseJPAEntity {
     private String id;
 
     @Column(name="createdAt", nullable = false)
-    private Date createdAt;
+    private Timestamp createdAt;
 
     @Column(name="updatedAt", nullable = false)
-    private Date updatedAt;
+    private Timestamp updatedAt;
 
     @PrePersist
     public void beforeCreate (){
         this.id = UUID.randomUUID().toString();
-        this.createdAt = new Date();
-        this.updatedAt = new Date();
+        this.createdAt = new Timestamp(System.currentTimeMillis());
+        this.updatedAt = new Timestamp(System.currentTimeMillis());
     }
 
     @PreUpdate
     public void beforeUpdate() {
-        this.updatedAt = new Date();
+        this.updatedAt = new Timestamp(System.currentTimeMillis());
     }
 
     public String getId() {
@@ -37,19 +38,19 @@ public abstract class BaseJPAEntity {
         this.id = id;
     }
 
-    public Date getCreatedAt() {
+    public Timestamp getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Date getUpdatedAt() {
+    public Timestamp getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Date updatedAt) {
+    public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
     }
 }

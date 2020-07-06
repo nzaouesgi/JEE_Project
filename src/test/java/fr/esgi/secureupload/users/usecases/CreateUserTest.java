@@ -1,7 +1,7 @@
 package fr.esgi.secureupload.users.usecases;
 
 
-import fr.esgi.secureupload.TestUtils;
+import fr.esgi.secureupload.utils.TestUtils;
 import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaRepository;
 import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaRepositoryAdapter;
 import fr.esgi.secureupload.users.infrastructure.dto.UserDTO;

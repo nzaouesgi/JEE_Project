@@ -4,6 +4,8 @@ import fr.esgi.secureupload.analysis.domain.entities.AnalysisStatus;
 import fr.esgi.secureupload.common.infrastructure.adapters.BaseJPAEntity;
 import fr.esgi.secureupload.files.domain.entities.File;
 import fr.esgi.secureupload.files.infrastructure.adapters.FileJpaEntity;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 

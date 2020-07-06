@@ -1,4 +1,4 @@
-package fr.esgi.secureupload;
+package fr.esgi.secureupload.utils;
 
 import fr.esgi.secureupload.common.infrastructure.adapters.helpers.SecureRandomTokenGenerator;
 import fr.esgi.secureupload.files.domain.entities.File;
@@ -7,7 +7,7 @@ import fr.esgi.secureupload.users.infrastructure.adapters.helpers.UserPasswordEn
 import fr.esgi.secureupload.users.domain.entities.User;
 import fr.esgi.secureupload.common.domain.ports.RandomTokenGenerator;
 import fr.esgi.secureupload.users.domain.ports.UserPasswordEncoder;
-import fr.esgi.secureupload.common.utils.URLReader;
+import fr.esgi.secureupload.utils.URLReader;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -60,7 +60,8 @@ public class TestUtils {
                 .confirmed(true)
                 .password(this.encoder.encode(DEFAULT_PASSWORD))
                 .confirmationToken(this.generator.generate(32))
-                .email(this.getRandomMail()).build();
+                .email(this.getRandomMail())
+                .build();
     }
 
     public File getRandomFile (User user){
