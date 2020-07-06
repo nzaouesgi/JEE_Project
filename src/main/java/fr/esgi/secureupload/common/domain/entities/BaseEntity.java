@@ -1,13 +1,14 @@
 package fr.esgi.secureupload.common.domain.entities;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 public abstract class BaseEntity {
 
     private String id;
 
-    private Date createdAt;
-    private Date updatedAt;
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
 
 
 
@@ -19,24 +20,24 @@ public abstract class BaseEntity {
         this.id = id;
     }
 
-    public Date getCreatedAt() {
+    public Timestamp getCreatedAt() {
         return this.createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Date getUpdatedAt() {
+    public Timestamp getUpdatedAt() {
         return this.updatedAt;
     }
 
-    public void setUpdatedAt(Date updatedAt) {
+    public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
     }
 
 
-    public BaseEntity(String id, Date createdAt, Date updatedAt) {
+    public BaseEntity(String id, Timestamp createdAt, Timestamp updatedAt) {
         this.id = id;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -49,20 +50,20 @@ public abstract class BaseEntity {
     public static class Builder <T extends Builder<T>> {
 
         private String id;
-        private Date createdAt;
-        private Date updatedAt;
+        private Timestamp createdAt;
+        private Timestamp updatedAt;
 
         public T id (String id){
             this.id = id;
             return (T)this;
         }
 
-        public T createdAt(Date createdAt){
+        public T createdAt(Timestamp createdAt){
             this.createdAt = createdAt;
             return (T)this;
         }
 
-        public T updatedAt(Date updatedAt){
+        public T updatedAt(Timestamp updatedAt){
             this.updatedAt = updatedAt;
             return (T)this;
         }

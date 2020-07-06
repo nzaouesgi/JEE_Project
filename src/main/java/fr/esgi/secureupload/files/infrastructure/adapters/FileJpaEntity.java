@@ -26,7 +26,7 @@ public class FileJpaEntity extends BaseJPAEntity {
     @Column(name="status", nullable = false)
     private FileStatus status;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "owner")
     private UserJpaEntity owner;
 

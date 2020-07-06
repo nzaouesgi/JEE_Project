@@ -17,4 +17,12 @@ public class EntitiesPage<T> {
     public List<T> getContent() {
         return content;
     }
+
+    public long getTotalElements() {
+        return totalElements;
+    }
+
+    public long getTotalPages() {
+        return totalPages;
+    }
 }
