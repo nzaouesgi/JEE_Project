@@ -8,4 +8,6 @@ public interface AnalysisRepository {
 
     Analysis getByScanId(String scanId);
 
+    Analysis getOne(String id);
+
 }
