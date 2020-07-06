@@ -60,7 +60,8 @@ public class TestUtils {
                 .confirmed(true)
                 .password(this.encoder.encode(DEFAULT_PASSWORD))
                 .confirmationToken(this.generator.generate(32))
-                .email(this.getRandomMail()).build();
+                .email(this.getRandomMail())
+                .build();
     }
 
     public File getRandomFile (User user){

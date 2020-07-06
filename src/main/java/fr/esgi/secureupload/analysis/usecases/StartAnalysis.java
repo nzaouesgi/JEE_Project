@@ -19,7 +19,7 @@ public class StartAnalysis {
 
     public void execute(String path, String analysisId) throws IOException {
         String scanId = this.analysisAPI.sendAnalysisRequest(path);
-        Analysis analysis = this.analysisRepository.getOne(analysisId);
+        Analysis analysis = this.analysisRepository.findById(analysisId).orElseThrow(() -> new RuntimeException("No analysis found."));
         analysis.setAnalysisStatus(AnalysisStatus.IN_PROGRESS);
         analysis.setScanId(scanId);
         this.analysisRepository.save(analysis);

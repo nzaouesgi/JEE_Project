@@ -25,6 +25,7 @@ public class UserJpaAdapter {
         userJpa.setCreatedAt(user.getCreatedAt());
         userJpa.setUpdatedAt(user.getUpdatedAt());
         userJpa.setEmail(user.getEmail());
+        userJpa.setPassword(user.getPassword());
         userJpa.setAdmin(user.isAdmin());
         userJpa.setConfirmed(user.isConfirmed());
         userJpa.setConfirmationToken(user.getConfirmationToken());
