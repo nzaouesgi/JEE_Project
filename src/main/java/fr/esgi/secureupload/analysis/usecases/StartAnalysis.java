@@ -1,6 +1,7 @@
 package fr.esgi.secureupload.analysis.usecases;
 
 import fr.esgi.secureupload.analysis.domain.entities.Analysis;
+import fr.esgi.secureupload.analysis.domain.entities.AnalysisStatus;
 import fr.esgi.secureupload.analysis.domain.port.AnalysisAPIHandler;
 import fr.esgi.secureupload.analysis.domain.repository.AnalysisRepository;
 
@@ -19,6 +20,7 @@ public class StartAnalysis {
     public void execute(String path, String analysisId) throws IOException {
         String scanId = this.analysisAPI.sendAnalysisRequest(path);
         Analysis analysis = this.analysisRepository.getOne(analysisId);
+        analysis.setAnalysisStatus(AnalysisStatus.IN_PROGRESS);
         analysis.setScanId(scanId);
         this.analysisRepository.save(analysis);
     }

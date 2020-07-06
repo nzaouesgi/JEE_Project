@@ -1,6 +1,7 @@
 package fr.esgi.secureupload.analysis.usecases;
 
 import fr.esgi.secureupload.analysis.domain.entities.Analysis;
+import fr.esgi.secureupload.analysis.domain.entities.AnalysisStatus;
 import fr.esgi.secureupload.analysis.domain.port.AnalysisAPIHandler;
 import fr.esgi.secureupload.analysis.domain.repository.AnalysisRepository;
 import fr.esgi.secureupload.analysis.infrastructure.adapters.helpers.VirusTotalAPIHandler;
@@ -31,6 +32,7 @@ public class CreateAnalysis {
         Analysis analysis = new Analysis();
         File file = fileRepository.findById(fileId).orElseThrow(() -> new FileNotFoundException(String.format("File with ID %s does not exist.", fileId)));
         analysis.setFile(file);
+        analysis.setAnalysisStatus(AnalysisStatus.PENDING);
 
         this.analysisRepository.save(analysis);
     }
