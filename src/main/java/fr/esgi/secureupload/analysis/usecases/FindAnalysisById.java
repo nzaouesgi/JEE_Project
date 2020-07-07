@@ -2,7 +2,7 @@ package fr.esgi.secureupload.analysis.usecases;
 
 import fr.esgi.secureupload.analysis.domain.entities.Analysis;
 import fr.esgi.secureupload.analysis.domain.repository.AnalysisRepository;
-import fr.esgi.secureupload.analysis.infrastructure.exceptions.AnalysisNotFoundException;
+import fr.esgi.secureupload.analysis.domain.exceptions.AnalysisNotFoundException;
 
 import java.util.Objects;
 

@@ -1,4 +1,4 @@
-package fr.esgi.secureupload.analysis.infrastructure.exceptions;
+package fr.esgi.secureupload.analysis.domain.exceptions;
 
 public class AnalysisNotFoundException extends RuntimeException {
     public AnalysisNotFoundException (String message ){
