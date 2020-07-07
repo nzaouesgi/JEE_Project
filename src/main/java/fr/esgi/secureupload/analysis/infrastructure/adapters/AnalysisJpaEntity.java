@@ -4,6 +4,7 @@ import fr.esgi.secureupload.analysis.domain.entities.AnalysisStatus;
 import fr.esgi.secureupload.common.infrastructure.adapters.BaseJPAEntity;
 import fr.esgi.secureupload.files.domain.entities.File;
 import fr.esgi.secureupload.files.infrastructure.adapters.FileJpaEntity;
+import lombok.ToString;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -19,7 +20,7 @@ public class AnalysisJpaEntity extends BaseJPAEntity {
     @Column(name="status", nullable = false)
     private AnalysisStatus status;
 
-    @Column(name="scanId", nullable = true)
+    @Column(name="scanId")
     private String scanId;
 
     @Column(name="totalScans", nullable = false)
@@ -28,8 +29,8 @@ public class AnalysisJpaEntity extends BaseJPAEntity {
     @Column(name="positiveScans", nullable = false)
     private int positiveScans;
 
-    @OneToOne
-    @JoinColumn(name = "file")
+    @ManyToOne
+    @JoinColumn(name = "file_id")
     private FileJpaEntity file;
 
     public AnalysisStatus getStatus() {

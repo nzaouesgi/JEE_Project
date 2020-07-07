@@ -1,10 +1,10 @@
 package fr.esgi.secureupload.users.infrastructure.adapters;
 
 import fr.esgi.secureupload.common.infrastructure.adapters.BaseJPAEntity;
+import fr.esgi.secureupload.files.infrastructure.adapters.FileJpaEntity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity(name="User")
 @Table(name="users")
@@ -30,6 +30,9 @@ public class UserJpaEntity extends BaseJPAEntity {
 
     @Column(name="recovery_token")
     private String recoveryToken;
+
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "owner")
+    private List<FileJpaEntity> files;
 
     public String getEmail() { return this.email; }
 
@@ -75,5 +78,13 @@ public class UserJpaEntity extends BaseJPAEntity {
 
     public void setRecoveryToken(String recoveryToken) {
         this.recoveryToken = recoveryToken;
+    }
+
+    public List<FileJpaEntity> getFiles() {
+        return files;
+    }
+
+    public void setFiles(List<FileJpaEntity> files) {
+        this.files = files;
     }
 }

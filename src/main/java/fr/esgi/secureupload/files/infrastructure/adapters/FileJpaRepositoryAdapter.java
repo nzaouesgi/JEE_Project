@@ -6,6 +6,8 @@ import fr.esgi.secureupload.common.infrastructure.adapters.PageAdapter;
 import fr.esgi.secureupload.files.domain.entities.File;
 import fr.esgi.secureupload.files.domain.entities.FileOrderByField;
 import fr.esgi.secureupload.files.domain.repository.FileRepository;
+import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaAdapter;
+import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -15,15 +17,19 @@ import java.util.Optional;
 
 public class FileJpaRepositoryAdapter implements FileRepository {
 
-    private FileJpaRepository jpaRepository;
+    private FileJpaRepository fileJpaRepository;
+    private FileJpaAdapter fileJpaAdapter;
 
-    public FileJpaRepositoryAdapter(FileJpaRepository jpaRepository){ this.jpaRepository = jpaRepository; }
+    public FileJpaRepositoryAdapter(FileJpaRepository jpaRepository, UserJpaRepository userJpaRepository){
+        this.fileJpaRepository = jpaRepository;
+        this.fileJpaAdapter = new FileJpaAdapter(jpaRepository, new UserJpaAdapter(userJpaRepository));
+    }
 
 
     @Override
     public Optional<File> findById(String id) {
-        return this.jpaRepository.findById(id)
-                .map(FileJpaAdapter::convertToFile);
+        return this.fileJpaRepository.findById(id)
+                .map(this.fileJpaAdapter::convertToFile);
     }
 
     @Override
@@ -33,19 +39,19 @@ public class FileJpaRepositoryAdapter implements FileRepository {
         if (orderMode == OrderMode.DESC)
             sort = sort.descending();
 
-        Page<File> springPage = this.jpaRepository.findAllByUser(userId, PageRequest.of(page, limit, sort))
-                .map(FileJpaAdapter::convertToFile);
+        Page<File> springPage = this.fileJpaRepository.findAllByUser(userId, PageRequest.of(page, limit, sort))
+                .map(this.fileJpaAdapter::convertToFile);
 
         return PageAdapter.convertToEntitiesPage(springPage);
     }
 
     @Override
     public File save(File file) {
-        return FileJpaAdapter.convertToFile(this.jpaRepository.save(Objects.requireNonNull(FileJpaAdapter.convertToJpaEntity(file))));
+        return this.fileJpaAdapter.convertToFile(this.fileJpaRepository.save(Objects.requireNonNull(this.fileJpaAdapter.convertToJpaEntity(file))));
     }
 
     @Override
     public void delete(File file) {
-        this.jpaRepository.delete(Objects.requireNonNull(FileJpaAdapter.convertToJpaEntity(file)));
+        this.fileJpaRepository.delete(Objects.requireNonNull(this.fileJpaAdapter.convertToJpaEntity(file)));
     }
 }

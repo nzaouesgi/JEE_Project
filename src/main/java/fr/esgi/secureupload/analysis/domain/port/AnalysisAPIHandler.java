@@ -11,5 +11,5 @@ public interface AnalysisAPIHandler {
 
     String sendAnalysisRequest(String path) throws IOException;
 
-    Analysis getAnalysisResult(Analysis analysis) throws JsonProcessingException;
+    Analysis updateResult(Analysis analysis) throws JsonProcessingException;
 }

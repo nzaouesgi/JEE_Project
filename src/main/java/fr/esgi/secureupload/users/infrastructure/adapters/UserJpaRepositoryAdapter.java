@@ -16,10 +16,13 @@ import java.util.Optional;
 
 public final class UserJpaRepositoryAdapter implements UserRepository {
 
+    private final UserJpaAdapter userJpaAdapter;
     private UserJpaRepository jpaRepository;
 
     public UserJpaRepositoryAdapter(UserJpaRepository jpaRepository){
+
         this.jpaRepository = jpaRepository;
+        this.userJpaAdapter = new UserJpaAdapter(jpaRepository);
     }
 
     @Override
@@ -30,7 +33,7 @@ public final class UserJpaRepositoryAdapter implements UserRepository {
             sort = sort.descending();
 
         Page<User> springPage = this.jpaRepository.findAllByPattern(pattern, PageRequest.of(page, limit, sort))
-                .map(UserJpaAdapter::convertToUser);
+                .map(this.userJpaAdapter::convertToUser);
 
         return PageAdapter.convertToEntitiesPage(springPage);
     }
@@ -43,7 +46,7 @@ public final class UserJpaRepositoryAdapter implements UserRepository {
             sort = sort.descending();
 
         Page<User> springPage = this.jpaRepository.findAll(PageRequest.of(page, limit, sort))
-                .map(UserJpaAdapter::convertToUser);
+                .map(this.userJpaAdapter::convertToUser);
 
         return PageAdapter.convertToEntitiesPage(springPage);
     }
@@ -51,18 +54,18 @@ public final class UserJpaRepositoryAdapter implements UserRepository {
     @Override
     public Optional<User> findByEmail(String email) {
         return this.jpaRepository.findByEmail(email)
-                .map(UserJpaAdapter::convertToUser);
+                .map(this.userJpaAdapter::convertToUser);
     }
 
     @Override
     public Optional<User> findById(String id) {
         return this.jpaRepository.findById(id)
-                .map(UserJpaAdapter::convertToUser);
+                .map(this.userJpaAdapter::convertToUser);
     }
 
     @Override
     public User save(User user)  {
-        return UserJpaAdapter.convertToUser(this.jpaRepository.save(Objects.requireNonNull(UserJpaAdapter.convertToJpaEntity(user))));
+        return this.userJpaAdapter.convertToUser(this.jpaRepository.save(Objects.requireNonNull(this.userJpaAdapter.convertToJpaEntity(user))));
     }
 
     @Override
@@ -72,6 +75,6 @@ public final class UserJpaRepositoryAdapter implements UserRepository {
 
     @Override
     public User getOne(String id) {
-        return UserJpaAdapter.convertToUser(this.jpaRepository.getOne(id));
+        return this.userJpaAdapter.convertToUser(this.jpaRepository.getOne(id));
     }
 }

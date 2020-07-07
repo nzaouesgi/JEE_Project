@@ -4,7 +4,7 @@ import fr.esgi.secureupload.common.domain.entities.BaseEntity;
 import fr.esgi.secureupload.users.domain.entities.User;
 
 import java.sql.Timestamp;
-import java.util.Date;
+
 
 public class File extends BaseEntity {
 
@@ -57,6 +57,7 @@ public class File extends BaseEntity {
     public void setOwner(User owner) {
         this.owner = owner;
     }
+
 
     public File(){}
 

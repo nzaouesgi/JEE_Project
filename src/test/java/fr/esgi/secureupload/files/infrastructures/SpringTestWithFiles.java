@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.transaction.Transactional;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -46,16 +47,18 @@ public class SpringTestWithFiles extends SpringTestWithUsers {
                                 @Autowired FileStorageHandler handler,
                                 @Autowired UserJpaRepository userJpaRepository) throws IOException {
         prepareUsers(userJpaRepository, testUtils);
-        prepareFiles(fileJpaRepository, testUtils, handler);
+        prepareFiles(userJpaRepository, fileJpaRepository, testUtils, handler);
     }
 
-    public static void prepareFiles (FileJpaRepository jpaRepository, TestUtils testUtils,FileStorageHandler handler) throws IOException {
+    public static void prepareFiles (UserJpaRepository userJpaRepository, FileJpaRepository jpaRepository, TestUtils testUtils,FileStorageHandler handler) throws IOException {
 
-        FileRepository repository = new FileJpaRepositoryAdapter(jpaRepository);
+        FileRepository repository = new FileJpaRepositoryAdapter(jpaRepository, userJpaRepository);
 
         for (int i = 0; i < FILES_COUNT; i++) {
 
-            SpringTestWithFiles.files.add(repository.save(testUtils.getRandomFile(randomUser())));
+            File randomFile = testUtils.getRandomFile(randomUser());
+
+            files.add(repository.save(randomFile));
 
             try (FileOutputStream writer = new FileOutputStream(tmp + "/" + files.get(i).getName())) {
                 byte[] bytes = new byte[(int)files.get(i).getSize()];
@@ -86,10 +89,13 @@ public class SpringTestWithFiles extends SpringTestWithUsers {
     }
 
     public static void cleanFiles(FileJpaRepository jpaRepository, FileStorageHandler handler) throws IOException {
+
         jpaRepository.deleteAll();
         handler.deleteAll();
+
         for (File f: files)
             Files.delete(Paths.get(tmp + "/" + f.getName()));
+
         files.clear();
     }
 }

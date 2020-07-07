@@ -1,4 +1,4 @@
-package fr.esgi.secureupload.files.infrastructure.config;
+package fr.esgi.secureupload.common.infrastructure.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
