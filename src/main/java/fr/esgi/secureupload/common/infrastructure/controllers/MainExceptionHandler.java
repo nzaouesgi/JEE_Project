@@ -30,6 +30,7 @@ public class MainExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorBody> handleException(Exception e) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         this.logger.error(String.format("Unhandled exception: %s (%s).", e.getClass(), e.getMessage()));
+        e.printStackTrace();
         return new ResponseEntity<>(new ErrorBody("An internal server error occurred.", status.value()), status);
     }
 

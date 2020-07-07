@@ -2,26 +2,36 @@ package fr.esgi.secureupload.analysis.infrastructure.adapters;
 
 import fr.esgi.secureupload.analysis.domain.entities.Analysis;
 import fr.esgi.secureupload.analysis.domain.repository.AnalysisRepository;
+import fr.esgi.secureupload.files.domain.entities.File;
 import fr.esgi.secureupload.files.infrastructure.adapters.FileJpaAdapter;
+import fr.esgi.secureupload.files.infrastructure.adapters.FileJpaRepository;
+import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaAdapter;
+import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaRepository;
 
 import javax.swing.text.html.Option;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class AnalysisJpaRepositoryAdapter implements AnalysisRepository {
 
     private AnalysisJpaRepository analysisJpaRepository;
+    private AnalysisJpaAdapter analysisJpaAdapter;
+    private FileJpaAdapter fileJpaAdapter;
 
-    public AnalysisJpaRepositoryAdapter(AnalysisJpaRepository analysisJpaRepository){
+    public AnalysisJpaRepositoryAdapter(FileJpaRepository fileJpaRepository, AnalysisJpaRepository analysisJpaRepository, UserJpaRepository userJpaRepository){
         this.analysisJpaRepository = analysisJpaRepository;
+        this.fileJpaAdapter = new FileJpaAdapter(fileJpaRepository, new UserJpaAdapter(userJpaRepository));
+        this.analysisJpaAdapter = new AnalysisJpaAdapter(analysisJpaRepository, this.fileJpaAdapter);
     }
 
     @Override
     public Analysis save(Analysis analysis) {
-        return AnalysisJpaAdapter.convertToAnalysis(this.analysisJpaRepository.save(AnalysisJpaAdapter.convertToJpaAnalysis(analysis)));
+        return this.analysisJpaAdapter.convertToAnalysis(this.analysisJpaRepository.save(this.analysisJpaAdapter.convertToJpaAnalysis(analysis)));
     }
 
     public Optional<Analysis> findByScanId(String scanId){
-        return this.analysisJpaRepository.findByScanId(scanId).map(AnalysisJpaAdapter::convertToAnalysis);
+        return this.analysisJpaRepository.findByScanId(scanId).map(this.analysisJpaAdapter::convertToAnalysis);
     }
 
     @Override
@@ -30,14 +40,17 @@ public class AnalysisJpaRepositoryAdapter implements AnalysisRepository {
     }
 
     @Override
-    public Analysis getOne(String id) {
-        return AnalysisJpaAdapter.convertToAnalysis(this.analysisJpaRepository.getOne(id));
+    public List<Analysis> findAnalysisByFile(File file) {
+        return this.analysisJpaRepository.findByFile(this.fileJpaAdapter.convertToJpaEntity(file))
+                .stream()
+                .map(this.analysisJpaAdapter::convertToAnalysis)
+                .collect(Collectors.toList());
     }
 
     @Override
     public Optional<Analysis> findById(String id) {
         return this.analysisJpaRepository.findById(id)
-                .map(AnalysisJpaAdapter::convertToAnalysis);
+                .map(this.analysisJpaAdapter::convertToAnalysis);
     }
 
 

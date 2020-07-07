@@ -27,6 +27,8 @@ import fr.esgi.secureupload.users.domain.repository.UserRepository;
 import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaRepository;
 import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaRepositoryAdapter;
 
+import javax.transaction.Transactional;
+
 @SpringBootTest
 public class StartAnalysisTest {
 
@@ -47,8 +49,8 @@ public class StartAnalysisTest {
             @Autowired UserJpaRepository userJpaRepository,
             @Autowired FileJpaRepository fileRepository,
             @Autowired TestUtils testUtils) {
-        this.analysisRepository = new AnalysisJpaRepositoryAdapter(analysisRepository);
-        this.fileRepository = new FileJpaRepositoryAdapter(fileRepository);
+        this.analysisRepository = new AnalysisJpaRepositoryAdapter(fileRepository, analysisRepository, userJpaRepository);
+        this.fileRepository = new FileJpaRepositoryAdapter(fileRepository, userJpaRepository);
         this.userRepository = new UserJpaRepositoryAdapter(userJpaRepository);
         this.startAnalysis = new StartAnalysis(new AnalysisAPIMock(), this.analysisRepository);
         this.testUtils = testUtils;
@@ -69,7 +71,7 @@ public class StartAnalysisTest {
         var savedAnalysis = this.analysisRepository.save(analysis);
 
         Assertions.assertDoesNotThrow(() -> {
-            this.startAnalysis.execute("path", savedAnalysis.getId());
+            this.startAnalysis.execute("path", savedAnalysis);
         });
 
         analysis = this.analysisRepository.findByScanId(SCAN_ID_MOCK).orElse(null);
@@ -94,7 +96,7 @@ public class StartAnalysisTest {
         }
 
         @Override
-        public Analysis getAnalysisResult(Analysis analysis) throws JsonProcessingException {
+        public Analysis updateResult(Analysis analysis) throws JsonProcessingException {
             return null;
         }
 

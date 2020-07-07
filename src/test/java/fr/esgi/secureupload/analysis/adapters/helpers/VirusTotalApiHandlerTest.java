@@ -1,12 +1,10 @@
 package fr.esgi.secureupload.analysis.adapters.helpers;
 
 import fr.esgi.secureupload.analysis.domain.entities.Analysis;
-import fr.esgi.secureupload.analysis.infrastructure.adapters.helpers.VirusTotalAPIHandler;
+import fr.esgi.secureupload.analysis.infrastructure.adapters.helpers.VirusTotalApiHandler;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -15,10 +13,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 @SpringBootTest
-public class VirusTotalAPIHandlerTest {
+public class VirusTotalApiHandlerTest {
 
     @Autowired
-    VirusTotalAPIHandler apiHandler;
+    VirusTotalApiHandler apiHandler;
 
     @Test
     public String testAnalysisRequest() throws IOException {
@@ -35,7 +33,7 @@ public class VirusTotalAPIHandlerTest {
         Analysis analysis = new Analysis();
         String result = testAnalysisRequest();
         analysis.setScanId(result);
-        analysis = apiHandler.getAnalysisResult(analysis);
+        analysis = apiHandler.updateResult(analysis);
         System.out.println(analysis.getTotalScans());
     }
 

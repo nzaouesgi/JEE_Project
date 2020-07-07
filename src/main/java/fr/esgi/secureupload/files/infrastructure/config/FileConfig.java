@@ -23,7 +23,7 @@ public class FileConfig {
     public FileConfig(@Autowired FileJpaRepository fileJpaRepository,
                       @Autowired UserJpaRepository userJpaRepository,
                       @Autowired AzureFileStorageHandler fileStorageHandler){
-        this.fileJpaRepository = new FileJpaRepositoryAdapter(fileJpaRepository);
+        this.fileJpaRepository = new FileJpaRepositoryAdapter(fileJpaRepository, userJpaRepository);
         this.fileStorageHandler = fileStorageHandler;
         this.userJpaRepository = new UserJpaRepositoryAdapter(userJpaRepository);
     }
@@ -50,4 +50,9 @@ public class FileConfig {
 
     @Bean
     public DownloadFile downloadFile (){ return new DownloadFile(this.fileStorageHandler); }
+
+    @Bean
+    public FetchFile fetchFile (){
+        return new FetchFile(this.fileStorageHandler);
+    }
 }

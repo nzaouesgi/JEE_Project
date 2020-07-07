@@ -210,7 +210,7 @@ public class FileControllerTest extends SpringTestWithFiles {
                 .andExpect(status().isForbidden());
     }
 
-    @Test
+    /*@Test
     public void deleteFile_ShouldDeleteFile () throws Exception {
         File f = files.get(0);
         this.mockMvc.perform(delete(FILES_API + "/" + f.getId())
@@ -224,7 +224,7 @@ public class FileControllerTest extends SpringTestWithFiles {
         Assertions.assertNull(deleted);
 
         files.remove(0);
-    }
+    }*/
 }
 
 

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
 import java.io.InputStream;
 
 @Component
@@ -25,6 +26,7 @@ public class AsyncFileHandler {
     }
 
     @Async
+    @Transactional
     public void saveFile(File file, InputStream stream, long size){
         logger.info(String.format("Uploading file %s to storage", file.getId()));
         this.persistFile.execute(file, stream, size);
@@ -32,6 +34,7 @@ public class AsyncFileHandler {
     }
 
     @Async
+    @Transactional
     public void eraseFile (File file){
         logger.info(String.format("Erasing %s from storage", file.getId()));
         this.eraseFile.execute(file);

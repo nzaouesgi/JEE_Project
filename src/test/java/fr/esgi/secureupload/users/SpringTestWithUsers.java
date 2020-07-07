@@ -30,12 +30,16 @@ public class SpringTestWithUsers {
         UserRepository repository = new UserJpaRepositoryAdapter(jpaRepository);
 
         int USERS_COUNT = 100;
-        for (int i = 0; i < USERS_COUNT; i++)
-            SpringTestWithUsers.users.add(repository.save(testUtils.getRandomUser(false)));
+        for (int i = 0; i < USERS_COUNT; i++) {
+            User user = testUtils.getRandomUser(false);
+            users.add(repository.save(user));
+        }
 
         int ADMINS_COUNT = 10;
-        for (int i = 0; i < ADMINS_COUNT; i++)
-            SpringTestWithUsers.admins.add(repository.save(testUtils.getRandomUser(true)));
+        for (int i = 0; i < ADMINS_COUNT; i++) {
+            User admin = testUtils.getRandomUser(true);
+            admins.add(repository.save(admin));
+        }
     }
 
     public static User randomUser(){

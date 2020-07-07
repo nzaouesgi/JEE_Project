@@ -1,10 +1,12 @@
 package fr.esgi.secureupload.files.infrastructure.adapters;
 
+import fr.esgi.secureupload.analysis.infrastructure.adapters.AnalysisJpaEntity;
 import fr.esgi.secureupload.common.infrastructure.adapters.BaseJPAEntity;
 import fr.esgi.secureupload.files.domain.entities.FileStatus;
 import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaEntity;
 
 import javax.persistence.*;
+import java.util.List;
 
 
 @Entity(name="File")
@@ -26,17 +28,15 @@ public class FileJpaEntity extends BaseJPAEntity {
     @Column(name="status", nullable = false)
     private FileStatus status;
 
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "file")
+    private List<AnalysisJpaEntity> analysis;
+
     @ManyToOne
-    @JoinColumn(name = "owner")
     private UserJpaEntity owner;
 
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public void setName(String name) { this.name = name; }
 
     public String getType() {
         return type;
@@ -69,4 +69,8 @@ public class FileJpaEntity extends BaseJPAEntity {
     public void setOwner(UserJpaEntity owner) {
         this.owner = owner;
     }
+
+    public List<AnalysisJpaEntity> getAnalysis() { return analysis; }
+
+    public void setAnalysis(List<AnalysisJpaEntity> analysis) { this.analysis = analysis; }
 }

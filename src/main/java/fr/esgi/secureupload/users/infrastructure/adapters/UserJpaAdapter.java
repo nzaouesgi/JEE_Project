@@ -5,7 +5,13 @@ import org.apache.commons.beanutils.BeanUtils;
 
 public class UserJpaAdapter {
 
-    public static User convertToUser (final UserJpaEntity userJpa){
+    private final UserJpaRepository userJpaRepository;
+
+    public UserJpaAdapter (UserJpaRepository userJpaRepository){
+        this.userJpaRepository = userJpaRepository;
+    }
+
+    public User convertToUser (final UserJpaEntity userJpa){
         return User.builder()
                 .id(userJpa.getId())
                 .createdAt(userJpa.getCreatedAt())
@@ -19,9 +25,15 @@ public class UserJpaAdapter {
                 .build();
     }
 
-    public static UserJpaEntity convertToJpaEntity (final User user) {
-        UserJpaEntity userJpa = new UserJpaEntity();
-        userJpa.setId(user.getId());
+    public UserJpaEntity convertToJpaEntity (final User user) {
+        UserJpaEntity userJpa;
+
+        if (user.getId() == null){
+            userJpa = new UserJpaEntity();
+        } else {
+            userJpa = this.userJpaRepository.findById(user.getId()).orElseThrow();
+        }
+
         userJpa.setCreatedAt(user.getCreatedAt());
         userJpa.setUpdatedAt(user.getUpdatedAt());
         userJpa.setEmail(user.getEmail());
@@ -30,6 +42,7 @@ public class UserJpaAdapter {
         userJpa.setConfirmed(user.isConfirmed());
         userJpa.setConfirmationToken(user.getConfirmationToken());
         userJpa.setRecoveryToken(user.getRecoveryToken());
+
         return userJpa;
     }
 }
