@@ -1,4 +1,4 @@
-package fr.esgi.secureupload.analysis.infrastructure.exceptions;
+package fr.esgi.secureupload.analysis.domain.exceptions;
 
 public class AnalysisRequestNotAccepted extends RuntimeException{
     public AnalysisRequestNotAccepted(String message){
