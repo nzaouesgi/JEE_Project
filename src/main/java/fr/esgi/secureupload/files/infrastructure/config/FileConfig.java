@@ -23,7 +23,7 @@ public class FileConfig {
     public FileConfig(@Autowired FileJpaRepository fileJpaRepository,
                       @Autowired UserJpaRepository userJpaRepository,
                       @Autowired AzureFileStorageHandler fileStorageHandler){
-        this.fileJpaRepository = new FileJpaRepositoryAdapter(fileJpaRepository, userJpaRepository);
+        this.fileJpaRepository = new FileJpaRepositoryAdapter(fileJpaRepository/*, userJpaRepository*/);
         this.fileStorageHandler = fileStorageHandler;
         this.userJpaRepository = new UserJpaRepositoryAdapter(userJpaRepository);
     }

@@ -20,10 +20,10 @@ public class AnalysisConfig {
     private final AnalysisAPIHandler virusTotalApiHandler;
 
     public AnalysisConfig(@Autowired AnalysisJpaRepository analysisJpaRepository,
-                          @Autowired FileJpaRepository fileJpaRepository,
-                          @Autowired UserJpaRepository userJpaRepository,
+                          //@Autowired FileJpaRepository fileJpaRepository,
+                          //@Autowired UserJpaRepository userJpaRepository,
                           @Autowired VirusTotalApiHandler virusTotalApiHandler){
-        this.analysisJpaRepository = new AnalysisJpaRepositoryAdapter(fileJpaRepository, analysisJpaRepository, userJpaRepository);
+        this.analysisJpaRepository = new AnalysisJpaRepositoryAdapter(/*fileJpaRepository,*/ analysisJpaRepository/*, userJpaRepository*/);
         this.virusTotalApiHandler = virusTotalApiHandler;
     }
 
@@ -38,18 +38,12 @@ public class AnalysisConfig {
     }
 
     @Bean
-    public GetAnalysisResult getAnalysisResult(){
-        return new GetAnalysisResult(this.virusTotalApiHandler, this.analysisJpaRepository);
-    }
+    public GetAnalysisResult getAnalysisResult(){ return new GetAnalysisResult(this.virusTotalApiHandler, this.analysisJpaRepository); }
 
     @Bean
-    public StartAnalysis startAnalysis (){
-        return new StartAnalysis(this.virusTotalApiHandler, this.analysisJpaRepository);
-    }
+    public StartAnalysis startAnalysis (){ return new StartAnalysis(this.virusTotalApiHandler, this.analysisJpaRepository); }
 
     @Bean
-    public FindAnalysisByFile findAnalysisByFile (){
-        return new FindAnalysisByFile(this.analysisJpaRepository, this.virusTotalApiHandler);
-    }
+    public FindAnalysisByFile findAnalysisByFile (){ return new FindAnalysisByFile(this.analysisJpaRepository, this.virusTotalApiHandler); }
 
 }

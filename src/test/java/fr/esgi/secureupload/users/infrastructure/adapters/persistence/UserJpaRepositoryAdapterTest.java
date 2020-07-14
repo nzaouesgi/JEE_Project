@@ -57,6 +57,8 @@ public class UserJpaRepositoryAdapterTest {
 
     @Test
     public void findById_ShouldReturnUserById() {
+
+        when(userJpaEntity.getId()).thenReturn("id");
         when(jpaRepository.findById(anyString())).thenReturn(Optional.of(userJpaEntity));
         User user = this.userJpaRepositoryAdapter.findById("id").orElse(null);
         verify(this.jpaRepository).findById(eq("id"));
@@ -66,6 +68,7 @@ public class UserJpaRepositoryAdapterTest {
 
     @Test
     public void findByEmail_ShouldReturnUserByEmail (){
+        when(userJpaEntity.getId()).thenReturn("id");
         when(jpaRepository.findByEmail(anyString())).thenReturn(Optional.of(userJpaEntity));
         User user = this.userJpaRepositoryAdapter.findByEmail("email").orElse(null);
         verify(this.jpaRepository).findByEmail(eq("email"));
@@ -93,7 +96,11 @@ public class UserJpaRepositoryAdapterTest {
 
     @Test
     public void save_ShouldReturnSavedUser (){
-        when(jpaRepository.save(any(UserJpaEntity.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(jpaRepository.save(any(UserJpaEntity.class))).thenAnswer(i -> {
+            UserJpaEntity entity = (UserJpaEntity)i.getArguments()[0];
+            entity.setId("ID");
+            return entity;
+        });
         User user = userJpaRepositoryAdapter.save(this.userEntity);
         verify(this.jpaRepository).save(any(UserJpaEntity.class));
         Assertions.assertNotNull(user);

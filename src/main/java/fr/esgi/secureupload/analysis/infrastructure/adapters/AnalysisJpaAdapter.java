@@ -6,17 +6,26 @@ import fr.esgi.secureupload.files.infrastructure.adapters.FileJpaRepository;
 import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaAdapter;
 import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaRepository;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class AnalysisJpaAdapter {
 
-    private AnalysisJpaRepository analysisJpaRepository;
+    private static Map<String, AnalysisJpaEntity> cachedEntities = new ConcurrentHashMap<>();
+
+    //private AnalysisJpaRepository analysisJpaRepository;
     private FileJpaAdapter fileJpaAdapter;
 
-    public AnalysisJpaAdapter (AnalysisJpaRepository analysisJpaRepository, FileJpaAdapter fileJpaAdapter){
+    public AnalysisJpaAdapter (/*AnalysisJpaRepository analysisJpaRepository, */FileJpaAdapter fileJpaAdapter){
         this.fileJpaAdapter = fileJpaAdapter;
-        this.analysisJpaRepository = analysisJpaRepository;
+        //this.analysisJpaRepository = analysisJpaRepository;
     }
 
     public Analysis convertToAnalysis(AnalysisJpaEntity analysisJpaEntity) {
+
+        cachedEntities.remove(analysisJpaEntity.getId());
+        cachedEntities.put(analysisJpaEntity.getId(), analysisJpaEntity);
+
         Analysis analysis = new Analysis();
         analysis.setId(analysisJpaEntity.getId());
         analysis.setCreatedAt(analysisJpaEntity.getCreatedAt());
@@ -36,7 +45,8 @@ public class AnalysisJpaAdapter {
         if (analysis.getId() == null){
             analysisJpaEntity = new AnalysisJpaEntity();
         } else {
-            analysisJpaEntity = analysisJpaRepository.findById(analysis.getId()).orElseThrow();
+            analysisJpaEntity = cachedEntities.get(analysis.getId());
+            //analysisJpaEntity = analysisJpaRepository.findById(analysis.getId()).orElseThrow();
         }
 
         analysisJpaEntity.setCreatedAt(analysis.getCreatedAt());

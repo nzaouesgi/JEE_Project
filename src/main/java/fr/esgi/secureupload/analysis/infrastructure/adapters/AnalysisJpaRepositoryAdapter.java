@@ -19,10 +19,10 @@ public class AnalysisJpaRepositoryAdapter implements AnalysisRepository {
     private AnalysisJpaAdapter analysisJpaAdapter;
     private FileJpaAdapter fileJpaAdapter;
 
-    public AnalysisJpaRepositoryAdapter(FileJpaRepository fileJpaRepository, AnalysisJpaRepository analysisJpaRepository, UserJpaRepository userJpaRepository){
+    public AnalysisJpaRepositoryAdapter(/*FileJpaRepository fileJpaRepository,*/ AnalysisJpaRepository analysisJpaRepository/*, UserJpaRepository userJpaRepository*/){
         this.analysisJpaRepository = analysisJpaRepository;
-        this.fileJpaAdapter = new FileJpaAdapter(fileJpaRepository, new UserJpaAdapter(userJpaRepository));
-        this.analysisJpaAdapter = new AnalysisJpaAdapter(analysisJpaRepository, this.fileJpaAdapter);
+        this.fileJpaAdapter = new FileJpaAdapter(/*fileJpaRepository,*/ new UserJpaAdapter(/*userJpaRepository*/));
+        this.analysisJpaAdapter = new AnalysisJpaAdapter(/*analysisJpaRepository,*/ this.fileJpaAdapter);
     }
 
     @Override

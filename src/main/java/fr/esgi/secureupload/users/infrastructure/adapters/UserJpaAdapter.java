@@ -1,17 +1,27 @@
 package fr.esgi.secureupload.users.infrastructure.adapters;
 
+import fr.esgi.secureupload.files.infrastructure.adapters.FileJpaEntity;
 import fr.esgi.secureupload.users.domain.entities.User;
 import org.apache.commons.beanutils.BeanUtils;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class UserJpaAdapter {
 
-    private final UserJpaRepository userJpaRepository;
+    private static final Map<String, UserJpaEntity> cachedEntities = new ConcurrentHashMap<>();
 
-    public UserJpaAdapter (UserJpaRepository userJpaRepository){
-        this.userJpaRepository = userJpaRepository;
+    //private final UserJpaRepository userJpaRepository;
+
+    public UserJpaAdapter (/*UserJpaRepository userJpaRepository*/){
+        //this.userJpaRepository = userJpaRepository;
     }
 
     public User convertToUser (final UserJpaEntity userJpa){
+
+        cachedEntities.remove(userJpa.getId());
+        cachedEntities.put(userJpa.getId(), userJpa);
+
         return User.builder()
                 .id(userJpa.getId())
                 .createdAt(userJpa.getCreatedAt())
@@ -31,7 +41,8 @@ public class UserJpaAdapter {
         if (user.getId() == null){
             userJpa = new UserJpaEntity();
         } else {
-            userJpa = this.userJpaRepository.findById(user.getId()).orElseThrow();
+            userJpa = cachedEntities.get(user.getId());
+            //userJpa = this.userJpaRepository.findById(user.getId()).orElseThrow();
         }
 
         userJpa.setCreatedAt(user.getCreatedAt());

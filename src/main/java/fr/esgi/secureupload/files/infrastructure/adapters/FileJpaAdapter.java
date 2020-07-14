@@ -4,19 +4,27 @@ import fr.esgi.secureupload.analysis.infrastructure.adapters.AnalysisJpaAdapter;
 import fr.esgi.secureupload.files.domain.entities.File;
 import fr.esgi.secureupload.users.infrastructure.adapters.UserJpaAdapter;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class FileJpaAdapter {
 
-    private final FileJpaRepository fileJpaRepository;
+    private static final Map<String, FileJpaEntity> cachedEntities = new ConcurrentHashMap<>();
+
+    //private final FileJpaRepository fileJpaRepository;
     private final UserJpaAdapter userJpaAdapter;
 
-    public FileJpaAdapter (FileJpaRepository fileJpaRepository, UserJpaAdapter userJpaAdapter){
-        this.fileJpaRepository = fileJpaRepository;
+    public FileJpaAdapter (/*FileJpaRepository fileJpaRepository, */UserJpaAdapter userJpaAdapter){
+        //this.fileJpaRepository = fileJpaRepository;
         this.userJpaAdapter = userJpaAdapter;
     }
 
     public File convertToFile(final FileJpaEntity fileJpa){
+
+
+        cachedEntities.remove(fileJpa.getId());
+        cachedEntities.put(fileJpa.getId(), fileJpa);
 
         File file = new File();
         file.setId(fileJpa.getId());
@@ -37,7 +45,8 @@ public class FileJpaAdapter {
         if (file.getId() == null){
             fileJpa = new FileJpaEntity();
         } else {
-            fileJpa = fileJpaRepository.findById(file.getId()).orElseThrow();
+            fileJpa = cachedEntities.get(file.getId());
+            //fileJpa = fileJpaRepository.findById(file.getId()).orElseThrow();
         }
 
         fileJpa.setCreatedAt(file.getCreatedAt());

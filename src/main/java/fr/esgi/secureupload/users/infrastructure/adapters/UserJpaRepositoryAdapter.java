@@ -22,7 +22,7 @@ public final class UserJpaRepositoryAdapter implements UserRepository {
     public UserJpaRepositoryAdapter(UserJpaRepository jpaRepository){
 
         this.jpaRepository = jpaRepository;
-        this.userJpaAdapter = new UserJpaAdapter(jpaRepository);
+        this.userJpaAdapter = new UserJpaAdapter(/*jpaRepository*/);
     }
 
     @Override
