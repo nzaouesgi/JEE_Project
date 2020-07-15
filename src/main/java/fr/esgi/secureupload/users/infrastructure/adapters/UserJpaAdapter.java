@@ -11,11 +11,7 @@ public class UserJpaAdapter {
 
     private static final Map<String, UserJpaEntity> cachedEntities = new ConcurrentHashMap<>();
 
-    //private final UserJpaRepository userJpaRepository;
-
-    public UserJpaAdapter (/*UserJpaRepository userJpaRepository*/){
-        //this.userJpaRepository = userJpaRepository;
-    }
+    public UserJpaAdapter (){ }
 
     public User convertToUser (final UserJpaEntity userJpa){
 

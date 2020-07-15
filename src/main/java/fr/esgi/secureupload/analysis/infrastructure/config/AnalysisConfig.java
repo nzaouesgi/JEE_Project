@@ -20,10 +20,8 @@ public class AnalysisConfig {
     private final AnalysisAPIHandler virusTotalApiHandler;
 
     public AnalysisConfig(@Autowired AnalysisJpaRepository analysisJpaRepository,
-                          //@Autowired FileJpaRepository fileJpaRepository,
-                          //@Autowired UserJpaRepository userJpaRepository,
                           @Autowired VirusTotalApiHandler virusTotalApiHandler){
-        this.analysisJpaRepository = new AnalysisJpaRepositoryAdapter(/*fileJpaRepository,*/ analysisJpaRepository/*, userJpaRepository*/);
+        this.analysisJpaRepository = new AnalysisJpaRepositoryAdapter(analysisJpaRepository);
         this.virusTotalApiHandler = virusTotalApiHandler;
     }
 

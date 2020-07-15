@@ -20,9 +20,9 @@ public class FileJpaRepositoryAdapter implements FileRepository {
     private FileJpaRepository fileJpaRepository;
     private FileJpaAdapter fileJpaAdapter;
 
-    public FileJpaRepositoryAdapter(FileJpaRepository jpaRepository/*, UserJpaRepository userJpaRepository*/){
+    public FileJpaRepositoryAdapter(FileJpaRepository jpaRepository){
         this.fileJpaRepository = jpaRepository;
-        this.fileJpaAdapter = new FileJpaAdapter(/*jpaRepository,*/ new UserJpaAdapter(/*userJpaRepository*/));
+        this.fileJpaAdapter = new FileJpaAdapter(new UserJpaAdapter());
     }
 
 

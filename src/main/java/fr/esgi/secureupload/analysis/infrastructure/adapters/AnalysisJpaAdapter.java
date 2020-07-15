@@ -13,12 +13,11 @@ public class AnalysisJpaAdapter {
 
     private static Map<String, AnalysisJpaEntity> cachedEntities = new ConcurrentHashMap<>();
 
-    //private AnalysisJpaRepository analysisJpaRepository;
+
     private FileJpaAdapter fileJpaAdapter;
 
-    public AnalysisJpaAdapter (/*AnalysisJpaRepository analysisJpaRepository, */FileJpaAdapter fileJpaAdapter){
+    public AnalysisJpaAdapter (FileJpaAdapter fileJpaAdapter){
         this.fileJpaAdapter = fileJpaAdapter;
-        //this.analysisJpaRepository = analysisJpaRepository;
     }
 
     public Analysis convertToAnalysis(AnalysisJpaEntity analysisJpaEntity) {

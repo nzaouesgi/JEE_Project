@@ -49,8 +49,8 @@ public class StartAnalysisTest {
             @Autowired UserJpaRepository userJpaRepository,
             @Autowired FileJpaRepository fileRepository,
             @Autowired TestUtils testUtils) {
-        this.analysisRepository = new AnalysisJpaRepositoryAdapter(/*fileRepository, */analysisRepository /*, userJpaRepository*/);
-        this.fileRepository = new FileJpaRepositoryAdapter(fileRepository/*, userJpaRepository*/);
+        this.analysisRepository = new AnalysisJpaRepositoryAdapter(analysisRepository );
+        this.fileRepository = new FileJpaRepositoryAdapter(fileRepository);
         this.userRepository = new UserJpaRepositoryAdapter(userJpaRepository);
         this.startAnalysis = new StartAnalysis(new AnalysisAPIMock(), this.analysisRepository);
         this.testUtils = testUtils;

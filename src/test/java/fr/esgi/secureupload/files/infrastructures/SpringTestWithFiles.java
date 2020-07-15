@@ -47,12 +47,12 @@ public class SpringTestWithFiles extends SpringTestWithUsers {
                                 @Autowired FileStorageHandler handler,
                                 @Autowired UserJpaRepository userJpaRepository) throws IOException {
         prepareUsers(userJpaRepository, testUtils);
-        prepareFiles(/*userJpaRepository, */fileJpaRepository, testUtils, handler);
+        prepareFiles(fileJpaRepository, testUtils, handler);
     }
 
-    public static void prepareFiles (/*UserJpaRepository userJpaRepository, */FileJpaRepository jpaRepository, TestUtils testUtils,FileStorageHandler handler) throws IOException {
+    public static void prepareFiles (FileJpaRepository jpaRepository, TestUtils testUtils,FileStorageHandler handler) throws IOException {
 
-        FileRepository repository = new FileJpaRepositoryAdapter(jpaRepository/*, userJpaRepository*/);
+        FileRepository repository = new FileJpaRepositoryAdapter(jpaRepository);
 
         for (int i = 0; i < FILES_COUNT; i++) {
 

@@ -12,11 +12,9 @@ public class FileJpaAdapter {
 
     private static final Map<String, FileJpaEntity> cachedEntities = new ConcurrentHashMap<>();
 
-    //private final FileJpaRepository fileJpaRepository;
     private final UserJpaAdapter userJpaAdapter;
 
-    public FileJpaAdapter (/*FileJpaRepository fileJpaRepository, */UserJpaAdapter userJpaAdapter){
-        //this.fileJpaRepository = fileJpaRepository;
+    public FileJpaAdapter (UserJpaAdapter userJpaAdapter){
         this.userJpaAdapter = userJpaAdapter;
     }
 
